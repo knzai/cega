@@ -8,6 +8,32 @@ const PALETTERTERM: [&str; 4] = ["\x1b[0m ", "\x1b[0;46m \x1b[0m", "\x1b[0;45m \
 #[cfg(feature = "sdl2")]
 use sdl2::gfx::primitives::DrawRenderer;
 
+
+pub struct Image {
+    // tile_width: u16,
+    // tile_height: u16,
+    data: Vec<u8>,
+}
+// impl<'buffer> Default for Image<'buffer> {
+//     fn default() -> Cga<'buffer> {
+//         Cga {
+//             color_indices: &[],
+//             tile_width: 0,
+//             tile_height: 0,
+//         }
+//     }
+// }
+
+impl Image {
+	fn new(buffer: &[u8]) -> Self {
+		Self { data: palette_indices(buffer) }
+	}
+	
+	fn from_file(path: &str) -> Self {
+		Self::new(&std::fs::read(path).unwrap())	
+	}
+}
+
 #[cfg(feature = "sdl2")]
 pub fn out_cgatiles(
     path: &str,
