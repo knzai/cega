@@ -13,8 +13,8 @@ mod rascii;
 #[structopt(name = "rascii")]
 struct Opt {
     // /// Enable colored output
-    // #[structopt(short = "c", long = "color")]
-    // color: bool,
+    #[structopt(short = "c", long = "color")]
+    color: bool,
     //
     // /// Enable braille mode
     // #[structopt(short = "b", long = "braille")]
@@ -54,14 +54,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	
     let indices = cga::palette_indices(&reader);
     let tiled = cga::tile(&indices, 16, Some(16), Some(*width));
-    let chars = cga::to_char(&tiled);
+
 	
-    for (i, index) in chars.iter().enumerate() {
-        if i % width == 0 {
-            println!();
-        }
-        print!("{}", index);
-    }
+	if opt.color {
+		
+	} else {
+		let chars = cga::to_char(&tiled);
+	    for (i, index) in chars.iter().enumerate() {
+	        if i % width == 0 {
+	            println!();
+	        }
+	        print!("{}", index);
+	    }
+	}
 	
     // for row in output {
     //     for col in row {

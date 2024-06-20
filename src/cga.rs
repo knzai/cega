@@ -1,6 +1,6 @@
 use bitvec::prelude::*;
 
-const PALETTECHAR: [char; 4] = ['.', '+', 'X', '0'];
+const PALETTECHAR: [char; 4] = [' ', '*', '+', '▒'];
 //const PALETTE1: [u32; 4] = [0x000000FF, 0x00AAAAFF, 0xAA00AAFF, 0xAAAAAAFF];
 //const PALETTE1I: [u32; 4] = [0x000000FF, 0x55FFFFFF, 0xFF55FFFF, 0xFFFFFFFF];
 
