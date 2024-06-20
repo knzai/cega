@@ -1,8 +1,8 @@
 use bitvec::prelude::*;
 
 const PALETTECHAR: [char; 4] = ['.', '+', 'X', '0'];
-const PALETTE1: [u32; 4] = [0x000000FF, 0x00AAAAFF, 0xAA00AAFF, 0xAAAAAAFF];
-const PALETTE1I: [u32; 4] = [0x000000FF, 0x55FFFFFF, 0xFF55FFFF, 0xFFFFFFFF];
+//const PALETTE1: [u32; 4] = [0x000000FF, 0x00AAAAFF, 0xAA00AAFF, 0xAAAAAAFF];
+//const PALETTE1I: [u32; 4] = [0x000000FF, 0x55FFFFFF, 0xFF55FFFF, 0xFFFFFFFF];
 
 #[cfg(feature = "sdl2")]
 use sdl2::gfx::primitives::DrawRenderer;
@@ -41,6 +41,18 @@ pub fn out_cgatiles(
     Ok(())
 }
 
+pub fn process_file(
+    path: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+
+    let reader = std::fs::read(path)?;
+    let indices = palette_indices(&reader);
+    let tiled = tile(&indices, 16, Some(16), Some(80));
+    let _chars = to_char(&tiled);
+    Ok(())
+}
+
+
 pub fn palette_indices(buffer: &[u8]) -> Vec<u8> {
     buffer
         .view_bits::<Msb0>()
@@ -56,12 +68,12 @@ pub fn to_char(buffer: &[u8]) -> Vec<char> {
         .collect::<Vec<char>>()
 }
 
-pub fn to_rgba(buffer: &[u8]) -> Vec<u32> {
-    palette_indices(buffer)
-        .iter()
-        .map(|index| PALETTE1I[*index as usize])
-        .collect()
-}
+// pub fn to_rgba(buffer: &[u8]) -> Vec<u32> {
+//     palette_indices(buffer)
+//         .iter()
+//         .map(|index| PALETTE1I[*index as usize])
+//         .collect()
+// }
 
 pub fn tile(
     buffer: &[u8],
