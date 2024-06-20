@@ -1,1 +1,1 @@
-mod cga;
+pub mod cga;
