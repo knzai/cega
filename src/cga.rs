@@ -1,31 +1,18 @@
 use bitvec::prelude::*;
 
-use sdl2::gfx::primitives::DrawRenderer;
-use sdl2::pixels::Color;
-use sdl2::render::WindowCanvas;
-
-const SDLPALETTE1: [Color; 4] = [
-    Color::BLACK,                 //black
-    Color::RGB(0x00, 0xAA, 0xAA), //cyan
-    Color::RGB(0xAA, 0x00, 0xAA), //magenta
-    Color::RGB(0xAA, 0xAA, 0xAA), //gray
-];
-const SDLPALETTE1I: [Color; 4] = [
-    Color::BLACK,                 //black
-    Color::RGB(0x55, 0xFF, 0xFF), //bright cyan
-    Color::RGB(0xFF, 0x55, 0xFF), //bright magenta
-    Color::WHITE,                 //white
-];
-
 const PALETTECHAR: [char; 4] = ['.', '+', 'X', '0'];
 const PALETTE1: [u32; 4] = [0x000000FF, 0x00AAAAFF, 0xAA00AAFF, 0xAAAAAAFF];
 const PALETTE1I: [u32; 4] = [0x000000FF, 0x55FFFFFF, 0xFF55FFFF, 0xFFFFFFFF];
 
+#[cfg(feature = "sdl2")]
+use sdl2::gfx::primitives::DrawRenderer;
+
+#[cfg(feature = "sdl2")]
 pub fn out_cgatiles(
     path: &str,
-    canvas: &mut WindowCanvas,
+    canvas: &mut sdl2::render::WindowCanvas,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    canvas.set_draw_color(Color::BLACK);
+    canvas.set_draw_color(sdl2::pixels::Color::BLACK);
     canvas.clear();
 
     let reader = std::fs::read(path)?;
@@ -47,7 +34,7 @@ pub fn out_cgatiles(
         canvas.pixel(
             x.try_into().unwrap(),
             y.try_into().unwrap(),
-            SDLPALETTE1[*index as usize],
+            crate::sdl::PALETTE1[*index as usize],
         )?;
     }
     canvas.present();
