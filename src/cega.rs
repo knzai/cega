@@ -1,25 +1,10 @@
-use bitvec::prelude::*;
-
-use sdl2::gfx::primitives::DrawRenderer;
-use sdl2::pixels::Color;
-use sdl2::render::WindowCanvas;
-
-pub struct Cga<'buffer> {
-    tile_width: u16,
-    tile_height: u16,
-    buffer: &'buffer [u8],
-}
-impl<'buffer> Default for Cga<'buffer> {
-    fn default() -> Cga<'buffer> {
-        Cga {
-            buffer: &[],
-            tile_width: 0,
-            tile_height: 0,
-        }
-    }
-}
-
-impl<'buffer> Cga<'buffer> {
+pub mod cga {
+	use bitvec::prelude::*;
+	
+	use sdl2::gfx::primitives::DrawRenderer;
+	use sdl2::render::WindowCanvas;
+	use sdl2::pixels::Color;
+	
     const SDLPALETTE1: [Color; 4] = [
         Color::BLACK,                 //black
         Color::RGB(0x00, 0xAA, 0xAA), //cyan
@@ -45,19 +30,19 @@ impl<'buffer> Cga<'buffer> {
         canvas.clear();
 
         let reader = std::fs::read(path)?;
-        let indices = Self::palette_indices(&reader);
-        let tiled = Self::tile(&indices, 16, Some(16), Some(80));
-        let chars = Self::to_char(&tiled);
+        let indices = palette_indices(&reader);
+        let tiled = tile(&indices, 16, Some(16), Some(80));
+        let chars = to_char(&tiled);
 
         for (i, index) in chars.iter().enumerate() {
             if i % 80 == 0 {
                 println!();
             }
-			print!("{}", index);
+            print!("{}", index);
         }
 
         let width = 128;
-        for (i, index) in Self::tile(&indices, 16, Some(16), Some(width))
+        for (i, index) in tile(&indices, 16, Some(16), Some(width))
             .iter()
             .enumerate()
         {
@@ -66,7 +51,7 @@ impl<'buffer> Cga<'buffer> {
             canvas.pixel(
                 x.try_into().unwrap(),
                 y.try_into().unwrap(),
-                Self::SDLPALETTE1[*index as usize],
+                SDLPALETTE1[*index as usize],
             )?;
         }
         canvas.present();
@@ -84,14 +69,14 @@ impl<'buffer> Cga<'buffer> {
     pub fn to_char(buffer: &[u8]) -> Vec<char> {
         buffer
             .iter()
-            .map(|i| Self::PALETTECHAR[*i as usize])
+            .map(|i| PALETTECHAR[*i as usize])
             .collect::<Vec<char>>()
     }
 
     pub fn to_rgba(buffer: &[u8]) -> Vec<u32> {
-        Self::palette_indices(buffer)
+        palette_indices(buffer)
             .iter()
-            .map(|index| Self::PALETTE1I[*index as usize])
+            .map(|index| PALETTE1I[*index as usize])
             .collect()
     }
 
@@ -122,11 +107,25 @@ impl<'buffer> Cga<'buffer> {
         let mut output: Vec<u8> = vec![0; max_width * tile_rows * tile_height];
 
         for (i, index) in buffer.iter().enumerate() {
-            output[Self::new_index(i, pixel_per_tile, tile_width, tile_height, max_width, tiles_per_row)] = *index;
+            output[new_index(
+                i,
+                pixel_per_tile,
+                tile_width,
+                tile_height,
+                max_width,
+                tiles_per_row,
+            )] = *index;
         }
         output
     }
-	pub fn new_index(i: usize, pixel_per_tile: usize, tile_width: usize, tile_height: usize, max_width: usize, tiles_per_row: usize) -> usize {
+    pub fn new_index(
+        i: usize,
+        pixel_per_tile: usize,
+        tile_width: usize,
+        tile_height: usize,
+        max_width: usize,
+        tiles_per_row: usize,
+    ) -> usize {
         let pixel_num = i % pixel_per_tile;
         let tile_num = i / pixel_per_tile;
 
@@ -135,7 +134,7 @@ impl<'buffer> Cga<'buffer> {
         let tile_col = (tile_num % tiles_per_row) * tile_width;
         let tile_row = (tile_num / tiles_per_row) * tile_height * max_width;
         col + row + tile_col + tile_row
-	}
+    }
 }
 
 // #[test]
@@ -150,13 +149,13 @@ impl<'buffer> Cga<'buffer> {
 
 #[cfg(test)]
 mod tests {
-    use crate::cega::Cga;
+    use crate::cega::cga;
 
     #[test]
     fn to_rgba() {
         let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
         let buffer = data.to_be_bytes();
-        let rgba: Vec<u32> = Cga::to_rgba(&buffer);
+        let rgba: Vec<u32> = cga::to_rgba(&buffer);
         assert_eq!(rgba[18], 0xFFFFFFFF);
         assert_eq!(rgba[19], 0x55FFFFFF);
         assert_eq!(rgba[27], 0xFF55FFFF);
@@ -167,7 +166,7 @@ mod tests {
         let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
         let buffer = data.to_be_bytes();
         assert_eq!(
-            Cga::palette_indices(&buffer),
+            cga::palette_indices(&buffer),
             [
                 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 1, 2,
                 2, 1, 3, 3, 3, 3, 1, 2, 2, 1, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
@@ -181,14 +180,14 @@ mod tests {
         let data: u32 = 0b00011011000110110001101100011011;
         let buffer = data.to_be_bytes();
         assert_eq!(
-            Cga::tile(&Cga::palette_indices(&buffer), 2, Some(2), Some(4)),
+            cga::tile(&cga::palette_indices(&buffer), 2, Some(2), Some(4)),
             [0, 1, 0, 1, 2, 3, 2, 3, 0, 1, 0, 1, 2, 3, 2, 3]
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
         let buffer = data.to_be_bytes();
         assert_eq!(
-            Cga::tile(&Cga::palette_indices(&buffer), 2, Some(2), Some(6)),
+            cga::tile(&cga::palette_indices(&buffer), 2, Some(2), Some(6)),
             [
                 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 0, 1, 0, 1,
                 0, 0, 2, 3, 2, 3, 0, 0

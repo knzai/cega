@@ -1,10 +1,9 @@
 [package]
-name = "re_v_ult"
+name = "cega"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-funty = "2.0.0"
 bitvec = "1"
 
 [dev-dependencies]
