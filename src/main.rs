@@ -1,12 +1,12 @@
 use std::path::{PathBuf, Path};
 use structopt::StructOpt;
-use image::{DynamicImage, RgbImage};
-use std::error::Error;
-use std::io::Write;
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+//use image::{DynamicImage, RgbImage};
+//use std::error::Error;
+//use std::io::Write;
+//use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 mod cga;
-mod rascii;
+//mod rascii;
 
 /// Image to ASCII converter
 #[derive(StructOpt, Debug)]
@@ -44,7 +44,7 @@ struct Opt {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> { 
 	//rascii::main()
-	let mut stdout = StandardStream::stdout(ColorChoice::Always);
+	//let mut stdout = StandardStream::stdout(ColorChoice::Always);
 	
 	let opt = Opt::from_args();
 	
@@ -54,10 +54,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	
     let indices = cga::palette_indices(&reader);
     let tiled = cga::tile(&indices, 16, Some(16), Some(*width));
-
 	
 	if opt.color {
-		
+		let chars = cga::to_term(&tiled);
+	    for (i, index) in chars.iter().enumerate() {
+	        if i % width == 0 {
+	            println!();
+	        }
+	        print!("{}", index);
+	    }
 	} else {
 		let chars = cga::to_char(&tiled);
 	    for (i, index) in chars.iter().enumerate() {
@@ -67,27 +72,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	        print!("{}", index);
 	    }
 	}
-	
-    // for row in output {
-    //     for col in row {
-    //         if opt.color {
-    //             let (r,g,b) = match col.1 {
-    //                 rascii::RasciiColor::RGB(r,g,b) => (r,g,b),
-    //                 _ => (0,0,0)
-    //             };
-    //
-    //             if opt.bg {
-    //                 stdout.set_color(rascii::ColorSpec::new().set_fg(Some(rascii::Color::Rgb(255 - r, 255 - g, 255 -b))))?;
-    //                 stdout.set_color(rascii::ColorSpec::new().set_bg(Some(rascii::Color::Rgb(r,g,b))))?;
-    //             }
-    //             else {
-    //                 stdout.set_color(rascii::ColorSpec::new().set_fg(Some(rascii::Color::Rgb(r,g,b))))?;
-    //             }
-    //         }
-    //         write!(&mut stdout, "{}", col.0)?;
-    //
-    //     }
-    //     writeln!(&mut stdout, "")?;
-    // }
 	Ok(())
 }

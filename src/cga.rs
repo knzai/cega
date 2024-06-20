@@ -1,6 +1,7 @@
 use bitvec::prelude::*;
 
 const PALETTECHAR: [char; 4] = [' ', '*', '+', '▒'];
+const PALETTERTERM: [&str; 4] = ["\x1b[0m ", "\x1b[0;46m \x1b[0m", "\x1b[0;45m \x1b[0m", "\x1b[0;47m \x1b[0m"];
 //const PALETTE1: [u32; 4] = [0x000000FF, 0x00AAAAFF, 0xAA00AAFF, 0xAAAAAAFF];
 //const PALETTE1I: [u32; 4] = [0x000000FF, 0x55FFFFFF, 0xFF55FFFF, 0xFFFFFFFF];
 
@@ -41,18 +42,6 @@ pub fn out_cgatiles(
     Ok(())
 }
 
-pub fn process_file(
-    path: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
-
-    let reader = std::fs::read(path)?;
-    let indices = palette_indices(&reader);
-    let tiled = tile(&indices, 16, Some(16), Some(80));
-    let _chars = to_char(&tiled);
-    Ok(())
-}
-
-
 pub fn palette_indices(buffer: &[u8]) -> Vec<u8> {
     buffer
         .view_bits::<Msb0>()
@@ -66,6 +55,13 @@ pub fn to_char(buffer: &[u8]) -> Vec<char> {
         .iter()
         .map(|i| PALETTECHAR[*i as usize])
         .collect::<Vec<char>>()
+}
+
+pub fn to_term(buffer: &[u8]) -> Vec<&str> {
+    buffer
+        .iter()
+        .map(|i| PALETTERTERM[*i as usize])
+        .collect::<Vec<&str>>()
 }
 
 // pub fn to_rgba(buffer: &[u8]) -> Vec<u32> {
