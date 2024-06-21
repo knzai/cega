@@ -1,38 +1,45 @@
 use bitvec::prelude::*;
 
-const PALETTECHAR: [char; 4] = [' ', '*', '+', '▒'];
-const PALETTERTERM: [&str; 4] = ["\x1b[0m ", "\x1b[0;46m \x1b[0m", "\x1b[0;45m \x1b[0m", "\x1b[0;47m \x1b[0m"];
-//const PALETTE1: [u32; 4] = [0x000000FF, 0x00AAAAFF, 0xAA00AAFF, 0xAAAAAAFF];
-//const PALETTE1I: [u32; 4] = [0x000000FF, 0x55FFFFFF, 0xFF55FFFF, 0xFFFFFFFF];
+const PALETTECHAR: [&str; 4] = [" ", "*", "+", "▒"];
+const PALETTERTERM: [&str; 4] = [
+    "\x1b[0m ",
+    "\x1b[0;46m \x1b[0m",
+    "\x1b[0;45m \x1b[0m",
+    "\x1b[0;47m \x1b[0m",
+];
+
+//const PALETTE1: [u32; 4] = [Black, Cyan, Magenta, White];
+//const PALETTE1I: [u32; 4] = [Black, LightCyan, LightMagenta, White];
 
 #[cfg(feature = "sdl2")]
 use sdl2::gfx::primitives::DrawRenderer;
 
-
-pub struct Image {
-    // tile_width: u16,
-    // tile_height: u16,
-    data: Vec<u8>,
-}
-// impl<'buffer> Default for Image<'buffer> {
-//     fn default() -> Cga<'buffer> {
-//         Cga {
-//             color_indices: &[],
-//             tile_width: 0,
-//             tile_height: 0,
+// pub struct Image {
+//     // tile_width: u16,
+//     // tile_height: u16,
+//     data: Vec<u8>,
+// }
+// // impl<'buffer> Default for Image<'buffer> {
+// //     fn default() -> Cga<'buffer> {
+// //         Cga {
+// //             color_indices: &[],
+// //             tile_width: 0,
+// //             tile_height: 0,
+// //         }
+// //     }
+// // }
+//
+// impl Image {
+//     fn new(buffer: &[u8]) -> Self {
+//         Self {
+//             data: palette_indices(buffer),
 //         }
 //     }
+//
+//     fn from_file(path: &str) -> Self {
+//         Self::new(&std::fs::read(path).unwrap())
+//     }
 // }
-
-impl Image {
-	fn new(buffer: &[u8]) -> Self {
-		Self { data: palette_indices(buffer) }
-	}
-	
-	fn from_file(path: &str) -> Self {
-		Self::new(&std::fs::read(path).unwrap())	
-	}
-}
 
 #[cfg(feature = "sdl2")]
 pub fn out_cgatiles(
@@ -76,11 +83,11 @@ pub fn palette_indices(buffer: &[u8]) -> Vec<u8> {
         .collect()
 }
 
-pub fn to_char(buffer: &[u8]) -> Vec<char> {
+pub fn to_char(buffer: &[u8]) -> Vec<&str> {
     buffer
         .iter()
         .map(|i| PALETTECHAR[*i as usize])
-        .collect::<Vec<char>>()
+        .collect::<Vec<&str>>()
 }
 
 pub fn to_term(buffer: &[u8]) -> Vec<&str> {
