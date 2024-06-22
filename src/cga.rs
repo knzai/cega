@@ -1,15 +1,5 @@
+use crate::color::palette;
 use bitvec::prelude::*;
-
-const PALETTECHAR: [&str; 4] = [" ", "*", "+", "▒"];
-const PALETTERTERM: [&str; 4] = [
-    "\x1b[0m ",
-    "\x1b[0;46m \x1b[0m",
-    "\x1b[0;45m \x1b[0m",
-    "\x1b[0;47m \x1b[0m",
-];
-
-//const PALETTE1: [u32; 4] = [Black, Cyan, Magenta, White];
-//const PALETTE1I: [u32; 4] = [Black, LightCyan, LightMagenta, White];
 
 #[cfg(feature = "sdl2")]
 use sdl2::gfx::primitives::DrawRenderer;
@@ -86,14 +76,14 @@ pub fn palette_indices(buffer: &[u8]) -> Vec<u8> {
 pub fn to_char(buffer: &[u8]) -> Vec<&str> {
     buffer
         .iter()
-        .map(|i| PALETTECHAR[*i as usize])
+        .map(|i| palette::CGACHAR[*i as usize])
         .collect::<Vec<&str>>()
 }
 
 pub fn to_term(buffer: &[u8]) -> Vec<&str> {
     buffer
         .iter()
-        .map(|i| PALETTERTERM[*i as usize])
+        .map(|i| palette::CGATERM1I[*i as usize])
         .collect::<Vec<&str>>()
 }
 
