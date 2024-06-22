@@ -1,4 +1,3 @@
-use crate::color::palette;
 use bitvec::prelude::*;
 
 #[cfg(feature = "sdl2")]
@@ -91,7 +90,7 @@ pub fn to_term(buffer: &[u8], palette: String) -> Vec<&str> {
 // pub fn to_rgba(buffer: &[u8]) -> Vec<u32> {
 //     palette_indices(buffer)
 //         .iter()
-//         .map(|index| PALETTE1I[*index as usize])
+//         .map(|index| crate::color::palette::CGA1I[*index as usize])
 //         .collect()
 // }
 
@@ -165,15 +164,15 @@ pub fn new_index(
 mod tests {
     use crate::cga;
 
-    #[test]
-    fn to_rgba() {
-        let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
-        let buffer = data.to_be_bytes();
-        let rgba: Vec<u32> = cga::to_rgba(&buffer);
-        assert_eq!(rgba[18], 0xFFFFFFFF);
-        assert_eq!(rgba[19], 0x55FFFFFF);
-        assert_eq!(rgba[27], 0xFF55FFFF);
-    }
+    // #[test]
+    // fn to_rgba() {
+    //     let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
+    //     let buffer = data.to_be_bytes();
+    //     let rgba: Vec<u32> = cga::to_rgba(&buffer);
+    //     assert_eq!(rgba[18], 0xFFFFFFFF);
+    //     assert_eq!(rgba[19], 0x55FFFFFF);
+    //     assert_eq!(rgba[27], 0xFF55FFFF);
+    // }
 
     #[test]
     fn indices() {

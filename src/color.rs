@@ -11,8 +11,15 @@ pub enum Color {
 impl Color {
     pub fn ansi_fg(&self) -> u8 {
         match self {
-            //this is really just 1-7 with either a 30 or 90 offset
+            //this is really just 0-7 with either a 30 or 90 offset
             //maybe revisit and make a macro with that math
+            // Color::Black(i) => {
+            //     if *i {
+            //         90
+            //     } else {
+            //         30
+            //     }
+            // }
             Color::Black(false) => 30,
             Color::Red(false) => 31,
             Color::Green(false) => 32,
@@ -32,6 +39,7 @@ impl Color {
             Color::White(true) => 97,
         }
     }
+
     pub fn ansi_bg(&self) -> u8 {
         self.ansi_fg() + 10
     }
@@ -55,6 +63,15 @@ impl Color {
             Color::White(false) => 0xAAAAAA,
         }
     }
+}
+
+#[cfg(test)]
+#[test]
+fn test_ansi_fg() {
+    assert_eq!(Color::Black(false).ansi_fg(), 30);
+    assert_eq!(Color::Brown(false).ansi_fg(), 33);
+    assert_eq!(Color::Black(true).ansi_fg(), 90);
+    assert_eq!(Color::Brown(true).ansi_fg(), 93);
 }
 
 //TODO: generate this with macros from the colors
