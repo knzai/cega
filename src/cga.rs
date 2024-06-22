@@ -42,7 +42,7 @@ pub fn out_cgatiles(
     let reader = std::fs::read(path)?;
     let indices = palette_indices(&reader);
     let tiled = tile(&indices, 16, Some(16), Some(80));
-    let chars = to_char(&tiled);
+    let chars = to_char(&tiled, &palette::CGACHAR);
 
     for (i, index) in chars.iter().enumerate() {
         if i % 80 == 0 {
@@ -73,11 +73,11 @@ pub fn palette_indices(buffer: &[u8]) -> Vec<u8> {
         .collect()
 }
 
-pub fn to_char(buffer: &[u8]) -> Vec<&str> {
+pub fn to_char(buffer: &[u8], palette: &[char]) -> Vec<char> {
     buffer
         .iter()
-        .map(|i| palette::CGACHAR[*i as usize])
-        .collect::<Vec<&str>>()
+        .map(|i| palette[*i as usize])
+        .collect::<Vec<char>>()
 }
 
 pub fn to_term(buffer: &[u8], palette: String) -> Vec<&str> {

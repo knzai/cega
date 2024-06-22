@@ -64,7 +64,7 @@ pub mod palette {
     pub const ANSIOPEN: &str = "\x1b[";
     pub const ANSIRESET: &str = "\x1b[0m";
 
-    pub const CGACHAR: [&str; 4] = [" ", "*", "+", "▒"];
+    pub const CGACHAR: [char; 4] = [' ', '*', '+', '▒'];
 
     pub fn term_pal(name: String) -> [&'static str; 4] {
         match name.as_str() {
