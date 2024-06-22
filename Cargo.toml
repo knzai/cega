@@ -20,7 +20,7 @@ bitvec = "1"
 #including for credit, but had to rework code to be a lib
 #rascii = { version = "0.1.2", optional = true } 
 
-clap = { version = "3.1.0", features = ["derive"] }
+clap = { version = "4.5.7", features = ["derive"] }
 #image = { version = "0.21.2", optional = true }
 #termcolor = { version = "1", optional = true } 
 

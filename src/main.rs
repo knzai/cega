@@ -21,12 +21,16 @@ use cega::cga;
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
 struct Args {
-    #[clap(name = "IMAGE", parse(from_os_str))]
+    #[clap(name = "IMAGE")]
     image: PathBuf,
 
     // /// Enable colored output
-    #[clap(possible_values = ["c", "0", "0i", "1", "1i"], short, long, default_value="c")]
+    #[clap(value_parser(["a", "0", "0i", "1", "1i"]), short, long, default_value = "a")]
     palette: String,
+
+    // /// Enable colored output
+    #[clap(short, long, num_args(4))]
+    asci: Vec<char>,
 
     #[clap(short, long, default_value = "80")]
     width: usize,

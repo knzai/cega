@@ -69,8 +69,8 @@ pub mod palette {
     pub fn term_pal(name: String) -> [&'static str; 4] {
         match name.as_str() {
             "0" => CGATERM0,
-            "0i" => CGATERM0i,
-            "1i" => CGATERM1i,
+            "0i" => CGATERM0I,
+            "1i" => CGATERM1I,
             "1" | _ => CGATERM1,
         }
     }
@@ -82,7 +82,7 @@ pub mod palette {
         "\x1b[0;43m \x1b[0m",
     ];
 
-    pub const CGATERM0i: [&str; 4] = [
+    pub const CGATERM0I: [&str; 4] = [
         "\x1b[0m ",
         "\x1b[0;102m \x1b[0m",
         "\x1b[0;101m \x1b[0m",
@@ -96,7 +96,7 @@ pub mod palette {
         "\x1b[0;47m \x1b[0m",
     ];
 
-    pub const CGATERM1i: [&str; 4] = [
+    pub const CGATERM1I: [&str; 4] = [
         "\x1b[0m ",
         "\x1b[0;106m \x1b[0m",
         "\x1b[0;105m \x1b[0m",
