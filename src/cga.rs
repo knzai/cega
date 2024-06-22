@@ -30,6 +30,92 @@ use sdl2::gfx::primitives::DrawRenderer;
 //     }
 // }
 
+// pub struct Tiling {
+//     tile_width: usize,
+//     tile_height: Option<usize>,
+//     max_width: Option<usize>,
+//     total_pixels: Option<usize>,
+//     pixel_per_tile: Option<usize>,
+// }
+//
+// impl Tiling {
+//     fn new(
+//         tile_width: usize,
+//         width: usize,
+//         tile_height: Option<usize>,
+//         total_pixels: Option<usize>,
+//     ) -> Tiling {
+//         let tiles_per_row: Option<usize> = None;
+//         let pixel_per_tile: Option<usize> = None;
+//         let num_tiles: Option<usize> = None;
+//         let rows_of_tiles: Option<usize> = None;
+//
+//         if let tile_height(th) = th {
+//             let ppt = tile_width * th;
+//
+//             if let max_width(mw) = mw {
+//                 //integer division to figure out how wide a perfect fit of tiles is
+//                 let width = (tile_width / mw) * tile_width;
+//             } else if let total_pixel(tp) = tp {
+//                 let width = tp / th;
+//             } else {
+//                 //Switching to a 2d array would remove this restriction. May do later
+//                 panic!("Setting a tile height currently requires either max_width or total_pixes to calculate row length for the offsets");
+//             }
+//         }
+//     }
+//
+//     pub fn new_index(&self, i: usize) -> usize {
+//         //let pixel_num = i % self.pixel_per_tile;
+//         //let tile_num = i / self.pixel_per_tile;
+//
+//         //col = i % width;
+//
+//         //() * width + * width
+//
+//         //width * ((pixel_num / tile_width) + tile_height * (tile_num / tiles_per_row) *
+//
+//         let col = i % width;
+//         let inner_row = (i / tw) % tw;
+//         let tile_row =
+
+//let row = ((i / tw) % tw) + i /
+//let col = i % tile_width;
+//let row = (pixel_num / tile_width) * width;
+//let tile_col = (tile_num % tiles_per_row) * tile_width;
+//let tile_row = (tile_num / tiles_per_row) * tile_height * max_width;
+//col + row + tile_col + tile_row
+//     }
+// }
+
+// if max_width.none() && total_pixel.some() {
+//
+// } else if max_width.some() && total_pixel.none() {
+//
+// } else if max_width.none() && total_pixel.none() {
+//     panic!("Setting a tile height requires either max_width or total_pixes to calculate row length for the offsets");
+// }
+//}
+
+// Tiling {
+//     tile_width: tile_width,
+//     tile_height: tile_height,
+//     max_width: max_width,
+//     total_pixels: total_pixels,
+//     tiles_per_row: ,
+//     pixel_per_tile: ,
+//     num_tiles: ,
+//     rows_of_tiles: ,
+// }
+
+// let pixel_count = buffer.len();
+// let tile_height = tile_height.unwrap_or(pixel_count / tile_width);
+// let max_width = max_width.unwrap_or(320);
+// let tiles_per_row = max_width / tile_width;
+// let pixel_per_tile = tile_width * tile_height;
+// let num_tiles = pixel_count / pixel_per_tile;
+// let tile_rows = num_tiles.div_ceil(tiles_per_row);
+
 #[cfg(feature = "sdl2")]
 pub fn out_cgatiles(
     path: &str,
