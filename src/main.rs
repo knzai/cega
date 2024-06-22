@@ -1,5 +1,5 @@
+use clap::Parser;
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 //use image::{DynamicImage, RgbImage};
 //use std::error::Error;
 //use std::io::Write;
@@ -9,64 +9,45 @@ use cega::cga;
 //use cega::color::Palette;
 //mod rascii;
 
-// arg_enum! {
-//     #[derive(Debug)]
-//     pub enum Palette {
-//         CGAChar,
-//         CGA0,
-//         CGA0I,
-//         CGA1,
-//         CGA1I,
-//     }
+// #[derive(ValueEnum, Clone, Debug)]
+// enum Palette {
+//     Char,
+//     P0,
+//     Cga0i,
+//     Cga1,
+//     Cga1i,
 // }
 
-/// Image to ASCII converter
-#[derive(StructOpt, Debug)]
-#[structopt(name = "rascii")]
-struct Opt {
-    // /// Enable colored output
-    #[structopt(short = "p", long = "palette", default_value = "CGAChar")]
-    palette: String,
-    //
-    // /// Enable braille mode
-    // #[structopt(short = "b", long = "braille")]
-    // braille: bool,
-    #[structopt(short = "w", long = "width", default_value = "80")]
-    /// Width in characters of the output
-    width: usize,
-
-    // #[structopt(short = "d", long = "depth", default_value = "70")]
-    // /// Lumince depth to use. (Number of unique characters)
-    // depth: u8,
-    //
-    // #[structopt(short = "h", long = "height")]
-    // /// Height in characters of the output
-    // height: Option<u32>,
-    //
-    // #[structopt(long = "bg")]
-    // /// Enable coloring of background chars
-    // bg: bool,
-    /// Path of image file to convert
-    #[structopt(name = "IMAGE", parse(from_os_str))]
+#[derive(Parser, Debug)]
+#[clap(version = "0.1", author = "Kenzi Connor")]
+struct Args {
+    #[clap(name = "IMAGE", parse(from_os_str))]
     image: PathBuf,
+
+    // /// Enable colored output
+    #[clap(possible_values = ["c", "0", "0i", "1", "1i"], short, long, default_value="c")]
+    palette: String,
+
+    #[clap(short, long, default_value = "80")]
+    width: usize,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     //rascii::main()
     //let mut stdout = StandardStream::stdout(ColorChoice::Always);
 
-    let opt = Opt::from_args();
+    let args = Args::parse();
 
-    let reader = std::fs::read(&Path::new(&opt.image))?;
+    let reader = std::fs::read(&Path::new(&args.image))?;
 
-    let width = &opt.width;
+    let width = &args.width;
 
     let indices = cga::palette_indices(&reader);
     let tiled = cga::tile(&indices, 16, Some(16), Some(*width));
 
-    match opt.palette.as_str() {
-        "CGA0" | "CGA0I" | "CGA1" | "CGA1I" => {
-            let chars = cga::to_term(&tiled);
+    match args.palette.as_str() {
+        "0" | "0i" | "1" | "1i" => {
+            let chars = cga::to_term(&tiled, args.palette);
             for (i, index) in chars.iter().enumerate() {
                 if i % width == 0 {
                     println!();
@@ -74,7 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 print!("{}", index);
             }
         }
-        "CGAChar" | _ => {
+        "c" | _ => {
             let chars = cga::to_char(&tiled);
             for (i, index) in chars.iter().enumerate() {
                 if i % width == 0 {

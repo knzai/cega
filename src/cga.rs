@@ -80,10 +80,11 @@ pub fn to_char(buffer: &[u8]) -> Vec<&str> {
         .collect::<Vec<&str>>()
 }
 
-pub fn to_term(buffer: &[u8]) -> Vec<&str> {
+pub fn to_term(buffer: &[u8], palette: String) -> Vec<&str> {
+    let pal = crate::color::palette::term_pal(palette);
     buffer
         .iter()
-        .map(|i| palette::CGATERM1I[*i as usize])
+        .map(|i| pal[*i as usize])
         .collect::<Vec<&str>>()
 }
 

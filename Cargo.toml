@@ -6,18 +6,21 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/knzconnor/cega"
 
-[features]
-default = ["termart"]
-termart = ["structopt"]
+#[features]
+#default = ["termart"]
+#termart = ["clap-v3"]
 
 [dev-dependencies]
 rusty-hook = "^0.11.2"
 
 [dependencies]
 bitvec = "1"
+# strum = "0.26"
+# strum_macros = "0.26"
 #including for credit, but had to rework code to be a lib
 #rascii = { version = "0.1.2", optional = true } 
-structopt = { version = "0.3.26", optional = true }
+
+clap = { version = "3.1.0", features = ["derive"] }
 #image = { version = "0.21.2", optional = true }
 #termcolor = { version = "1", optional = true } 
 
