@@ -74,6 +74,48 @@ fn test_ansi_fg() {
     assert_eq!(Color::Brown(true).ansi_fg(), 93);
 }
 
+enum TerminalModes {
+	PlainAscii,
+	ColoredAscii,
+	Pixels, //full ansi_bg color pixels
+	HorizontalHalf, // half left blocks + bg color for 2x density
+	VerticalHalf, // half top blocks + bg color for 2x density
+}
+
+pub struct TermPalette {
+	mode: TerminalModes,
+	chars: Option<[char; 4]>,
+	colors: Option<[Color; 4]>,
+	term: [String; 4],
+
+}
+//
+// impl TermPalette {
+// 	pub fn new(chars: Option<[char; 4]>, colors: Option<[Color; 4]>) -> TermPalette {
+// 		if let (mode == PlainAscii || mode == PlainAscii) &&
+//
+// 		// match mode {
+// 		// 	PlainS
+// 		// }
+//
+// 		let term: [String; 4] = if chars.is_some() && colors.is_none() {
+// 			chars.unwrap().map( |m| m.to_string())
+// 		} else {
+// 			let chars = chars.unwrap_or([' ', ' ', ' ', ' ']);
+// 			let colors_or = colors.as_ref().unwrap_or(palette::CGA1);
+//
+// 			chars.iter().zip(colors_or.iter()).map ( |(ch, co)| {
+// 				format!("{}0;{}m{}{}", palette::ANSIOPEN, co.ansi_bg(), ch, palette::ANSIRESET)
+// 			}).collect::<Vec<_>>().try_into().unwrap()
+// 		};
+// 		TermPalette {
+// 			chars: chars,
+// 			colors: colors,
+// 			term: term,
+// 		}
+// 	}
+// }
+
 //TODO: generate this with macros from the colors
 pub mod palette {
     use crate::color::Color;
