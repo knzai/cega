@@ -25,18 +25,18 @@ pub enum TerminalMode {
 }
 
 #[allow(dead_code)]
-pub struct TerminalPalette {
+pub struct TerminalPalette<'a> {
     mode: TerminalMode,
     chars: Option<[char; 4]>,
-    colors: Option<[Color; 4]>,
+    pub colors: Option<&'a [Color; 4]>,
     pub terminal: [String; 4],
 }
 
-impl TerminalPalette {
+impl TerminalPalette<'_> {
     pub fn new(
         mode: TerminalMode,
         chars: Option<[char; 4]>,
-        colors: Option<[Color; 4]>,
+        colors: Option<&[Color; 4]>,
     ) -> TerminalPalette {
         let chars_or = match mode {
             TerminalMode::Pixels => [' ', ' ', ' ', ' '],
@@ -45,7 +45,7 @@ impl TerminalPalette {
         let term = match mode {
             TerminalMode::Ascii => chars_or.map(|m| m.to_string()),
             TerminalMode::ColoredAscii => {
-                let colors_or = colors.as_ref().unwrap_or(&palette::CGA1);
+                let colors_or = colors.unwrap_or(&palette::CGA1);
                 chars_or
                     .iter()
                     .zip(colors_or.iter())
@@ -55,7 +55,7 @@ impl TerminalPalette {
                     .unwrap()
             }
             _ => {
-                let colors_or = colors.as_ref().unwrap_or(&palette::CGA1);
+                let colors_or = colors.unwrap_or(&palette::CGA1);
                 chars_or
                     .iter()
                     .zip(colors_or.iter())

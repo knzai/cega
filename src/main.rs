@@ -6,7 +6,7 @@ use sdl2::event::Event;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::keyboard::Keycode;
 
-use cega::{cga, palette, sdl, terminal};
+use cega::{cga, palette, terminal};
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
@@ -17,8 +17,8 @@ struct Args {
     #[clap(value_enum, short, long, value_parser = parse_mode_param, help="[possible values: a, c, p]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nImages may be wider than terminal and will likely crop")]
     terminal_output: Option<terminal::TerminalMode>,
 
-    #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long)]
-    palette: Option<String>,
+    #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long, default_value="1")]
+    palette: String,
 
     #[clap(short, long, value_parser = parse_asci_param, help="4 chars palette like -a \" +%0\"")]
     custom_ascii: Option<String>,
@@ -62,11 +62,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = std::fs::read(&Path::new(&args.image))?;
     let mut image = cga::Image::new(&reader, args.width);
 
-    let palette = if args.palette.is_some() {
-        Some(palette::palette_from_abbr(&args.palette.unwrap()[..]))
-    } else {
-        None
-    };
+    let palette = palette::palette_from_abbr(&args.palette);
 
     if args.width.is_some() {
         image.retile(args.width.unwrap(), args.retile_height, args.max_width);
@@ -81,8 +77,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             None
         };
 
-        let tp =
-            terminal::TerminalPalette::new(args.terminal_output.unwrap(), custom_ascii, palette);
+        let tp = terminal::TerminalPalette::new(
+            args.terminal_output.unwrap(),
+            custom_ascii,
+            Some(&palette),
+        );
         println!("{}", terminal::DISABLEWRAPPING);
         for (i, index) in image.output.iter().enumerate() {
             if i % image.width == 0 {
@@ -122,13 +121,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         canvas.set_draw_color(sdl2::pixels::Color::BLACK);
         canvas.clear();
 
+        let sdlpal: Vec<sdl2::pixels::Color> =
+            palette.iter().map(|c| c.try_into().unwrap()).collect();
+
         for (i, index) in image.output.iter().enumerate() {
             let x = i % image.width;
             let y = i / image.width;
             canvas.pixel(
                 x.try_into().unwrap(),
                 y.try_into().unwrap(),
-                crate::sdl::PALETTE1[*index as usize],
+                sdlpal[*index as usize],
             )?;
         }
         canvas.present();
