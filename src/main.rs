@@ -6,9 +6,7 @@ use sdl2::event::Event;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::keyboard::Keycode;
 
-use cega::sdl;
-use cega::terminal;
-use cega::{cga, color};
+use cega::{cga, palette, sdl, terminal};
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
@@ -57,9 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let width = &args.width;
 
     let palette = if args.palette.is_some() {
-        Some(color::palette::palette_from_abbr(
-            &args.palette.unwrap()[..],
-        ))
+        Some(palette::palette_from_abbr(&args.palette.unwrap()[..]))
     } else {
         None
     };

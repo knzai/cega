@@ -7,4 +7,6 @@ pub mod color;
 
 pub mod terminal;
 
+pub mod palette;
+
 //pub use crate::color::Color;

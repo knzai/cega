@@ -1,4 +1,5 @@
-use crate::color::{palette, Color};
+use crate::color::Color;
+use crate::palette;
 
 #[derive(Clone, Debug)]
 pub enum TerminalMode {
