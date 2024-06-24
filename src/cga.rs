@@ -1,6 +1,6 @@
 use bitvec::prelude::*;
 
-#[cfg(feature = "sdl2")]
+//#[cfg(feature = "sdl2")]
 use sdl2::gfx::primitives::DrawRenderer;
 
 // pub struct Image {
@@ -116,7 +116,7 @@ use sdl2::gfx::primitives::DrawRenderer;
 // let num_tiles = pixel_count / pixel_per_tile;
 // let tile_rows = num_tiles.div_ceil(tiles_per_row);
 
-#[cfg(feature = "sdl2")]
+//#[cfg(feature = "sdl2")]
 pub fn out_cgatiles(
     path: &str,
     canvas: &mut sdl2::render::WindowCanvas,

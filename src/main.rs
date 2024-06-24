@@ -1,11 +1,13 @@
-use clap::{Parser, ValueEnum};
 use std::path::{Path, PathBuf};
 
-use cega::cga;
-use cega::color;
-use cega::color::palette;
-use cega::color::TerminalPalette;
-//use cega::color::TerminalMode;
+use clap::{Parser, ValueEnum};
+
+use sdl2::event::Event;
+use sdl2::gfx::primitives::DrawRenderer;
+use sdl2::keyboard::Keycode;
+
+use cega::color::{palette, TerminalPalette};
+use cega::{cga, color};
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
@@ -24,6 +26,9 @@ struct Args {
 
     #[clap(short, long, default_value = "80")]
     width: usize,
+
+    #[clap(short, long, default_value_t = false)]
+    sdl: bool,
 }
 
 fn parse_mode_param(arg: &str) -> Result<color::TerminalMode, String> {
@@ -82,5 +87,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         print!("{}", tp.terminal[*index as usize]);
     }
 
+    if args.sdl {
+        let sdl_context = sdl2::init()?;
+        let video_subsystem = sdl_context.video()?;
+
+        let window = video_subsystem
+            .window("viewer", 128, 128)
+            //.allow_highdpi()
+            .build()
+            .expect("could not initialize video subsystem");
+
+        let mut canvas = window
+            .into_canvas()
+            .build()
+            .expect("could not make a canvas");
+        canvas.clear();
+        cga::out_cgatiles("./assets/CGATILES.BIN", &mut canvas).expect("cga tiles");
+
+        let mut event_pump = sdl_context.event_pump()?;
+        'running: loop {
+            for event in event_pump.poll_iter() {
+                match event {
+                    Event::Quit { .. }
+                    | Event::KeyDown {
+                        keycode: Some(Keycode::Escape),
+                        ..
+                    } => {
+                        break 'running;
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
     Ok(())
 }

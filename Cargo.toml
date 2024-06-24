@@ -6,8 +6,8 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/knzconnor/cega"
 
-#[features]
-#default = ["termart"]
+[features]
+#default = ["termart", "sdl2"]
 #termart = ["clap-v3"]
 
 [dev-dependencies]
@@ -26,6 +26,6 @@ clap = { version = "4.5.7", features = ["derive"] }
 
 [dependencies.sdl2]
 version = "0.37.0"
-optional = true
+#optional = true
 default-features = false
 features = ["gfx"]
