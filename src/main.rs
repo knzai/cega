@@ -28,6 +28,9 @@ struct Args {
 
     #[clap(short, long, default_value_t = false)]
     sdl: bool,
+
+    #[clap(short, long, default_value_t = false)]
+    quiet: bool,
 }
 
 fn parse_mode_param(arg: &str) -> Result<terminal::TerminalMode, String> {
@@ -71,17 +74,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         None
     };
 
-    let mut width: usize = args.width.unwrap_or(80);
+    //let mut width: usize = args.width.unwrap_or(80);
 
     let tp = terminal::TerminalPalette::new(args.terminal_output, custom_ascii, palette);
-    let indices = cga::Image::new(&reader, args.width).data;
-    let tiled = cga::tile(&indices, 16, Some(16), Some(width));
-
-    for (i, index) in tiled.iter().enumerate() {
-        if i % width == 0 {
+    let width = args.width.unwrap_or(320);
+    let image = cga::Image::new(&reader, Some(width));
+    let indices = &image.data;
+    //let tiled = cga::tile(&indices, 16, Some(16), Some(width));
+    for (i, index) in indices.iter().enumerate() {
+        if image.width.is_some() && i % image.width.unwrap() == 0 {
             println!();
         }
         print!("{}", tp.terminal[*index as usize]);
+    }
+
+    if !args.quiet {
+        println!("\n---------");
+        if args.width.is_none() && !image.is_fullscreen() {
+            println!("Image appears to not be fullscreen 320*200. It may be tiled, try setting an explicit -w width, which will also quiet this message.");
+            println!("Possible widths: {:?}", image.factors());
+        }
     }
 
     if args.sdl {
@@ -101,16 +113,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         canvas.set_draw_color(sdl2::pixels::Color::BLACK);
         canvas.clear();
 
-        for (i, index) in tiled.iter().enumerate() {
-            let x = i % width;
-            let y = i / width;
-            canvas.pixel(
-                x.try_into().unwrap(),
-                y.try_into().unwrap(),
-                crate::sdl::PALETTE1[*index as usize],
-            )?;
-        }
-        canvas.present();
+        // for (i, index) in indices.iter().enumerate() {
+        //     let x = i % width;
+        //     let y = i / width;
+        //     canvas.pixel(
+        //         x.try_into().unwrap(),
+        //         y.try_into().unwrap(),
+        //         crate::sdl::PALETTE1[*index as usize],
+        //     )?;
+        // }
+        // canvas.present();
 
         let mut event_pump = sdl_context.event_pump()?;
         'running: loop {

@@ -15,6 +15,7 @@ rusty-hook = "^0.11.2"
 
 [dependencies]
 bitvec = "1"
+factor = "0.4.0"
 # strum = "0.26"
 # strum_macros = "0.26"
 #including for credit, but had to rework code to be a lib
