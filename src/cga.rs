@@ -62,7 +62,7 @@ impl Image {
         let mut output: Vec<u8> = vec![0; max_width * tile_rows * tile_height];
 
         for (i, index) in self.data.iter().enumerate() {
-            output[new_index(
+            output[Self::new_index(
                 i,
                 pixel_per_tile,
                 width,
@@ -82,24 +82,24 @@ impl Image {
             .map(|m| m.load::<u8>())
             .collect()
     }
-}
 
-pub fn new_index(
-    i: usize,
-    pixel_per_tile: usize,
-    tile_width: usize,
-    tile_height: usize,
-    max_width: usize,
-    tiles_per_row: usize,
-) -> usize {
-    let pixel_num = i % pixel_per_tile;
-    let tile_num = i / pixel_per_tile;
+    fn new_index(
+        i: usize,
+        pixel_per_tile: usize,
+        tile_width: usize,
+        tile_height: usize,
+        max_width: usize,
+        tiles_per_row: usize,
+    ) -> usize {
+        let pixel_num = i % pixel_per_tile;
+        let tile_num = i / pixel_per_tile;
 
-    let col = i % tile_width;
-    let row = (pixel_num / tile_width) * max_width;
-    let tile_col = (tile_num % tiles_per_row) * tile_width;
-    let tile_row = (tile_num / tiles_per_row) * tile_height * max_width;
-    col + row + tile_col + tile_row
+        let col = i % tile_width;
+        let row = (pixel_num / tile_width) * max_width;
+        let tile_col = (tile_num % tiles_per_row) * tile_width;
+        let tile_row = (tile_num / tiles_per_row) * tile_height * max_width;
+        col + row + tile_col + tile_row
+    }
 }
 
 #[cfg(test)]
