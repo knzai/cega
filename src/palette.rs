@@ -21,7 +21,7 @@ pub const CGA0: [Color; 4] = [
     Color::Brown(false),
 ];
 pub const CGA0I: [Color; 4] = [
-    Color::Black(true),
+    Color::Black(false),
     Color::Green(true),
     Color::Red(true),
     Color::Brown(true),
@@ -33,7 +33,7 @@ pub const CGA1: [Color; 4] = [
     Color::White(false),
 ];
 pub const CGA1I: [Color; 4] = [
-    Color::Black(true),
+    Color::Black(false),
     Color::Cyan(true),
     Color::Magenta(true),
     Color::White(true),
