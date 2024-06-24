@@ -127,14 +127,6 @@ pub fn out_cgatiles(
     let reader = std::fs::read(path)?;
     let indices = palette_indices(&reader);
     let tiled = tile(&indices, 16, Some(16), Some(80));
-    let chars = to_char(&tiled, &palette::CGACHAR);
-
-    for (i, index) in chars.iter().enumerate() {
-        if i % 80 == 0 {
-            println!();
-        }
-        print!("{}", index);
-    }
 
     let width = 128;
     for (i, index) in tile(&indices, 16, Some(16), Some(width)).iter().enumerate() {
@@ -157,28 +149,6 @@ pub fn palette_indices(buffer: &[u8]) -> Vec<u8> {
         .map(|m| m.load::<u8>())
         .collect()
 }
-
-pub fn to_char(buffer: &[u8], palette: &[char]) -> Vec<char> {
-    buffer
-        .iter()
-        .map(|i| palette[*i as usize])
-        .collect::<Vec<char>>()
-}
-
-pub fn to_term(buffer: &[u8], palette: String) -> Vec<&str> {
-    let pal = crate::color::palette::term_pal(palette);
-    buffer
-        .iter()
-        .map(|i| pal[*i as usize])
-        .collect::<Vec<&str>>()
-}
-
-// pub fn to_rgba(buffer: &[u8]) -> Vec<u32> {
-//     palette_indices(buffer)
-//         .iter()
-//         .map(|index| crate::color::palette::CGA1I[*index as usize])
-//         .collect()
-// }
 
 pub fn tile(
     buffer: &[u8],
@@ -236,29 +206,9 @@ pub fn new_index(
     col + row + tile_col + tile_row
 }
 
-// #[test]
-// fn test_bitvec() {
-//     let byte8: u8 = 0b00011011;
-//     let mut chunks = byte8.view_bits::<Msb0>().chunks(2);
-//     assert_eq!(chunks.next().unwrap().load::<u8>(), 0);
-//     assert_eq!(chunks.next().unwrap().load::<u8>(), 1);
-//     assert_eq!(chunks.next().unwrap().load::<u8>(), 2);
-//     assert_eq!(chunks.next().unwrap().load::<u8>(), 3);
-// }
-
 #[cfg(test)]
 mod tests {
     use crate::cga;
-
-    // #[test]
-    // fn to_rgba() {
-    //     let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
-    //     let buffer = data.to_be_bytes();
-    //     let rgba: Vec<u32> = cga::to_rgba(&buffer);
-    //     assert_eq!(rgba[18], 0xFFFFFFFF);
-    //     assert_eq!(rgba[19], 0x55FFFFFF);
-    //     assert_eq!(rgba[27], 0xFF55FFFF);
-    // }
 
     #[test]
     fn indices() {
