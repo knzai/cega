@@ -1,8 +1,5 @@
 use crate::color::Color;
 
-pub const ANSIOPEN: &str = "\x1b[";
-pub const ANSIRESET: &str = "\x1b[0m";
-
 pub const CGACHAR: [char; 4] = [' ', '*', '+', '▒'];
 
 pub fn palette_from_abbr(name: &str) -> [Color; 4] {

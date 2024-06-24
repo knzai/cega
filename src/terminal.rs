@@ -1,6 +1,11 @@
 use crate::color::Color;
 use crate::palette;
 
+pub const ANSIOPEN: &str = "\x1b[";
+pub const ANSIRESET: &str = "\x1b[0m";
+pub const DISABLEWRAPPING: &str = "\x1b[?7l";
+pub const ENABLEWRAPPING: &str = "\x1b[?7h";
+
 #[derive(Clone, Debug)]
 pub enum TerminalMode {
     Ascii,
@@ -37,15 +42,7 @@ impl TerminalPalette {
                 chars_or
                     .iter()
                     .zip(colors_or.iter())
-                    .map(|(ch, co)| {
-                        format!(
-                            "{}{}m{}{}",
-                            palette::ANSIOPEN,
-                            co.ansi_fg(),
-                            ch,
-                            palette::ANSIRESET
-                        )
-                    })
+                    .map(|(ch, co)| format!("{}{}m{}{}", ANSIOPEN, co.ansi_fg(), ch, ANSIRESET))
                     .collect::<Vec<_>>()
                     .try_into()
                     .unwrap()
@@ -55,15 +52,7 @@ impl TerminalPalette {
                 chars_or
                     .iter()
                     .zip(colors_or.iter())
-                    .map(|(ch, co)| {
-                        format!(
-                            "{}0;{}m{}{}",
-                            palette::ANSIOPEN,
-                            co.ansi_bg(),
-                            ch,
-                            palette::ANSIRESET
-                        )
-                    })
+                    .map(|(ch, co)| format!("{}0;{}m{}{}", ANSIOPEN, co.ansi_bg(), ch, ANSIRESET))
                     .collect::<Vec<_>>()
                     .try_into()
                     .unwrap()

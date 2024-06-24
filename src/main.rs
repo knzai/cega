@@ -14,8 +14,8 @@ struct Args {
     #[clap(name = "IMAGE")]
     image: PathBuf,
 
-    #[clap(value_enum, short, long, value_parser = parse_mode_param, default_value="a", help="[possible values: a, c, p]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color")]
-    terminal_output: terminal::TerminalMode,
+    #[clap(value_enum, short, long, value_parser = parse_mode_param, help="[possible values: a, c, p]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nImages may be wider than terminal and will likely crop")]
+    terminal_output: Option<terminal::TerminalMode>,
 
     #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long)]
     palette: Option<String>,
@@ -60,6 +60,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     let reader = std::fs::read(&Path::new(&args.image))?;
+    let mut image = cga::Image::new(&reader, args.width);
 
     let palette = if args.palette.is_some() {
         Some(palette::palette_from_abbr(&args.palette.unwrap()[..]))
@@ -67,32 +68,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         None
     };
 
-    let custom_ascii = if args.custom_ascii.is_some() {
-        Some(
-            args.custom_ascii
-                .unwrap()
-                .chars()
-                .collect::<Vec<_>>()
-                .try_into()
-                .unwrap(),
-        )
-    } else {
-        None
-    };
-
-    //let mut width: usize = args.width.unwrap_or(80);
-
-    let tp = terminal::TerminalPalette::new(args.terminal_output, custom_ascii, palette);
-    //let width = args.width.unwrap_or(320);
-    let mut image = cga::Image::new(&reader, args.width);
     if args.width.is_some() {
         image.retile(args.width.unwrap(), args.retile_height, args.max_width);
     }
-    for (i, index) in image.output.iter().enumerate() {
-        if i % image.width == 0 {
-            println!();
+
+    if args.terminal_output.is_some() {
+        let custom_ascii = if args.custom_ascii.is_some() {
+            Some(
+                args.custom_ascii
+                    .unwrap()
+                    .chars()
+                    .collect::<Vec<_>>()
+                    .try_into()
+                    .unwrap(),
+            )
+        } else {
+            None
+        };
+
+        let tp =
+            terminal::TerminalPalette::new(args.terminal_output.unwrap(), custom_ascii, palette);
+        println!("{}", terminal::DISABLEWRAPPING);
+        for (i, index) in image.output.iter().enumerate() {
+            if i % image.width == 0 {
+                println!();
+            }
+            print!("{}", tp.terminal[*index as usize]);
         }
-        print!("{}", tp.terminal[*index as usize]);
+        println!("{}", terminal::ENABLEWRAPPING);
     }
 
     if !args.quiet {
