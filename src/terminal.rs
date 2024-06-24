@@ -26,10 +26,10 @@ pub enum TerminalMode {
 
 #[allow(dead_code)]
 pub struct TerminalPalette<'a> {
-    mode: TerminalMode,
+    pub mode: TerminalMode,
     chars: Option<[char; 4]>,
     pub colors: Option<&'a [Color; 4]>,
-    pub terminal: [String; 4],
+    pub terminal: Vec<String>,
 }
 
 impl TerminalPalette<'_> {
@@ -40,10 +40,12 @@ impl TerminalPalette<'_> {
     ) -> TerminalPalette {
         let chars_or = match mode {
             TerminalMode::Pixels => [' ', ' ', ' ', ' '],
-            TerminalMode::Ascii | TerminalMode::ColoredAscii | _ => chars.unwrap_or(CGACHAR),
+            TerminalMode::Ascii | TerminalMode::ColoredAscii => chars.unwrap_or(CGACHAR),
+            TerminalMode::HorizontalHalf => ['▌', '▌', '▌', '▌'],
+            TerminalMode::VerticalHalf => ['▀', '▀', '▀', '▀'],
         };
         let term = match mode {
-            TerminalMode::Ascii => chars_or.map(|m| m.to_string()),
+            TerminalMode::Ascii => chars_or.map(|m| m.to_string()).into(),
             TerminalMode::ColoredAscii => {
                 let colors_or = colors.unwrap_or(&palette::CGA1);
                 chars_or
@@ -51,18 +53,27 @@ impl TerminalPalette<'_> {
                     .zip(colors_or.iter())
                     .map(|(ch, co)| format!("{}{}m{}{}", ANSIOPEN, co.ansi_fg(), ch, ANSIRESET))
                     .collect::<Vec<_>>()
-                    .try_into()
-                    .unwrap()
             }
-            _ => {
+            TerminalMode::Pixels => {
                 let colors_or = colors.unwrap_or(&palette::CGA1);
                 chars_or
                     .iter()
                     .zip(colors_or.iter())
                     .map(|(ch, co)| format!("{}0;{}m{}{}", ANSIOPEN, co.ansi_bg(), ch, ANSIRESET))
                     .collect::<Vec<_>>()
-                    .try_into()
-                    .unwrap()
+            }
+            _ => {
+                let colors_or = colors.unwrap_or(&palette::CGA1);
+                chars_or
+                    .iter()
+                    .zip(colors_or.iter())
+                    .flat_map(|(ch, co)| {
+                        [
+                            format!("{}{};", ANSIOPEN, co.ansi_fg()),
+                            format!("{}m{}{}", co.ansi_bg(), ch, ANSIRESET),
+                        ]
+                    })
+                    .collect::<Vec<_>>()
             }
         };
 

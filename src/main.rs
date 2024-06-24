@@ -14,7 +14,7 @@ struct Args {
     #[clap(name = "IMAGE")]
     image: PathBuf,
 
-    #[clap(value_enum, short, long, value_parser = parse_mode_param, help="[possible values: a, c, p]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nImages may be wider than terminal and will likely crop")]
+    #[clap(value_enum, short, long, value_parser = parse_mode_param, help="[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = half horizontal width pixels\nImages may be wider than terminal and will then crop")]
     terminal_output: Option<terminal::TerminalMode>,
 
     #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long, default_value="1")]
@@ -44,7 +44,8 @@ fn parse_mode_param(arg: &str) -> Result<terminal::TerminalMode, String> {
         "a" => Ok(terminal::TerminalMode::Ascii),
         "c" => Ok(terminal::TerminalMode::ColoredAscii),
         "p" => Ok(terminal::TerminalMode::Pixels),
-        _ => Err(format!("possible values: a, c, p")),
+        "h" => Ok(terminal::TerminalMode::HorizontalHalf),
+        _ => Err(format!("possible values: a, c, p, h")),
     }
 }
 
@@ -87,7 +88,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if i % image.width == 0 {
                 println!();
             }
-            print!("{}", tp.terminal[*index as usize]);
+            let ind = match tp.mode {
+                terminal::TerminalMode::HorizontalHalf => (index * 2) as usize + i % 2,
+                _ => *index as usize,
+            };
+            print!("{}", tp.terminal[ind]);
         }
         println!("{}", terminal::ENABLEWRAPPING);
     }
