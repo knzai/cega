@@ -5,4 +5,6 @@ pub mod sdl;
 
 pub mod color;
 
+pub mod terminal;
+
 //pub use crate::color::Color;

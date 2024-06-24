@@ -6,8 +6,9 @@ use sdl2::event::Event;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::keyboard::Keycode;
 
-use cega::color::{palette, TerminalPalette};
+use cega::color::palette;
 use cega::sdl;
+use cega::terminal;
 use cega::{cga, color};
 
 #[derive(Parser, Debug)]
@@ -17,7 +18,7 @@ struct Args {
     image: PathBuf,
 
     #[clap(value_enum, short, long, value_parser = parse_mode_param, default_value="a", help="[possible values: a, c, p]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color")]
-    terminal_output: color::TerminalMode,
+    terminal_output: terminal::TerminalMode,
 
     #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long)]
     palette: Option<String>,
@@ -32,11 +33,11 @@ struct Args {
     sdl: bool,
 }
 
-fn parse_mode_param(arg: &str) -> Result<color::TerminalMode, String> {
+fn parse_mode_param(arg: &str) -> Result<terminal::TerminalMode, String> {
     match arg {
-        "a" => Ok(color::TerminalMode::Ascii),
-        "c" => Ok(color::TerminalMode::ColoredAscii),
-        "p" => Ok(color::TerminalMode::Pixels),
+        "a" => Ok(terminal::TerminalMode::Ascii),
+        "c" => Ok(terminal::TerminalMode::ColoredAscii),
+        "p" => Ok(terminal::TerminalMode::Pixels),
         _ => Err(format!("possible values: a, c, p")),
     }
 }
@@ -77,7 +78,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         None
     };
 
-    let tp = color::TerminalPalette::new(args.terminal_output, custom_ascii, palette);
+    let tp = terminal::TerminalPalette::new(args.terminal_output, custom_ascii, palette);
     let indices = cga::palette_indices(&reader);
     let tiled = cga::tile(&indices, 16, Some(16), Some(*width));
 

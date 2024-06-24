@@ -1,8 +1,5 @@
 use bitvec::prelude::*;
 
-//#[cfg(feature = "sdl2")]
-use sdl2::gfx::primitives::DrawRenderer;
-
 // pub struct Image {
 //     // tile_width: u16,
 //     // tile_height: u16,
