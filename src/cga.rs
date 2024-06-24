@@ -38,8 +38,15 @@ impl Image {
         }
     }
 
-    pub fn factors(&self) -> Vec<i64> {
-        factor(self.data.len().try_into().unwrap())
+    pub fn width_factors(&self) -> Vec<i64> {
+        factor(self.pixel_count().try_into().unwrap())
+    }
+
+    pub fn height_factors(&self) -> Vec<i64> {
+        factor(
+            <usize as TryInto<i64>>::try_into(self.pixel_count()).unwrap()
+                / <usize as TryInto<i64>>::try_into(self.width).unwrap(),
+        )
     }
 
     pub fn retile(&mut self, width: usize, tile_height: Option<usize>, max_width: usize) -> &Self {

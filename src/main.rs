@@ -97,9 +97,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if !image.is_fullscreen() {
             if args.width.is_none() {
                 println!("Image appears to not be fullscreen 320*200. It may be tiled, try setting an explicit -w width, which will also quiet this message.");
-                println!("Possible widths: {:?}", image.factors());
+                println!("Possible widths: {:?}", image.width_factors());
             } else if image.is_tall() {
                 println!("Image height appears to >= 4x its width. If there are tiles, setting -r retile_height (and a max width -m for display wrapping) will make a more compact view");
+                println!("Possible heights: {:?}", image.height_factors());
             }
         }
     }
