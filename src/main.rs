@@ -6,6 +6,7 @@ use sdl2::event::Event;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::keyboard::Keycode;
 
+use cega::terminal::TerminalMode;
 use cega::{cga, palette, terminal};
 
 #[derive(Parser, Debug)]
@@ -14,7 +15,7 @@ struct Args {
     #[clap(name = "IMAGE")]
     image: PathBuf,
 
-    #[clap(value_enum, short, long, value_parser = parse_mode_param, help="[possible values: a, c, p, h, v]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels\nv = vertical half pixels\nImages may be wider than terminal and will then crop")]
+    #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="[possible values: a, c, p, h, v]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels\nv = vertical half pixels\nImages may be wider than terminal and will then crop")]
     terminal_output: Option<terminal::TerminalMode>,
 
     #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long, default_value="1")]
@@ -37,17 +38,6 @@ struct Args {
 
     #[clap(short, long, default_value_t = false)]
     quiet: bool,
-}
-
-fn parse_mode_param(arg: &str) -> Result<terminal::TerminalMode, String> {
-    match arg {
-        "a" => Ok(terminal::TerminalMode::Ascii),
-        "c" => Ok(terminal::TerminalMode::ColoredAscii),
-        "p" => Ok(terminal::TerminalMode::Pixels),
-        "h" => Ok(terminal::TerminalMode::HorizontalHalf),
-        "v" => Ok(terminal::TerminalMode::VerticalHalf),
-        _ => Err(format!("possible values: a, c, p, h, v")),
-    }
 }
 
 fn parse_asci_param(arg: &str) -> Result<String, String> {

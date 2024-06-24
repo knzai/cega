@@ -23,6 +23,18 @@ pub enum TerminalMode {
     HorizontalHalf, // half left blocks + bg color for 2x density
     VerticalHalf,   // half top blocks + bg color for 2x density
 }
+impl TerminalMode {
+    pub fn from_short(short: &str) -> Result<TerminalMode, String> {
+        match short {
+            "a" => Ok(TerminalMode::Ascii),
+            "c" => Ok(TerminalMode::ColoredAscii),
+            "p" => Ok(TerminalMode::Pixels),
+            "h" => Ok(TerminalMode::HorizontalHalf),
+            "v" => Ok(TerminalMode::VerticalHalf),
+            _ => Err(format!("possible values: a, c, p, h, v")),
+        }
+    }
+}
 
 #[allow(dead_code)]
 pub struct TerminalPalette<'a> {
