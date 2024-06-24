@@ -50,60 +50,37 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let width = &args.width;
 
+    let palette = if args.palette.is_some() {
+        Some(color::palette::palette_from_abbr(
+            &args.palette.unwrap()[..],
+        ))
+    } else {
+        None
+    };
+
+    let custom_ascii = if args.custom_ascii.is_some() {
+        Some(
+            args.custom_ascii
+                .unwrap()
+                .chars()
+                .collect::<Vec<_>>()
+                .try_into()
+                .unwrap(),
+        )
+    } else {
+        None
+    };
+
+    let tp = color::TerminalPalette::new(args.terminal_output, custom_ascii, palette);
     let indices = cga::palette_indices(&reader);
     let tiled = cga::tile(&indices, 16, Some(16), Some(*width));
 
-    // if args.ascii.is_none() {
-    // 	println!("None")
-    // } else {
-    // 	print!("{}", args.ascii.unwrap());
-    // }
-    // if args.custom_ascii.is_none() {
-    //     println!("None")
-    // } else {
-    //     //print!("{}", args.ascii.unwrap());
-    // }
-    //print!("{}", args.ascii.unwrap_or("".to_string()));
-    //print!("{}", args.palette.unwrap_or("".to_string()));
-
-    // let tp = color::TerminalPalette.new(chars: chars, colors: colors).term;
-    // for (i, index) in tiled.iter().enumerate() {
-    //         if i % width == 0 {
-    //             println!();
-    //         }
-    //         print!("{}", index);
-    // }
-
-    // if args.asci {
-    //     let chars = cga::to_char(&tiled, &palette::CGACHAR);
-    //     for (i, index) in chars.iter().enumerate() {
-    //         if i % width == 0 {
-    //             println!();
-    //         }
-    //         print!("{}", index);
-    //     }
-    // } else if args.custom_asci.len() == 4 {
-    //     let chars = cga::to_char(&tiled, &args.custom_asci[..]);
-    //     for (i, index) in chars.iter().enumerate() {
-    //         if i % width == 0 {
-    //             println!();
-    //         }
-    //         print!("{}", index);
-    //     }
-    // } else {
-    //     match args.palette.as_str() {
-    //         "0" | "0i" | "1" | "1i" => {
-    //             let chars = cga::to_term(&tiled, args.palette);
-    //             for (i, index) in chars.iter().enumerate() {
-    //                 if i % width == 0 {
-    //                     println!();
-    //                 }
-    //                 print!("{}", index);
-    //             }
-    //         }
-    //         _ => {}
-    //     }
-    // }
+    for (i, index) in tiled.iter().enumerate() {
+        if i % width == 0 {
+            println!();
+        }
+        print!("{}", tp.terminal[*index as usize]);
+    }
 
     Ok(())
 }

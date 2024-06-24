@@ -87,7 +87,7 @@ pub struct TerminalPalette {
     mode: TerminalMode,
     chars: Option<[char; 4]>,
     colors: Option<[Color; 4]>,
-    terminal: [String; 4],
+    pub terminal: [String; 4],
 }
 
 impl TerminalPalette {
@@ -104,6 +104,24 @@ impl TerminalPalette {
         };
         let term = match mode {
             TerminalMode::Ascii => chars_or.map(|m| m.to_string()),
+            TerminalMode::ColoredAscii => {
+                let colors_or = colors.as_ref().unwrap_or(&palette::CGA1);
+                chars_or
+                    .iter()
+                    .zip(colors_or.iter())
+                    .map(|(ch, co)| {
+                        format!(
+                            "{}{}m{}{}",
+                            palette::ANSIOPEN,
+                            co.ansi_fg(),
+                            ch,
+                            palette::ANSIRESET
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .try_into()
+                    .unwrap()
+            }
             _ => {
                 let colors_or = colors.as_ref().unwrap_or(&palette::CGA1);
                 chars_or
@@ -148,6 +166,15 @@ pub mod palette {
             "0i" => CGATERM0I,
             "1i" => CGATERM1I,
             "1" | _ => CGATERM1,
+        }
+    }
+
+    pub fn palette_from_abbr(name: &str) -> [Color; 4] {
+        match name {
+            "0" => CGA0,
+            "0i" => CGA0I,
+            "1i" => CGA1I,
+            "1" | _ => CGA1,
         }
     }
 
