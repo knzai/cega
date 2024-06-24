@@ -1,4 +1,5 @@
 use sdl2::pixels::Color;
+use sdl2::pixels::PixelFormatEnum;
 
 pub const PALETTE1: [Color; 4] = [
     Color::BLACK,                 //black
@@ -12,3 +13,15 @@ pub const PALETTE1I: [Color; 4] = [
     Color::RGB(0xFF, 0x55, 0xFF), //bright magenta
     Color::WHITE,                 //white
 ];
+
+pub fn color_from_rgb24(rgb24: u32) -> Color {
+    Color::from_u32(&PixelFormatEnum::RGB24.try_into().unwrap(), rgb24)
+}
+
+impl TryFrom<crate::color::Color> for sdl2::pixels::Color {
+    type Error = String;
+
+    fn try_from(c: crate::color::Color) -> Result<Self, Self::Error> {
+        Ok(color_from_rgb24(c.rgb24()))
+    }
+}

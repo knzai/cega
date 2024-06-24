@@ -74,7 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if args.terminal_output.is_some() {
         let custom_ascii = if args.custom_ascii.is_some() {
-            Some(palette::char_palette_from_string(
+            Some(terminal::char_palette_from_string(
                 &args.custom_ascii.unwrap(),
             ))
         } else {

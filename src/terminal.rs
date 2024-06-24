@@ -5,6 +5,15 @@ pub const ANSIOPEN: &str = "\x1b[";
 pub const ANSIRESET: &str = "\x1b[0m";
 pub const DISABLEWRAPPING: &str = "\x1b[?7l";
 pub const ENABLEWRAPPING: &str = "\x1b[?7h";
+pub const CGACHAR: [char; 4] = [' ', '*', '+', '▒'];
+
+pub fn char_palette_from_string(custom_string: &str) -> [char; 4] {
+    custom_string
+        .chars()
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap()
+}
 
 #[derive(Clone, Debug)]
 pub enum TerminalMode {
@@ -31,9 +40,7 @@ impl TerminalPalette {
     ) -> TerminalPalette {
         let chars_or = match mode {
             TerminalMode::Pixels => [' ', ' ', ' ', ' '],
-            TerminalMode::Ascii | TerminalMode::ColoredAscii | _ => {
-                chars.unwrap_or(palette::CGACHAR)
-            }
+            TerminalMode::Ascii | TerminalMode::ColoredAscii | _ => chars.unwrap_or(CGACHAR),
         };
         let term = match mode {
             TerminalMode::Ascii => chars_or.map(|m| m.to_string()),

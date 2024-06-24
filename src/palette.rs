@@ -1,7 +1,5 @@
 use crate::color::Color;
 
-pub const CGACHAR: [char; 4] = [' ', '*', '+', '▒'];
-
 pub fn palette_from_abbr(name: &str) -> [Color; 4] {
     match name {
         "0" => CGA0,
@@ -9,14 +7,6 @@ pub fn palette_from_abbr(name: &str) -> [Color; 4] {
         "1i" => CGA1I,
         "1" | _ => CGA1,
     }
-}
-
-pub fn char_palette_from_string(custom_string: &str) -> [char; 4] {
-    custom_string
-        .chars()
-        .collect::<Vec<_>>()
-        .try_into()
-        .unwrap()
 }
 
 pub const CGA0: [Color; 4] = [
