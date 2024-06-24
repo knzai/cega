@@ -14,7 +14,7 @@ struct Args {
     #[clap(name = "IMAGE")]
     image: PathBuf,
 
-    #[clap(value_enum, short, long, value_parser = parse_mode_param, help="[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = half horizontal width pixels\nImages may be wider than terminal and will then crop")]
+    #[clap(value_enum, short, long, value_parser = parse_mode_param, help="[possible values: a, c, p, h, v]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels\nv = vertical half pixels\nImages may be wider than terminal and will then crop")]
     terminal_output: Option<terminal::TerminalMode>,
 
     #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long, default_value="1")]
@@ -45,7 +45,8 @@ fn parse_mode_param(arg: &str) -> Result<terminal::TerminalMode, String> {
         "c" => Ok(terminal::TerminalMode::ColoredAscii),
         "p" => Ok(terminal::TerminalMode::Pixels),
         "h" => Ok(terminal::TerminalMode::HorizontalHalf),
-        _ => Err(format!("possible values: a, c, p, h")),
+        "v" => Ok(terminal::TerminalMode::VerticalHalf),
+        _ => Err(format!("possible values: a, c, p, h, v")),
     }
 }
 
@@ -84,15 +85,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Some(&palette),
         );
         println!("{}", terminal::DISABLEWRAPPING);
-        for (i, index) in image.output.iter().enumerate() {
-            if i % image.width == 0 {
-                println!();
+        match tp.mode {
+            terminal::TerminalMode::VerticalHalf => {
+                for i in 0..=image.output.len() {
+                    let offset = i % 2;
+                    let curr_i = i + (offset * image.width);
+                    let ind = (image.output[curr_i] * 2) as usize + i % 2;
+
+                    if i % image.width == 0 {
+                        println!();
+                    }
+                    print!("{}", tp.terminal[ind]);
+                }
             }
-            let ind = match tp.mode {
-                terminal::TerminalMode::HorizontalHalf => (index * 2) as usize + i % 2,
-                _ => *index as usize,
-            };
-            print!("{}", tp.terminal[ind]);
+            _ => {
+                for (i, index) in image.output.iter().enumerate() {
+                    if i % image.width == 0 {
+                        println!();
+                    }
+                    let ind = match tp.mode {
+                        terminal::TerminalMode::HorizontalHalf => (index * 2) as usize + i % 2,
+                        _ => *index as usize,
+                    };
+                    print!("{}", tp.terminal[ind]);
+                }
+            }
         }
         println!("{}", terminal::ENABLEWRAPPING);
     }
