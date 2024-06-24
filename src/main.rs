@@ -1,9 +1,11 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use std::path::{Path, PathBuf};
 
 use cega::cga;
+use cega::color;
 use cega::color::palette;
-use cega::color::TermPalette;
+use cega::color::TerminalPalette;
+//use cega::color::TerminalMode;
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
@@ -11,28 +13,37 @@ struct Args {
     #[clap(name = "IMAGE")]
     image: PathBuf,
 
+    #[clap(value_enum, short, long, value_parser = parse_mode_param, default_value="a", help="[possible values: a, c, p]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color")]
+    terminal_output: color::TerminalMode,
+
     #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long)]
     palette: Option<String>,
 
-    #[clap(short, long, num_args(0..=1), default_value="", value_parser = parse_asci_param, help="blank or \"\" for default or 4 chars -a \" +%0\"")]
-    ascii: Option<String>,
+    #[clap(short, long, value_parser = parse_asci_param, help="4 chars palette like -a \" +%0\"")]
+    custom_ascii: Option<String>,
 
     #[clap(short, long, default_value = "80")]
     width: usize,
 }
 
+fn parse_mode_param(arg: &str) -> Result<color::TerminalMode, String> {
+    match arg {
+        "a" => Ok(color::TerminalMode::Ascii),
+        "c" => Ok(color::TerminalMode::ColoredAscii),
+        "p" => Ok(color::TerminalMode::Pixels),
+        _ => Err(format!("possible values: a, c, p")),
+    }
+}
+
 fn parse_asci_param(arg: &str) -> Result<String, String> {
-	if let 1 | 2 | 3 = arg.len() {
-		Err(format!("requires a 4 character string like: -a \" +%0\""))
-	} else {
-		Ok(arg.to_string())
-	}
+    if let 0 | 4 = arg.len() {
+        Ok(arg.to_string())
+    } else {
+        Err(format!("requires a 4 character string like: -a \" +%0\""))
+    }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    //rascii::main()
-    //let mut stdout = StandardStream::stdout(ColorChoice::Always);
-
     let args = Args::parse();
 
     let reader = std::fs::read(&Path::new(&args.image))?;
@@ -42,31 +53,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let indices = cga::palette_indices(&reader);
     let tiled = cga::tile(&indices, 16, Some(16), Some(*width));
 
-	// println!("-------------------------");
-	// //println!("{:?}", args.ascii);
-	//
-	println!("--------");
-	
-	// if args.ascii.is_none() {
-	// 	println!("None")
-	// } else {
-	// 	print!("{}", args.ascii.unwrap());
-	// }
-	if args.ascii.is_none() {
-		println!("None")
-	} else {
-		print!("{}", args.ascii.unwrap());
-	}
-	//print!("{}", args.ascii.unwrap_or("".to_string()));
-	//print!("{}", args.palette.unwrap_or("".to_string()));
+    // if args.ascii.is_none() {
+    // 	println!("None")
+    // } else {
+    // 	print!("{}", args.ascii.unwrap());
+    // }
+    // if args.custom_ascii.is_none() {
+    //     println!("None")
+    // } else {
+    //     //print!("{}", args.ascii.unwrap());
+    // }
+    //print!("{}", args.ascii.unwrap_or("".to_string()));
+    //print!("{}", args.palette.unwrap_or("".to_string()));
 
-	// let tp = color::TermPalette.new(chars: chars, colors: colors).term;
-	// for (i, index) in tiled.iter().enumerate() {
-	//         if i % width == 0 {
-	//             println!();
-	//         }
-	//         print!("{}", index);
-	// }
+    // let tp = color::TerminalPalette.new(chars: chars, colors: colors).term;
+    // for (i, index) in tiled.iter().enumerate() {
+    //         if i % width == 0 {
+    //             println!();
+    //         }
+    //         print!("{}", index);
+    // }
 
     // if args.asci {
     //     let chars = cga::to_char(&tiled, &palette::CGACHAR);
@@ -98,7 +104,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     //         _ => {}
     //     }
     // }
-
 
     Ok(())
 }
