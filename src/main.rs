@@ -23,8 +23,8 @@ struct Args {
     #[clap(short, long, value_parser = parse_asci_param, help="4 chars palette like -a \" +%0\"")]
     custom_ascii: Option<String>,
 
-    #[clap(short, long, default_value = "80")]
-    width: usize,
+    #[clap(short, long)]
+    width: Option<usize>,
 
     #[clap(short, long, default_value_t = false)]
     sdl: bool,
@@ -52,8 +52,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let reader = std::fs::read(&Path::new(&args.image))?;
 
-    let width = &args.width;
-
     let palette = if args.palette.is_some() {
         Some(palette::palette_from_abbr(&args.palette.unwrap()[..]))
     } else {
@@ -73,9 +71,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         None
     };
 
+    let mut width: usize = args.width.unwrap_or(80);
+
     let tp = terminal::TerminalPalette::new(args.terminal_output, custom_ascii, palette);
-    let indices = cga::palette_indices(&reader);
-    let tiled = cga::tile(&indices, 16, Some(16), Some(*width));
+    let indices = cga::Image::new(&reader, args.width).data;
+    let tiled = cga::tile(&indices, 16, Some(16), Some(width));
 
     for (i, index) in tiled.iter().enumerate() {
         if i % width == 0 {

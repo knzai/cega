@@ -1,10 +1,9 @@
 use bitvec::prelude::*;
 
-// pub struct Image {
-//     // tile_width: u16,
-//     // tile_height: u16,
-//     data: Vec<u8>,
-// }
+pub struct Image {
+    pub width: Option<usize>,
+    pub data: Vec<u8>,
+}
 // // impl<'buffer> Default for Image<'buffer> {
 // //     fn default() -> Cga<'buffer> {
 // //         Cga {
@@ -15,17 +14,26 @@ use bitvec::prelude::*;
 // //     }
 // // }
 //
-// impl Image {
-//     fn new(buffer: &[u8]) -> Self {
-//         Self {
-//             data: palette_indices(buffer),
-//         }
-//     }
-//
-//     fn from_file(path: &str) -> Self {
-//         Self::new(&std::fs::read(path).unwrap())
-//     }
-// }
+impl Image {
+    pub fn new(buffer: &[u8], width: Option<usize>) -> Self {
+        Self {
+            data: Image::palette_indices(buffer),
+            width: width,
+        }
+    }
+
+    pub fn from_file(path: &str, width: Option<usize>) -> Self {
+        Self::new(&std::fs::read(path).unwrap(), width)
+    }
+
+    fn palette_indices(buffer: &[u8]) -> Vec<u8> {
+        buffer
+            .view_bits::<Msb0>()
+            .chunks(2)
+            .map(|m| m.load::<u8>())
+            .collect()
+    }
+}
 
 // pub struct Tiling {
 //     tile_width: usize,
@@ -113,14 +121,6 @@ use bitvec::prelude::*;
 // let num_tiles = pixel_count / pixel_per_tile;
 // let tile_rows = num_tiles.div_ceil(tiles_per_row);
 
-pub fn palette_indices(buffer: &[u8]) -> Vec<u8> {
-    buffer
-        .view_bits::<Msb0>()
-        .chunks(2)
-        .map(|m| m.load::<u8>())
-        .collect()
-}
-
 pub fn tile(
     buffer: &[u8],
     tile_width: usize,
@@ -180,13 +180,14 @@ pub fn new_index(
 #[cfg(test)]
 mod tests {
     use crate::cga;
+    use crate::cga::Image;
 
     #[test]
     fn indices() {
         let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
         let buffer = data.to_be_bytes();
         assert_eq!(
-            cga::palette_indices(&buffer),
+            cga::Image::new(&buffer, None).data,
             [
                 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 1, 2,
                 2, 1, 3, 3, 3, 3, 1, 2, 2, 1, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
@@ -200,14 +201,14 @@ mod tests {
         let data: u32 = 0b00011011000110110001101100011011;
         let buffer = data.to_be_bytes();
         assert_eq!(
-            cga::tile(&cga::palette_indices(&buffer), 2, Some(2), Some(4)),
+            cga::tile(&cga::Image::new(&buffer, None).data, 2, Some(2), Some(4)),
             [0, 1, 0, 1, 2, 3, 2, 3, 0, 1, 0, 1, 2, 3, 2, 3]
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
         let buffer = data.to_be_bytes();
         assert_eq!(
-            cga::tile(&cga::palette_indices(&buffer), 2, Some(2), Some(6)),
+            cga::tile(&cga::Image::new(&buffer, None).data, 2, Some(2), Some(6)),
             [
                 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 0, 1, 0, 1,
                 0, 0, 2, 3, 2, 3, 0, 0
