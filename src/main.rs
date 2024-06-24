@@ -1,12 +1,11 @@
 use std::path::{Path, PathBuf};
 
-use clap::{Parser, ValueEnum};
+use clap::Parser;
 
 use sdl2::event::Event;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::keyboard::Keycode;
 
-use cega::color::palette;
 use cega::sdl;
 use cega::terminal;
 use cega::{cga, color};

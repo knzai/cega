@@ -9,6 +9,7 @@ pub enum TerminalMode {
     VerticalHalf,   // half top blocks + bg color for 2x density
 }
 
+#[allow(dead_code)]
 pub struct TerminalPalette {
     mode: TerminalMode,
     chars: Option<[char; 4]>,
