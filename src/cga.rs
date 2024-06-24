@@ -116,32 +116,6 @@ use sdl2::gfx::primitives::DrawRenderer;
 // let num_tiles = pixel_count / pixel_per_tile;
 // let tile_rows = num_tiles.div_ceil(tiles_per_row);
 
-//#[cfg(feature = "sdl2")]
-pub fn out_cgatiles(
-    path: &str,
-    canvas: &mut sdl2::render::WindowCanvas,
-) -> Result<(), Box<dyn std::error::Error>> {
-    canvas.set_draw_color(sdl2::pixels::Color::BLACK);
-    canvas.clear();
-
-    let reader = std::fs::read(path)?;
-    let indices = palette_indices(&reader);
-    let tiled = tile(&indices, 16, Some(16), Some(80));
-
-    let width = 128;
-    for (i, index) in tile(&indices, 16, Some(16), Some(width)).iter().enumerate() {
-        let x = i % width;
-        let y = i / width;
-        canvas.pixel(
-            x.try_into().unwrap(),
-            y.try_into().unwrap(),
-            crate::sdl::PALETTE1[*index as usize],
-        )?;
-    }
-    canvas.present();
-    Ok(())
-}
-
 pub fn palette_indices(buffer: &[u8]) -> Vec<u8> {
     buffer
         .view_bits::<Msb0>()

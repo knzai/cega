@@ -7,6 +7,7 @@ use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::keyboard::Keycode;
 
 use cega::color::{palette, TerminalPalette};
+use cega::sdl;
 use cega::{cga, color};
 
 #[derive(Parser, Debug)]
@@ -101,8 +102,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .into_canvas()
             .build()
             .expect("could not make a canvas");
+        canvas.set_draw_color(sdl2::pixels::Color::BLACK);
         canvas.clear();
-        cga::out_cgatiles("./assets/CGATILES.BIN", &mut canvas).expect("cga tiles");
+
+        for (i, index) in tiled.iter().enumerate() {
+            let x = i % width;
+            let y = i / width;
+            canvas.pixel(
+                x.try_into().unwrap(),
+                y.try_into().unwrap(),
+                crate::sdl::PALETTE1[*index as usize],
+            )?;
+        }
+        canvas.present();
 
         let mut event_pump = sdl_context.event_pump()?;
         'running: loop {
