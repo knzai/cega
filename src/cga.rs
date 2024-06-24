@@ -105,7 +105,6 @@ pub fn new_index(
 #[cfg(test)]
 mod tests {
     use crate::cga;
-    use crate::cga::Image;
 
     #[test]
     fn is_fullscreen() {
@@ -119,9 +118,8 @@ mod tests {
     #[test]
     fn indices() {
         let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
-        let buffer = data.to_be_bytes();
         assert_eq!(
-            cga::Image::new(&buffer, None).data,
+            cga::Image::new(&data.to_be_bytes(), None).output,
             [
                 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 1, 2,
                 2, 1, 3, 3, 3, 3, 1, 2, 2, 1, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
@@ -133,16 +131,18 @@ mod tests {
     #[test]
     fn tiling() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let buffer = data.to_be_bytes();
+        let mut image = cga::Image::new(&data.to_be_bytes(), None);
+        image.retile(2, Some(2), 4);
         assert_eq!(
-            cga::tile(&cga::Image::new(&buffer, None).data, 2, Some(2), Some(4)),
+            image.output,
             [0, 1, 0, 1, 2, 3, 2, 3, 0, 1, 0, 1, 2, 3, 2, 3]
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
-        let buffer = data.to_be_bytes();
+        let mut image = cga::Image::new(&data.to_be_bytes(), None);
+        image.retile(2, Some(2), 6);
         assert_eq!(
-            cga::tile(&cga::Image::new(&buffer, None).data, 2, Some(2), Some(6)),
+            image.output,
             [
                 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 0, 1, 0, 1,
                 0, 0, 2, 3, 2, 3, 0, 0
