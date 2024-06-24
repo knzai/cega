@@ -4,13 +4,16 @@ use factor::factor::factor;
 pub struct Image {
     pub width: Option<usize>,
     pub data: Vec<u8>,
+    pub output: Vec<u8>,
 }
 
 impl Image {
     pub fn new(buffer: &[u8], width: Option<usize>) -> Self {
+        let data = Image::palette_indices(buffer);
         Self {
-            data: Image::palette_indices(buffer),
+            data: data.clone(),
             width: width,
+            output: data.clone(),
         }
     }
 
@@ -19,18 +22,66 @@ impl Image {
     }
 
     pub fn is_fullscreen(&self) -> bool {
-        self.data.len() == 64_000
+        self.pixel_count() == 64_000
+    }
+
+    pub fn pixel_count(&self) -> usize {
+        self.data.len()
+    }
+
+    pub fn is_tall(&self) -> bool {
+        if self.width.is_none() {
+            false
+        } else {
+            let w = self.width.unwrap();
+            let h = self.pixel_count() / w;
+            if h >= w * 4 {
+                true
+            } else {
+                false
+            }
+        }
     }
 
     pub fn factors(&self) -> Vec<i64> {
         factor(self.data.len().try_into().unwrap())
     }
 
-    // pub fn help() -> &str {
-    //     if !is_fullscreen && width.is_none() {
-    //         "Image appears to not be fullscreen 320*200"
-    //     }
-    // }
+    pub fn tile(
+        &mut self,
+        tile_width: Option<usize>,
+        tile_height: Option<usize>,
+        max_width: Option<usize>,
+    ) -> &Self {
+        if tile_width.is_none() {
+            return self;
+        }
+        let tile_width = tile_width.unwrap();
+        let pixel_count = self.pixel_count();
+        let tile_height = tile_height.unwrap_or(pixel_count / tile_width);
+
+        let max_width = max_width.unwrap_or(tile_width);
+
+        let tiles_per_row = max_width / tile_width;
+        let pixel_per_tile = tile_width * tile_height;
+        let num_tiles = pixel_count / pixel_per_tile;
+        let tile_rows = num_tiles.div_ceil(tiles_per_row);
+
+        let mut output: Vec<u8> = vec![0; max_width * tile_rows * tile_height];
+
+        for (i, index) in self.data.iter().enumerate() {
+            output[new_index(
+                i,
+                pixel_per_tile,
+                tile_width,
+                tile_height,
+                max_width,
+                tiles_per_row,
+            )] = *index;
+        }
+        self.output = output;
+        self
+    }
 
     fn palette_indices(buffer: &[u8]) -> Vec<u8> {
         buffer
@@ -41,44 +92,6 @@ impl Image {
     }
 }
 
-pub fn tile(
-    buffer: &[u8],
-    tile_width: usize,
-    tile_height: Option<usize>,
-    max_width: Option<usize>,
-) -> Vec<u8> {
-    let pixel_count = buffer.len();
-    let tile_height = tile_height.unwrap_or(pixel_count / tile_width);
-    let max_width = max_width.unwrap_or(320);
-    let tiles_per_row = max_width / tile_width;
-    let pixel_per_tile = tile_width * tile_height;
-    let num_tiles = pixel_count / pixel_per_tile;
-    let tile_rows = num_tiles.div_ceil(tiles_per_row);
-
-    // dbg!(
-    //     pixel_count,
-    //     tile_height,
-    //     max_width,
-    //     tiles_per_row,
-    //     pixel_per_tile,
-    //     num_tiles,
-    //     tile_rows
-    // );
-
-    let mut output: Vec<u8> = vec![0; max_width * tile_rows * tile_height];
-
-    for (i, index) in buffer.iter().enumerate() {
-        output[new_index(
-            i,
-            pixel_per_tile,
-            tile_width,
-            tile_height,
-            max_width,
-            tiles_per_row,
-        )] = *index;
-    }
-    output
-}
 pub fn new_index(
     i: usize,
     pixel_per_tile: usize,

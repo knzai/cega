@@ -26,6 +26,12 @@ struct Args {
     #[clap(short, long)]
     width: Option<usize>,
 
+    #[clap(short = 'm', long)]
+    max_width: Option<usize>,
+
+    #[clap(short = 'r', long)]
+    tile_height: Option<usize>,
+
     #[clap(short, long, default_value_t = false)]
     sdl: bool,
 
@@ -77,12 +83,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     //let mut width: usize = args.width.unwrap_or(80);
 
     let tp = terminal::TerminalPalette::new(args.terminal_output, custom_ascii, palette);
-    let width = args.width.unwrap_or(320);
-    let image = cga::Image::new(&reader, Some(width));
-    let indices = &image.data;
-    //let tiled = cga::tile(&indices, 16, Some(16), Some(width));
-    for (i, index) in indices.iter().enumerate() {
-        if image.width.is_some() && i % image.width.unwrap() == 0 {
+    //let width = args.width.unwrap_or(320);
+    let mut image = cga::Image::new(&reader, args.width);
+    image.tile(args.width, args.tile_height, args.max_width);
+    for (i, index) in image.output.iter().enumerate() {
+        if args.width.is_some() && (i % args.width.unwrap() == 0) {
             println!();
         }
         print!("{}", tp.terminal[*index as usize]);
@@ -90,9 +95,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if !args.quiet {
         println!("\n---------");
-        if args.width.is_none() && !image.is_fullscreen() {
-            println!("Image appears to not be fullscreen 320*200. It may be tiled, try setting an explicit -w width, which will also quiet this message.");
-            println!("Possible widths: {:?}", image.factors());
+        if !image.is_fullscreen() {
+            if args.width.is_none() {
+                println!("Image appears to not be fullscreen 320*200. It may be tiled, try setting an explicit -w width, which will also quiet this message.");
+                println!("Possible widths: {:?}", image.factors());
+            } else if image.is_tall() {
+                println!("Image appears to 4x as tall as wide or more. If it appears there are tiles, setting the height they appear to -r repeat at (and a max width -m for display wrapping) will make a more compact view");
+            }
         }
     }
 
