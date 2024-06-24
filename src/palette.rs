@@ -11,6 +11,14 @@ pub fn palette_from_abbr(name: &str) -> [Color; 4] {
     }
 }
 
+pub fn char_palette_from_string(custom_string: &str) -> [char; 4] {
+    custom_string
+        .chars()
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap()
+}
+
 pub const CGA0: [Color; 4] = [
     Color::Black(false),
     Color::Green(false),
