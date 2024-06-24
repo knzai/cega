@@ -2,7 +2,7 @@ use bitvec::prelude::*;
 use factor::factor::factor;
 
 pub struct Image {
-    pub width: Option<usize>,
+    pub width: usize,
     pub data: Vec<u8>,
     pub output: Vec<u8>,
 }
@@ -12,7 +12,7 @@ impl Image {
         let data = Image::palette_indices(buffer);
         Self {
             data: data.clone(),
-            width: width,
+            width: width.unwrap_or(320),
             output: data.clone(),
         }
     }
@@ -30,16 +30,11 @@ impl Image {
     }
 
     pub fn is_tall(&self) -> bool {
-        if self.width.is_none() {
-            false
+        let h = self.pixel_count() / self.width;
+        if h >= self.width * 4 {
+            true
         } else {
-            let w = self.width.unwrap();
-            let h = self.pixel_count() / w;
-            if h >= w * 4 {
-                true
-            } else {
-                false
-            }
+            false
         }
     }
 
@@ -47,24 +42,21 @@ impl Image {
         factor(self.data.len().try_into().unwrap())
     }
 
-    pub fn tile(
-        &mut self,
-        tile_width: Option<usize>,
-        tile_height: Option<usize>,
-        max_width: Option<usize>,
-    ) -> &Self {
-        if tile_width.is_none() {
+    pub fn retile(&mut self, width: usize, tile_height: Option<usize>, max_width: usize) -> &Self {
+        self.width = width;
+        if tile_height.is_none() {
+            self.output = self.data.clone();
             return self;
         }
-        let tile_width = tile_width.unwrap();
-        let pixel_count = self.pixel_count();
-        let tile_height = tile_height.unwrap_or(pixel_count / tile_width);
 
-        let max_width = max_width.unwrap_or(tile_width);
+        let pc = self.pixel_count();
+        let tile_height = tile_height.unwrap();
+        //let max_width = max_width.unwrap_or(pc / tile_height);
 
-        let tiles_per_row = max_width / tile_width;
-        let pixel_per_tile = tile_width * tile_height;
-        let num_tiles = pixel_count / pixel_per_tile;
+        let tiles_per_row = max_width / width;
+        self.width = tiles_per_row * width;
+        let pixel_per_tile = width * tile_height;
+        let num_tiles = pc / pixel_per_tile;
         let tile_rows = num_tiles.div_ceil(tiles_per_row);
 
         let mut output: Vec<u8> = vec![0; max_width * tile_rows * tile_height];
@@ -73,7 +65,7 @@ impl Image {
             output[new_index(
                 i,
                 pixel_per_tile,
-                tile_width,
+                width,
                 tile_height,
                 max_width,
                 tiles_per_row,

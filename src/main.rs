@@ -26,11 +26,11 @@ struct Args {
     #[clap(short, long)]
     width: Option<usize>,
 
-    #[clap(short = 'm', long)]
-    max_width: Option<usize>,
+    #[clap(short = 'm', long, default_value_t = 320)]
+    max_width: usize,
 
-    #[clap(short = 'r', long)]
-    tile_height: Option<usize>,
+    #[clap(short, long)]
+    retile_height: Option<usize>,
 
     #[clap(short, long, default_value_t = false)]
     sdl: bool,
@@ -85,9 +85,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tp = terminal::TerminalPalette::new(args.terminal_output, custom_ascii, palette);
     //let width = args.width.unwrap_or(320);
     let mut image = cga::Image::new(&reader, args.width);
-    image.tile(args.width, args.tile_height, args.max_width);
+    if args.width.is_some() {
+        image.retile(args.width.unwrap(), args.retile_height, args.max_width);
+    }
     for (i, index) in image.output.iter().enumerate() {
-        if args.width.is_some() && (i % args.width.unwrap() == 0) {
+        if i % image.width == 0 {
             println!();
         }
         print!("{}", tp.terminal[*index as usize]);
@@ -100,7 +102,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("Image appears to not be fullscreen 320*200. It may be tiled, try setting an explicit -w width, which will also quiet this message.");
                 println!("Possible widths: {:?}", image.factors());
             } else if image.is_tall() {
-                println!("Image appears to 4x as tall as wide or more. If it appears there are tiles, setting the height they appear to -r repeat at (and a max width -m for display wrapping) will make a more compact view");
+                println!("Image height appears to >= 4x its width. If there are tiles, setting -r retile_height (and a max width -m for display wrapping) will make a more compact view");
             }
         }
     }
@@ -110,7 +112,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let video_subsystem = sdl_context.video()?;
 
         let window = video_subsystem
-            .window("viewer", 128, 128)
+            .window("viewer", 320, 200)
             //.allow_highdpi()
             .build()
             .expect("could not initialize video subsystem");
@@ -122,16 +124,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         canvas.set_draw_color(sdl2::pixels::Color::BLACK);
         canvas.clear();
 
-        // for (i, index) in indices.iter().enumerate() {
-        //     let x = i % width;
-        //     let y = i / width;
-        //     canvas.pixel(
-        //         x.try_into().unwrap(),
-        //         y.try_into().unwrap(),
-        //         crate::sdl::PALETTE1[*index as usize],
-        //     )?;
-        // }
-        // canvas.present();
+        for (i, index) in image.output.iter().enumerate() {
+            let x = i % image.width;
+            let y = i / image.width;
+            canvas.pixel(
+                x.try_into().unwrap(),
+                y.try_into().unwrap(),
+                crate::sdl::PALETTE1[*index as usize],
+            )?;
+        }
+        canvas.present();
 
         let mut event_pump = sdl_context.event_pump()?;
         'running: loop {
