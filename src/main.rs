@@ -2,12 +2,8 @@ use std::path::{Path, PathBuf};
 
 use clap::Parser;
 
-use sdl2::event::Event;
-use sdl2::gfx::primitives::DrawRenderer;
-use sdl2::keyboard::Keycode;
-
 use cega::terminal::TerminalMode;
-use cega::{cga, palette, terminal};
+use cega::{cga, palette, sdl, terminal};
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
@@ -118,51 +114,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if args.sdl {
-        let sdl_context = sdl2::init()?;
-        let video_subsystem = sdl_context.video()?;
-
-        let window = video_subsystem
-            .window("viewer", 320, 200)
-            //.allow_highdpi()
-            .build()
-            .expect("could not initialize video subsystem");
-
-        let mut canvas = window
-            .into_canvas()
-            .build()
-            .expect("could not make a canvas");
-        canvas.set_draw_color(sdl2::pixels::Color::BLACK);
-        canvas.clear();
-
-        let sdlpal: Vec<sdl2::pixels::Color> =
-            palette.iter().map(|c| c.try_into().unwrap()).collect();
-
-        for (i, index) in image.output.iter().enumerate() {
-            let x = i % image.width;
-            let y = i / image.width;
-            canvas.pixel(
-                x.try_into().unwrap(),
-                y.try_into().unwrap(),
-                sdlpal[*index as usize],
-            )?;
-        }
-        canvas.present();
-
-        let mut event_pump = sdl_context.event_pump()?;
-        'running: loop {
-            for event in event_pump.poll_iter() {
-                match event {
-                    Event::Quit { .. }
-                    | Event::KeyDown {
-                        keycode: Some(Keycode::Escape),
-                        ..
-                    } => {
-                        break 'running;
-                    }
-                    _ => {}
-                }
-            }
-        }
+        sdl::render_sdl(image, palette)?
     }
     Ok(())
 }
