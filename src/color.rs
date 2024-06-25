@@ -1,27 +1,55 @@
-pub const CGA0: [Color; 4] = [
-    Color::Black(false),
-    Color::Green(false),
-    Color::Red(false),
-    Color::Brown(false),
-];
-pub const CGA0I: [Color; 4] = [
-    Color::Black(false),
-    Color::Green(true),
-    Color::Red(true),
-    Color::Brown(true),
-];
-pub const CGA1: [Color; 4] = [
-    Color::Black(false),
-    Color::Cyan(false),
-    Color::Magenta(false),
-    Color::White(false),
-];
-pub const CGA1I: [Color; 4] = [
+pub type Palette<T, const N: usize> = [T; N];
+pub struct WrapPalette<T, const N: usize>(pub Palette<T, N>);
+
+pub const CGA0: Palette<Color, 4> = [
     Color::Black(false),
     Color::Cyan(true),
     Color::Magenta(true),
     Color::White(true),
 ];
+pub const CGA0I: Palette<Color, 4> = [
+    Color::Black(false),
+    Color::Green(true),
+    Color::Red(true),
+    Color::Brown(true),
+];
+pub const CGA1: Palette<Color, 4> = [
+    Color::Black(false),
+    Color::Cyan(false),
+    Color::Magenta(false),
+    Color::White(false),
+];
+pub const CGA1I: Palette<Color, 4> = [
+    Color::Black(false),
+    Color::Cyan(true),
+    Color::Magenta(true),
+    Color::White(true),
+];
+
+pub const CGACHAR: Palette<char, 4> = [' ', '*', '+', '▒'];
+pub const CGACHAR2: Palette<char, 5> = [' ', '*', '+', '▒', '▒'];
+// enum Palette {
+//     CGAColor([Color; 4]),
+//     CGAChar([char; 4]),
+// }
+// const Palettes:
+// pub mod palette {
+//     pub enum CGA {
+//         CGA0,
+//         CGA0I,
+//         CGA1,
+//         CGA01I,
+//     }
+//
+//     CGA
+//     pub const CGAArray = [
+//     ]
+//
+// }
+
+// struct CGAPalette(Color, Color, Color, Color)
+// struct CGACharPalette(char, char, char)
+// struct TerminalPalette(String, String, String)
 
 pub fn palette_from_abbr(name: &str) -> [Color; 4] {
     match name {
@@ -32,6 +60,7 @@ pub fn palette_from_abbr(name: &str) -> [Color; 4] {
     }
 }
 
+#[derive(Clone)]
 pub enum Color {
     Black(bool), // Black - Dark Gray
     Blue(bool),
