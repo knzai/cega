@@ -1,5 +1,5 @@
 use crate::color::Color;
-use crate::{cga, palette};
+use crate::{cga, color};
 
 pub const ANSIOPEN: &str = "\x1b[";
 pub const ANSIRESET: &str = "\x1b[0m";
@@ -58,7 +58,7 @@ impl TerminalPalette<'_> {
         let term = match mode {
             TerminalMode::Ascii => chars_or.map(|m| m.to_string()).into(),
             TerminalMode::ColoredAscii => {
-                let colors_or = colors.unwrap_or(&palette::CGA1);
+                let colors_or = colors.unwrap_or(&color::CGA1);
                 chars_or
                     .iter()
                     .zip(colors_or.iter())
@@ -66,7 +66,7 @@ impl TerminalPalette<'_> {
                     .collect::<Vec<_>>()
             }
             TerminalMode::Pixels => {
-                let colors_or = colors.unwrap_or(&palette::CGA1);
+                let colors_or = colors.unwrap_or(&color::CGA1);
                 chars_or
                     .iter()
                     .zip(colors_or.iter())
@@ -74,7 +74,7 @@ impl TerminalPalette<'_> {
                     .collect::<Vec<_>>()
             }
             _ => {
-                let colors_or = colors.unwrap_or(&palette::CGA1);
+                let colors_or = colors.unwrap_or(&color::CGA1);
                 chars_or
                     .iter()
                     .zip(colors_or.iter())

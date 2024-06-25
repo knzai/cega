@@ -1,12 +1,8 @@
 pub mod cga;
+pub mod color;
 
 //#[cfg(feature = "sdl2")]
 pub mod sdl;
 
-pub mod color;
-
+//#[cfg(feature = "terminal")]
 pub mod terminal;
-
-pub mod palette;
-
-//pub use crate::color::Color;
