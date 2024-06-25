@@ -11,7 +11,7 @@ struct Args {
     #[clap(name = "IMAGE")]
     image: PathBuf,
 
-    #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="[possible values: a, c, p, h, v]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels\nv = vertical half pixels\nImages may be wider than terminal and will then crop")]
+    #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels\nImages may be wider than terminal and will then crop")]
     terminal_output: Option<terminal::TerminalMode>,
 
     #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long, default_value="1")]
@@ -70,34 +70,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             custom_ascii,
             Some(&palette),
         );
-        println!("{}", terminal::DISABLEWRAPPING);
-        match tp.mode {
-            terminal::TerminalMode::VerticalHalf => {
-                for i in 0..=image.output.len() {
-                    let offset = i % 2;
-                    let curr_i = i + (offset * image.width);
-                    let ind = (image.output[curr_i] * 2) as usize + i % 2;
-
-                    if i % image.width == 0 {
-                        println!();
-                    }
-                    print!("{}", tp.terminal[ind]);
-                }
-            }
-            _ => {
-                for (i, index) in image.output.iter().enumerate() {
-                    if i % image.width == 0 {
-                        println!();
-                    }
-                    let ind = match tp.mode {
-                        terminal::TerminalMode::HorizontalHalf => (index * 2) as usize + i % 2,
-                        _ => *index as usize,
-                    };
-                    print!("{}", tp.terminal[ind]);
-                }
-            }
-        }
-        println!("{}", terminal::ENABLEWRAPPING);
+        print!("{}", tp.output_image_string(&image));
     }
 
     if !args.quiet {
@@ -107,7 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("Image appears to not be fullscreen 320*200. It may be tiled, try setting an explicit -w width, which will also quiet this message.");
                 println!("Possible widths: {:?}", image.width_factors());
             } else if image.is_tall() {
-                println!("Image height appears to >= 4x its width. If there are tiles, setting -r retile_height (and a max width -m for display wrapping) will make a more compact view");
+                println!("Image height appears to >= 4x its width. If there are tiles, setting -r (re)tile_height will make a more compact view");
                 println!("Possible heights: {:?}", image.height_factors());
             }
         }

@@ -1,5 +1,5 @@
 use crate::color::Color;
-use crate::palette;
+use crate::{cga, palette};
 
 pub const ANSIOPEN: &str = "\x1b[";
 pub const ANSIRESET: &str = "\x1b[0m";
@@ -30,8 +30,7 @@ impl TerminalMode {
             "c" => Ok(TerminalMode::ColoredAscii),
             "p" => Ok(TerminalMode::Pixels),
             "h" => Ok(TerminalMode::HorizontalHalf),
-            "v" => Ok(TerminalMode::VerticalHalf),
-            _ => Err(format!("possible values: a, c, p, h, v")),
+            _ => Err(format!("possible values: a, c, p, h")),
         }
     }
 }
@@ -95,5 +94,38 @@ impl TerminalPalette<'_> {
             colors: colors,
             terminal: term,
         }
+    }
+    pub fn output_image_string(&self, image: &cga::Image) -> String {
+        let mut buffer: String = DISABLEWRAPPING.to_owned();
+
+        // match tp.mode {
+        //     terminal::TerminalMode::VerticalHalf => {
+        //         for i in 0..=image.output.len() {
+        //             let offset = i % 2;
+        //             let curr_i = i + (offset * image.width);
+        //             let ind = (image.output[curr_i] * 2) as usize + i % 2;
+        //
+        //             if i % image.width == 0 {
+        //                 println!();
+        //             }
+        //             print!("{}", tp.terminal[ind]);
+        //         }
+        //     }
+        //     _ => {
+        for (i, index) in image.output.iter().enumerate() {
+            if i % image.width == 0 {
+                buffer.push_str("\n");
+            }
+            let ind = match self.mode {
+                TerminalMode::HorizontalHalf => (index * 2) as usize + i % 2,
+                _ => *index as usize,
+            };
+            buffer.push_str(&self.terminal[ind]);
+        }
+        //     }
+        // }
+        buffer.push_str(ENABLEWRAPPING);
+
+        buffer
     }
 }
