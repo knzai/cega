@@ -60,24 +60,23 @@ impl ImageInputFormat for ImageType {
     }
 }
 
-pub struct Image<IT> {
+pub struct Image {
     pub width: usize,
     pub data: Vec<u8>,
     pub output: Vec<u8>,
     pub palette: palette::CGAColorPalette,
-    pub image_type: IT,
+    pub image_type: ImageType,
 }
 
-impl<IT: ImageInputFormat> Image<IT> {
+impl Image {
     pub fn new(
         buffer: &[u8],
         width: Option<usize>,
         palette: palette::CGAColorPalette,
-        image_type: IT,
         img_string: &str,
     ) -> Self {
-        let image_type_from_string = type_from_str(img_string);
-        let data = image_type_from_string.palette_indices(buffer);
+        let image_type = type_from_str(img_string);
+        let data = image_type.palette_indices(buffer);
 
         Self {
             data: data.clone(),

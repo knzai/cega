@@ -1,5 +1,5 @@
 use crate::color::Color;
-use crate::image::{Image, ImageType};
+use crate::image::Image;
 
 use crate::palette;
 
@@ -77,7 +77,7 @@ impl TerminalOptions {
             terminal: term,
         }
     }
-    pub fn output_image_string(&self, image: &Image<ImageType>) -> String {
+    pub fn output_image_string(&self, image: &Image) -> String {
         let mut buffer: String = DISABLEWRAPPING.to_owned();
         for (i, index) in image.output.iter().enumerate() {
             if i % image.width == 0 {
