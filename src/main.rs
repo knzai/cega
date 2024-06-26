@@ -56,7 +56,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let palette = palette::cga_palette_from_abbr(&args.palette);
 
     let image_type = image::type_from_str(&args.image_type);
-    let mut image = Image::new(&reader, args.width, palette.clone(), image_type);
+    let mut image = Image::new(
+        &reader,
+        args.width,
+        palette.clone(),
+        image_type,
+        &args.image_type,
+    );
 
     if args.width.is_some() {
         image.retile(args.width.unwrap(), args.retile_height, args.max_width);
