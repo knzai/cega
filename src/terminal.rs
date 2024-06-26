@@ -1,5 +1,6 @@
 use crate::color::Color;
-use crate::image::Image;
+use crate::image::{Image, ImageType};
+
 use crate::palette;
 
 pub const ANSIOPEN: &str = "\x1b[";
@@ -76,7 +77,7 @@ impl TerminalOptions {
             terminal: term,
         }
     }
-    pub fn output_image_string(&self, image: &Image) -> String {
+    pub fn output_image_string(&self, image: &Image<ImageType>) -> String {
         let mut buffer: String = DISABLEWRAPPING.to_owned();
         for (i, index) in image.output.iter().enumerate() {
             if i % image.width == 0 {

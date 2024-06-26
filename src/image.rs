@@ -37,13 +37,11 @@ pub struct CGA;
 #[derive(Debug, Clone)]
 pub struct EGA;
 
-impl ImageType {
-    pub fn from_str(str: &str) -> ImageType {
-        match str {
-            "cga" => ImageType::CGA(CGA),
-            "ega" => ImageType::EGA(EGA),
-            _ => panic!("invalid ImageType"),
-        }
+pub fn type_from_str(str: &str) -> ImageType {
+    match str {
+        "cga" => ImageType::CGA(CGA),
+        "ega" => ImageType::EGA(EGA),
+        _ => panic!("invalid ImageType"),
     }
 }
 
@@ -62,7 +60,7 @@ impl ImageInputFormat for ImageType {
     }
 }
 
-pub struct Image {
+pub struct Image<ImageType> {
     pub width: usize,
     pub data: Vec<u8>,
     pub output: Vec<u8>,
@@ -70,21 +68,21 @@ pub struct Image {
     pub image_type: ImageType,
 }
 
-impl Image {
+impl<ImageType: ImageInputFormat> Image<ImageType> {
     pub fn new(
         buffer: &[u8],
         width: Option<usize>,
         palette: palette::CGAColorPalette,
-        image_type: &str,
+        img_type: ImageType,
     ) -> Self {
-        let image_type = ImageType::from_str(image_type);
-        let data = image_type.palette_indices(buffer);
+        //let ImageType = type_from_str(img_type);
+        let data = img_type.palette_indices(buffer);
         Self {
             data: data.clone(),
             width: width.unwrap_or(320),
             output: data.clone(),
             palette: palette,
-            image_type: image_type,
+            image_type: img_type,
         }
     }
 
