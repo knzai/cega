@@ -1,11 +1,10 @@
 use crate::color::Color;
-use crate::{cga, color};
+use crate::{cga, palette};
 
 pub const ANSIOPEN: &str = "\x1b[";
 pub const ANSIRESET: &str = "\x1b[0m";
 pub const DISABLEWRAPPING: &str = "\x1b[?7l";
 pub const ENABLEWRAPPING: &str = "\x1b[?7h";
-pub const CGACHAR: [char; 4] = [' ', '*', '+', '▒'];
 
 pub fn char_palette_from_string(custom_string: &str) -> [char; 4] {
     custom_string
@@ -51,14 +50,14 @@ impl TerminalPalette<'_> {
     ) -> TerminalPalette {
         let chars_or = match mode {
             TerminalMode::Pixels => [' ', ' ', ' ', ' '],
-            TerminalMode::Ascii | TerminalMode::ColoredAscii => chars.unwrap_or(CGACHAR),
+            TerminalMode::Ascii | TerminalMode::ColoredAscii => chars.unwrap_or(palette::CGACHAR),
             TerminalMode::HorizontalHalf => ['▌', '▌', '▌', '▌'],
             TerminalMode::VerticalHalf => ['▀', '▀', '▀', '▀'],
         };
         let term = match mode {
             TerminalMode::Ascii => chars_or.map(|m| m.to_string()).into(),
             TerminalMode::ColoredAscii => {
-                let colors_or = colors.unwrap_or(&color::CGA1);
+                let colors_or = colors.unwrap_or(&palette::CGA1);
                 chars_or
                     .iter()
                     .zip(colors_or.iter())
@@ -66,7 +65,7 @@ impl TerminalPalette<'_> {
                     .collect::<Vec<_>>()
             }
             TerminalMode::Pixels => {
-                let colors_or = colors.unwrap_or(&color::CGA1);
+                let colors_or = colors.unwrap_or(&palette::CGA1);
                 chars_or
                     .iter()
                     .zip(colors_or.iter())
@@ -74,7 +73,7 @@ impl TerminalPalette<'_> {
                     .collect::<Vec<_>>()
             }
             _ => {
-                let colors_or = colors.unwrap_or(&color::CGA1);
+                let colors_or = colors.unwrap_or(&palette::CGA1);
                 chars_or
                     .iter()
                     .zip(colors_or.iter())

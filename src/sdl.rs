@@ -1,4 +1,4 @@
-use crate::color::WrapPalette;
+use crate::palette::WrapPalette;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::pixels::PixelFormatEnum::RGB888 as ColorFormat;
 use sdl2::{event::Event, keyboard::Keycode};
@@ -30,7 +30,7 @@ impl<const N: usize> TryFrom<WrapPalette<MyColor, N>> for WrapPalette<Sdl2Color,
 
 pub fn render_sdl(
     image: crate::cga::Image,
-    palette: crate::color::Palette<MyColor, 4>,
+    palette: crate::palette::Palette<MyColor, 4>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
