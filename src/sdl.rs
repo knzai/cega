@@ -1,37 +1,36 @@
-use crate::color::Palette;
 use crate::color::WrapPalette;
-use crate::{cga, color};
 use sdl2::gfx::primitives::DrawRenderer;
-use sdl2::pixels::{Color, PixelFormatEnum};
+use sdl2::pixels::PixelFormatEnum::RGB888 as ColorFormat;
 use sdl2::{event::Event, keyboard::Keycode};
 
-pub fn color_from_rgb24(rgb24: u32) -> Color {
-    Color::from_u32(&PixelFormatEnum::RGB888.try_into().unwrap(), rgb24)
+type Sdl2Color = sdl2::pixels::Color;
+type MyColor = crate::color::Color;
+
+pub fn color_from_rgb24(rgb24: u32) -> Sdl2Color {
+    Sdl2Color::from_u32(&ColorFormat.try_into().unwrap(), rgb24)
 }
 
-impl TryFrom<color::Color> for sdl2::pixels::Color {
+impl TryFrom<MyColor> for Sdl2Color {
     type Error = String;
 
-    fn try_from(c: color::Color) -> Result<Self, Self::Error> {
+    fn try_from(c: MyColor) -> Result<Self, Self::Error> {
         Ok(color_from_rgb24(c.rgb24()))
     }
 }
 
-impl<const N: usize> TryFrom<color::WrapPalette<color::Color, N>>
-    for color::WrapPalette<sdl2::pixels::Color, N>
-{
+impl<const N: usize> TryFrom<WrapPalette<MyColor, N>> for WrapPalette<Sdl2Color, N> {
     type Error = String;
 
-    fn try_from(ca: color::WrapPalette<color::Color, N>) -> Result<Self, Self::Error> {
-        Ok(color::WrapPalette(
-            <[color::Color; N] as Clone>::clone(&ca.0).map(|c| c.try_into().unwrap()),
+    fn try_from(ca: WrapPalette<MyColor, N>) -> Result<Self, Self::Error> {
+        Ok(WrapPalette(
+            <[MyColor; N] as Clone>::clone(&ca.0).map(|c| c.try_into().unwrap()),
         ))
     }
 }
 
 pub fn render_sdl(
-    image: cga::Image,
-    palette: Palette<color::Color, 4>,
+    image: crate::cga::Image,
+    palette: crate::color::Palette<MyColor, 4>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -46,10 +45,10 @@ pub fn render_sdl(
         .into_canvas()
         .build()
         .expect("could not make a canvas");
-    canvas.set_draw_color(sdl2::pixels::Color::BLACK);
+    canvas.set_draw_color(Sdl2Color::BLACK);
     canvas.clear();
 
-    let wrap: WrapPalette<sdl2::pixels::Color, 4> = WrapPalette(palette).try_into().unwrap();
+    let wrap: WrapPalette<Sdl2Color, 4> = WrapPalette(palette).try_into().unwrap();
     let sdlpal = wrap.0;
 
     for (i, index) in image.output.iter().enumerate() {

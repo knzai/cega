@@ -28,28 +28,6 @@ pub const CGA1I: Palette<Color, 4> = [
 
 pub const CGACHAR: Palette<char, 4> = [' ', '*', '+', '▒'];
 pub const CGACHAR2: Palette<char, 5> = [' ', '*', '+', '▒', '▒'];
-// enum Palette {
-//     CGAColor([Color; 4]),
-//     CGAChar([char; 4]),
-// }
-// const Palettes:
-// pub mod palette {
-//     pub enum CGA {
-//         CGA0,
-//         CGA0I,
-//         CGA1,
-//         CGA01I,
-//     }
-//
-//     CGA
-//     pub const CGAArray = [
-//     ]
-//
-// }
-
-// struct CGAPalette(Color, Color, Color, Color)
-// struct CGACharPalette(char, char, char)
-// struct TerminalPalette(String, String, String)
 
 pub fn palette_from_abbr(name: &str) -> [Color; 4] {
     match name {
