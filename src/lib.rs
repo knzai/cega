@@ -1,5 +1,5 @@
-pub mod cga;
 pub mod color;
+pub mod image;
 pub mod palette;
 
 //#[cfg(feature = "sdl2")]

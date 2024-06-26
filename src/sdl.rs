@@ -29,7 +29,7 @@ impl<const N: usize> TryFrom<WrapPalette<MyColor, N>> for WrapPalette<Sdl2Color,
 }
 
 pub fn render_sdl(
-    image: crate::cga::Image,
+    image: crate::image::Image,
     palette: crate::palette::Palette<MyColor, 4>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let sdl_context = sdl2::init()?;

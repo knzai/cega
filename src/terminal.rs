@@ -1,5 +1,6 @@
 use crate::color::Color;
-use crate::{cga, palette};
+use crate::image::Image;
+use crate::palette;
 
 pub const ANSIOPEN: &str = "\x1b[";
 pub const ANSIRESET: &str = "\x1b[0m";
@@ -94,7 +95,7 @@ impl TerminalPalette<'_> {
             terminal: term,
         }
     }
-    pub fn output_image_string(&self, image: &cga::Image) -> String {
+    pub fn output_image_string(&self, image: &Image) -> String {
         let mut buffer: String = DISABLEWRAPPING.to_owned();
 
         // match tp.mode {
