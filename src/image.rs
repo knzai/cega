@@ -5,20 +5,53 @@ pub struct Image {
     pub width: usize,
     pub data: Vec<u8>,
     pub output: Vec<u8>,
+    pub image_type: Box<dyn ImageType>,
+}
+
+pub trait ImageType {
+    fn word_size(&self) -> usize;
+
+    fn palette_indices(&self, buffer: &[u8]) -> Vec<u8> {
+        buffer
+            .view_bits::<Msb0>()
+            .chunks(self.word_size())
+            .map(|m| m.load::<u8>())
+            .collect()
+    }
+}
+pub struct CGA;
+#[allow(dead_code)]
+struct EGA;
+
+impl ImageType for CGA {
+    fn word_size(&self) -> usize {
+        2
+    }
+}
+
+impl ImageType for EGA {
+    fn word_size(&self) -> usize {
+        4
+    }
 }
 
 impl Image {
-    pub fn new(buffer: &[u8], width: Option<usize>) -> Self {
-        let data = palette_indices(buffer);
+    pub fn new(buffer: &[u8], width: Option<usize>, image_type: impl ImageType + 'static) -> Self {
+        let data = image_type.palette_indices(buffer);
         Self {
             data: data.clone(),
             width: width.unwrap_or(320),
             output: data.clone(),
+            image_type: Box::new(image_type),
         }
     }
 
-    pub fn from_file(path: &str, width: Option<usize>) -> Self {
-        Self::new(&std::fs::read(path).unwrap(), width)
+    pub fn from_file(
+        path: &str,
+        width: Option<usize>,
+        image_type: impl ImageType + 'static,
+    ) -> Self {
+        Self::new(&std::fs::read(path).unwrap(), width, image_type)
     }
 
     pub fn is_fullscreen(&self) -> bool {
@@ -81,14 +114,6 @@ impl Image {
         self.output = output;
         self
     }
-}
-
-fn palette_indices(buffer: &[u8]) -> Vec<u8> {
-    buffer
-        .view_bits::<Msb0>()
-        .chunks(2)
-        .map(|m| m.load::<u8>())
-        .collect()
 }
 
 fn new_index(

@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use clap::Parser;
 
 use cega::image::Image;
+use cega::image::CGA;
 use cega::terminal::TerminalMode;
 use cega::{palette, sdl, terminal};
 
@@ -49,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     let reader = std::fs::read(&Path::new(&args.image))?;
-    let mut image = Image::new(&reader, args.width);
+    let mut image = Image::new(&reader, args.width, CGA);
 
     let palette = palette::cga_palette_from_abbr(&args.palette);
 
