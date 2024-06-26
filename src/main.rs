@@ -59,19 +59,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if args.terminal_output.is_some() {
         let custom_ascii = if args.custom_ascii.is_some() {
-            Some(terminal::char_palette_from_string(
+            Some(palette::custom_cga_chars_from_str(
                 &args.custom_ascii.unwrap(),
             ))
         } else {
             None
         };
 
-        let tp = terminal::TerminalPalette::new(
+        let term_op = terminal::TerminalOptions::new(
             args.terminal_output.unwrap(),
             custom_ascii,
             Some(&palette),
         );
-        print!("{}", tp.output_image_string(&image));
+        print!("{}", term_op.output_image_string(&image));
     }
 
     if !args.quiet {

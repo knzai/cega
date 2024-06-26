@@ -39,3 +39,11 @@ pub fn cga_palette_from_abbr(name: &str) -> CGAPalette<Color> {
         "1" | _ => CGA1,
     }
 }
+
+pub fn custom_cga_chars_from_str(custom_string: &str) -> CGAPalette<char> {
+    custom_string
+        .chars()
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap()
+}

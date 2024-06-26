@@ -7,14 +7,6 @@ pub const ANSIRESET: &str = "\x1b[0m";
 pub const DISABLEWRAPPING: &str = "\x1b[?7l";
 pub const ENABLEWRAPPING: &str = "\x1b[?7h";
 
-pub fn char_palette_from_string(custom_string: &str) -> [char; 4] {
-    custom_string
-        .chars()
-        .collect::<Vec<_>>()
-        .try_into()
-        .unwrap()
-}
-
 #[derive(Clone, Debug)]
 pub enum TerminalMode {
     Ascii,
@@ -36,19 +28,19 @@ impl TerminalMode {
 }
 
 #[allow(dead_code)]
-pub struct TerminalPalette<'a> {
+pub struct TerminalOptions<'a> {
     pub mode: TerminalMode,
     chars: Option<[char; 4]>,
     pub colors: Option<&'a [Color; 4]>,
     pub terminal: Vec<String>,
 }
 
-impl TerminalPalette<'_> {
+impl TerminalOptions<'_> {
     pub fn new(
         mode: TerminalMode,
         chars: Option<[char; 4]>,
         colors: Option<&[Color; 4]>,
-    ) -> TerminalPalette {
+    ) -> TerminalOptions {
         let chars_or = match mode {
             TerminalMode::Pixels => [' ', ' ', ' ', ' '],
             TerminalMode::Ascii | TerminalMode::ColoredAscii => chars.unwrap_or(palette::CGACHAR),
@@ -88,7 +80,7 @@ impl TerminalPalette<'_> {
             }
         };
 
-        TerminalPalette {
+        TerminalOptions {
             mode: mode,
             chars: chars,
             colors: colors,
