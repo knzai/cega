@@ -1,17 +1,11 @@
 use crate::palette;
 use bitvec::prelude::*;
+
 use factor::factor::factor;
 
-pub struct Image {
-    pub width: usize,
-    pub data: Vec<u8>,
-    pub output: Vec<u8>,
-    pub palette: palette::CGAColorPalette,
-    pub image_type: Box<dyn ImageType>,
-}
-
-pub trait ImageType {
+pub trait ImageInputFormat {
     fn word_size(&self) -> usize;
+    fn palette_size(&self) -> usize;
 
     fn palette_indices(&self, buffer: &[u8]) -> Vec<u8> {
         buffer
@@ -21,20 +15,59 @@ pub trait ImageType {
             .collect()
     }
 }
-pub struct CGA;
-#[allow(dead_code)]
-struct EGA;
 
-impl ImageType for CGA {
-    fn word_size(&self) -> usize {
-        2
+#[derive(Debug, Clone)]
+pub enum ImageType {
+    CGA(CGA),
+    EGA(EGA),
+}
+
+impl std::fmt::Display for ImageType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let printable = match *self {
+            ImageType::CGA(_) => "cga",
+            ImageType::EGA(_) => "ega",
+        };
+        write!(f, "{}", printable)
     }
 }
 
-impl ImageType for EGA {
-    fn word_size(&self) -> usize {
-        4
+#[derive(Debug, Clone)]
+pub struct CGA;
+#[derive(Debug, Clone)]
+pub struct EGA;
+
+impl ImageType {
+    pub fn from_str(str: &str) -> ImageType {
+        match str {
+            "cga" => ImageType::CGA(CGA),
+            "ega" => ImageType::EGA(EGA),
+            _ => panic!("invalid ImageType"),
+        }
     }
+}
+
+impl ImageInputFormat for ImageType {
+    fn word_size(&self) -> usize {
+        match self {
+            ImageType::CGA(_) => 2,
+            ImageType::EGA(_) => 4,
+        }
+    }
+    fn palette_size(&self) -> usize {
+        match self {
+            ImageType::CGA(_) => 4,
+            ImageType::EGA(_) => 16,
+        }
+    }
+}
+
+pub struct Image {
+    pub width: usize,
+    pub data: Vec<u8>,
+    pub output: Vec<u8>,
+    pub palette: palette::CGAColorPalette,
+    pub image_type: ImageType,
 }
 
 impl Image {
@@ -42,15 +75,16 @@ impl Image {
         buffer: &[u8],
         width: Option<usize>,
         palette: palette::CGAColorPalette,
-        image_type: impl ImageType + 'static,
+        image_type: &str,
     ) -> Self {
+        let image_type = ImageType::from_str(image_type);
         let data = image_type.palette_indices(buffer);
         Self {
             data: data.clone(),
             width: width.unwrap_or(320),
             output: data.clone(),
             palette: palette,
-            image_type: Box::new(image_type),
+            image_type: image_type,
         }
     }
 

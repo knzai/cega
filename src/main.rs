@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 use clap::Parser;
 
 use cega::image::Image;
-use cega::image::CGA;
 use cega::terminal::TerminalMode;
 use cega::{palette, sdl, terminal};
 
@@ -36,6 +35,9 @@ struct Args {
 
     #[clap(short, long, default_value_t = false)]
     quiet: bool,
+
+    #[clap(value_parser(["cga", "ega"]),short, long, default_value = "cga")]
+    image_type: String,
 }
 
 fn parse_asci_param(arg: &str) -> Result<String, String> {
@@ -52,7 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = std::fs::read(&Path::new(&args.image))?;
     let palette = palette::cga_palette_from_abbr(&args.palette);
 
-    let mut image = Image::new(&reader, args.width, palette.clone(), CGA);
+    let mut image = Image::new(&reader, args.width, palette.clone(), &args.image_type);
 
     if args.width.is_some() {
         image.retile(args.width.unwrap(), args.retile_height, args.max_width);
