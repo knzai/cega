@@ -50,9 +50,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     let reader = std::fs::read(&Path::new(&args.image))?;
-    let mut image = Image::new(&reader, args.width, CGA);
-
     let palette = palette::cga_palette_from_abbr(&args.palette);
+
+    let mut image = Image::new(&reader, args.width, Some(&palette), CGA);
 
     if args.width.is_some() {
         image.retile(args.width.unwrap(), args.retile_height, args.max_width);

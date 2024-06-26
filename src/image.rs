@@ -1,3 +1,5 @@
+use crate::color::Color;
+use crate::palette;
 use bitvec::prelude::*;
 use factor::factor::factor;
 
@@ -5,6 +7,7 @@ pub struct Image {
     pub width: usize,
     pub data: Vec<u8>,
     pub output: Vec<u8>,
+    pub palette: [Color; 4],
     pub image_type: Box<dyn ImageType>,
 }
 
@@ -36,22 +39,20 @@ impl ImageType for EGA {
 }
 
 impl Image {
-    pub fn new(buffer: &[u8], width: Option<usize>, image_type: impl ImageType + 'static) -> Self {
+    pub fn new(
+        buffer: &[u8],
+        width: Option<usize>,
+        palette: Option<&[Color; 4]>,
+        image_type: impl ImageType + 'static,
+    ) -> Self {
         let data = image_type.palette_indices(buffer);
         Self {
             data: data.clone(),
             width: width.unwrap_or(320),
             output: data.clone(),
+            palette: palette.unwrap_or(&palette::CGA1).clone(),
             image_type: Box::new(image_type),
         }
-    }
-
-    pub fn from_file(
-        path: &str,
-        width: Option<usize>,
-        image_type: impl ImageType + 'static,
-    ) -> Self {
-        Self::new(&std::fs::read(path).unwrap(), width, image_type)
     }
 
     pub fn is_fullscreen(&self) -> bool {
