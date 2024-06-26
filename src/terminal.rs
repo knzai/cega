@@ -47,28 +47,26 @@ impl TerminalOptions {
             TerminalMode::HorizontalHalf => ['▌', '▌', '▌', '▌'],
             TerminalMode::VerticalHalf => ['▀', '▀', '▀', '▀'],
         };
-        let term = match mode {
-            TerminalMode::Ascii => chars_or.map(|m| m.to_string()).into(),
-            TerminalMode::ColoredAscii => chars_or
-                .iter()
-                .zip(colors.iter())
-                .map(|(ch, co)| format!("{}{}m{}{}", ANSIOPEN, co.ansi_fg(), ch, ANSIRESET))
-                .collect::<Vec<_>>(),
-            TerminalMode::Pixels => chars_or
-                .iter()
-                .zip(colors.iter())
-                .map(|(ch, co)| format!("{}0;{}m{}{}", ANSIOPEN, co.ansi_bg(), ch, ANSIRESET))
-                .collect::<Vec<_>>(),
-            _ => chars_or
-                .iter()
-                .zip(colors.iter())
-                .flat_map(|(ch, co)| {
-                    [
-                        format!("{}{};", ANSIOPEN, co.ansi_fg()),
-                        format!("{}m{}{}", co.ansi_bg(), ch, ANSIRESET),
-                    ]
-                })
-                .collect::<Vec<_>>(),
+        let term = if let TerminalMode::Ascii = mode {
+            chars_or.map(|m| m.to_string()).into()
+        } else {
+            let zipped = chars_or.iter().zip(colors.iter());
+            match mode {
+                TerminalMode::ColoredAscii => zipped
+                    .map(|(ch, co)| format!("{}{}m{}{}", ANSIOPEN, co.ansi_fg(), ch, ANSIRESET))
+                    .collect::<Vec<_>>(),
+                TerminalMode::Pixels => zipped
+                    .map(|(ch, co)| format!("{}0;{}m{}{}", ANSIOPEN, co.ansi_bg(), ch, ANSIRESET))
+                    .collect::<Vec<_>>(),
+                _ => zipped
+                    .flat_map(|(ch, co)| {
+                        [
+                            format!("{}{};", ANSIOPEN, co.ansi_fg()),
+                            format!("{}m{}{}", co.ansi_bg(), ch, ANSIRESET),
+                        ]
+                    })
+                    .collect::<Vec<_>>(),
+            }
         };
 
         TerminalOptions {
