@@ -67,11 +67,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             None
         };
 
-        let term_op = terminal::TerminalOptions::new(
-            args.terminal_output.unwrap(),
-            custom_ascii,
-            Some(&palette),
-        );
+        let term_op =
+            terminal::TerminalOptions::new(args.terminal_output.unwrap(), custom_ascii, palette);
         print!("{}", term_op.output_image_string(&image));
     }
 

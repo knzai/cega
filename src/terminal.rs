@@ -28,18 +28,18 @@ impl TerminalMode {
 }
 
 #[allow(dead_code)]
-pub struct TerminalOptions<'a> {
+pub struct TerminalOptions {
     pub mode: TerminalMode,
     chars: Option<[char; 4]>,
-    pub colors: Option<&'a [Color; 4]>,
+    pub colors: [Color; 4],
     pub terminal: Vec<String>,
 }
 
-impl TerminalOptions<'_> {
+impl TerminalOptions {
     pub fn new(
         mode: TerminalMode,
         chars: Option<[char; 4]>,
-        colors: Option<&[Color; 4]>,
+        colors: [Color; 4],
     ) -> TerminalOptions {
         let chars_or = match mode {
             TerminalMode::Pixels => [' ', ' ', ' ', ' '],
@@ -49,35 +49,26 @@ impl TerminalOptions<'_> {
         };
         let term = match mode {
             TerminalMode::Ascii => chars_or.map(|m| m.to_string()).into(),
-            TerminalMode::ColoredAscii => {
-                let colors_or = colors.unwrap_or(&palette::CGA1);
-                chars_or
-                    .iter()
-                    .zip(colors_or.iter())
-                    .map(|(ch, co)| format!("{}{}m{}{}", ANSIOPEN, co.ansi_fg(), ch, ANSIRESET))
-                    .collect::<Vec<_>>()
-            }
-            TerminalMode::Pixels => {
-                let colors_or = colors.unwrap_or(&palette::CGA1);
-                chars_or
-                    .iter()
-                    .zip(colors_or.iter())
-                    .map(|(ch, co)| format!("{}0;{}m{}{}", ANSIOPEN, co.ansi_bg(), ch, ANSIRESET))
-                    .collect::<Vec<_>>()
-            }
-            _ => {
-                let colors_or = colors.unwrap_or(&palette::CGA1);
-                chars_or
-                    .iter()
-                    .zip(colors_or.iter())
-                    .flat_map(|(ch, co)| {
-                        [
-                            format!("{}{};", ANSIOPEN, co.ansi_fg()),
-                            format!("{}m{}{}", co.ansi_bg(), ch, ANSIRESET),
-                        ]
-                    })
-                    .collect::<Vec<_>>()
-            }
+            TerminalMode::ColoredAscii => chars_or
+                .iter()
+                .zip(colors.iter())
+                .map(|(ch, co)| format!("{}{}m{}{}", ANSIOPEN, co.ansi_fg(), ch, ANSIRESET))
+                .collect::<Vec<_>>(),
+            TerminalMode::Pixels => chars_or
+                .iter()
+                .zip(colors.iter())
+                .map(|(ch, co)| format!("{}0;{}m{}{}", ANSIOPEN, co.ansi_bg(), ch, ANSIRESET))
+                .collect::<Vec<_>>(),
+            _ => chars_or
+                .iter()
+                .zip(colors.iter())
+                .flat_map(|(ch, co)| {
+                    [
+                        format!("{}{};", ANSIOPEN, co.ansi_fg()),
+                        format!("{}m{}{}", co.ansi_bg(), ch, ANSIRESET),
+                    ]
+                })
+                .collect::<Vec<_>>(),
         };
 
         TerminalOptions {
@@ -89,21 +80,6 @@ impl TerminalOptions<'_> {
     }
     pub fn output_image_string(&self, image: &Image) -> String {
         let mut buffer: String = DISABLEWRAPPING.to_owned();
-
-        // match tp.mode {
-        //     terminal::TerminalMode::VerticalHalf => {
-        //         for i in 0..=image.output.len() {
-        //             let offset = i % 2;
-        //             let curr_i = i + (offset * image.width);
-        //             let ind = (image.output[curr_i] * 2) as usize + i % 2;
-        //
-        //             if i % image.width == 0 {
-        //                 println!();
-        //             }
-        //             print!("{}", tp.terminal[ind]);
-        //         }
-        //     }
-        //     _ => {
         for (i, index) in image.output.iter().enumerate() {
             if i % image.width == 0 {
                 buffer.push_str("\n");
