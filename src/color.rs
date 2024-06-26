@@ -1,35 +1,35 @@
-pub type Palette<T, const N: usize> = [T; N];
 pub struct WrapPalette<T, const N: usize>(pub Palette<T, N>);
+pub type Palette<T, const N: usize> = [T; N];
+pub type CGAPalette<T> = [T; 4];
 
-pub const CGA0: Palette<Color, 4> = [
+pub const CGA0: CGAPalette<Color> = [
     Color::Black(false),
     Color::Cyan(true),
     Color::Magenta(true),
     Color::White(true),
 ];
-pub const CGA0I: Palette<Color, 4> = [
+pub const CGA0I: CGAPalette<Color> = [
     Color::Black(false),
     Color::Green(true),
     Color::Red(true),
     Color::Brown(true),
 ];
-pub const CGA1: Palette<Color, 4> = [
+pub const CGA1: CGAPalette<Color> = [
     Color::Black(false),
     Color::Cyan(false),
     Color::Magenta(false),
     Color::White(false),
 ];
-pub const CGA1I: Palette<Color, 4> = [
+pub const CGA1I: CGAPalette<Color> = [
     Color::Black(false),
     Color::Cyan(true),
     Color::Magenta(true),
     Color::White(true),
 ];
 
-pub const CGACHAR: Palette<char, 4> = [' ', '*', '+', '▒'];
-pub const CGACHAR2: Palette<char, 5> = [' ', '*', '+', '▒', '▒'];
+pub const CGACHAR: CGAPalette<char> = [' ', '*', '+', '▒'];
 
-pub fn palette_from_abbr(name: &str) -> [Color; 4] {
+pub fn palette_from_abbr(name: &str) -> CGAPalette<Color> {
     match name {
         "0" => CGA0,
         "0i" => CGA0I,
