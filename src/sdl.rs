@@ -28,10 +28,7 @@ impl<const N: usize> TryFrom<WrapPalette<MyColor, N>> for WrapPalette<Sdl2Color,
     }
 }
 
-pub fn render_sdl(
-    image: crate::image::Image,
-    palette: crate::palette::Palette<MyColor, 4>,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn render_sdl(image: crate::image::Image) -> Result<(), Box<dyn std::error::Error>> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
@@ -48,7 +45,7 @@ pub fn render_sdl(
     canvas.set_draw_color(Sdl2Color::BLACK);
     canvas.clear();
 
-    let wrap: WrapPalette<Sdl2Color, 4> = WrapPalette(palette).try_into().unwrap();
+    let wrap: WrapPalette<Sdl2Color, 4> = WrapPalette(image.palette).try_into().unwrap();
     let sdlpal = wrap.0;
 
     for (i, index) in image.output.iter().enumerate() {

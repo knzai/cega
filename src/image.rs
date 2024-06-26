@@ -1,4 +1,3 @@
-use crate::color::Color;
 use crate::palette;
 use bitvec::prelude::*;
 use factor::factor::factor;
@@ -7,7 +6,7 @@ pub struct Image {
     pub width: usize,
     pub data: Vec<u8>,
     pub output: Vec<u8>,
-    pub palette: [Color; 4],
+    pub palette: palette::CGAColorPalette,
     pub image_type: Box<dyn ImageType>,
 }
 
@@ -42,7 +41,7 @@ impl Image {
     pub fn new(
         buffer: &[u8],
         width: Option<usize>,
-        palette: Option<&[Color; 4]>,
+        palette: palette::CGAColorPalette,
         image_type: impl ImageType + 'static,
     ) -> Self {
         let data = image_type.palette_indices(buffer);
@@ -50,7 +49,7 @@ impl Image {
             data: data.clone(),
             width: width.unwrap_or(320),
             output: data.clone(),
-            palette: palette.unwrap_or(&palette::CGA1).clone(),
+            palette: palette,
             image_type: Box::new(image_type),
         }
     }

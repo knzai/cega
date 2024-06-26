@@ -2,7 +2,9 @@ use crate::color::Color;
 
 pub struct WrapPalette<T, const N: usize>(pub Palette<T, N>);
 pub type Palette<T, const N: usize> = [T; N];
+pub type ColorPalette<const N: usize> = [Color; N];
 pub type CGAPalette<T> = [T; 4];
+pub type CGAColorPalette = [Color; 4];
 
 pub const CGA0: CGAPalette<Color> = [
     Color::Black(false),
