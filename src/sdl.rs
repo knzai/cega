@@ -1,5 +1,5 @@
 use crate::image::Image;
-use crate::palette::WrapPalette;
+use crate::palette::Palette;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::pixels::PixelFormatEnum::RGB888 as ColorFormat;
 use sdl2::{event::Event, keyboard::Keycode};
@@ -11,21 +11,9 @@ pub fn color_from_rgb24(rgb24: u32) -> Sdl2Color {
     Sdl2Color::from_u32(&ColorFormat.try_into().unwrap(), rgb24)
 }
 
-impl TryFrom<MyColor> for Sdl2Color {
-    type Error = String;
-
-    fn try_from(c: MyColor) -> Result<Self, Self::Error> {
-        Ok(color_from_rgb24(c.rgb24()))
-    }
-}
-
-impl<const N: usize> TryFrom<WrapPalette<MyColor, N>> for WrapPalette<Sdl2Color, N> {
-    type Error = String;
-
-    fn try_from(ca: WrapPalette<MyColor, N>) -> Result<Self, Self::Error> {
-        Ok(WrapPalette(
-            <[MyColor; N] as Clone>::clone(&ca.0).map(|c| c.try_into().unwrap()),
-        ))
+impl From<&MyColor> for Sdl2Color {
+    fn from(c: &MyColor) -> Self {
+        color_from_rgb24(c.rgb24())
     }
 }
 
@@ -46,8 +34,7 @@ pub fn render_sdl(image: Image) -> Result<(), Box<dyn std::error::Error>> {
     canvas.set_draw_color(Sdl2Color::BLACK);
     canvas.clear();
 
-    let wrap: WrapPalette<Sdl2Color, 4> = WrapPalette(image.palette).try_into().unwrap();
-    let sdlpal = wrap.0;
+    let sdlpal: Palette<Sdl2Color> = image.palette.iter().map(|m| m.into()).collect();
 
     for (i, index) in image.output.iter().enumerate() {
         let x = i % image.width;

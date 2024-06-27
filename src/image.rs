@@ -64,7 +64,7 @@ pub struct Image {
     pub width: usize,
     pub data: Vec<u8>,
     pub output: Vec<u8>,
-    pub palette: palette::CGAColorPalette,
+    pub palette: palette::ColorPalette,
     pub image_type: ImageType,
 }
 
@@ -72,7 +72,7 @@ impl Image {
     pub fn new(
         buffer: &[u8],
         width: Option<usize>,
-        palette: palette::CGAColorPalette,
+        palette: palette::ColorPalette,
         img_string: &str,
     ) -> Self {
         let image_type = type_from_str(img_string);
@@ -175,7 +175,7 @@ mod tests {
     #[test]
     fn is_fullscreen() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let image = Image::new(&data.to_be_bytes(), None, palette::CGA1, "cga");
+        let image = Image::new(&data.to_be_bytes(), None, palette::CGA1.to_vec(), "cga");
 
         assert!(!image.is_fullscreen());
         //todo!("Test with actual fullscreen data");
@@ -185,7 +185,7 @@ mod tests {
     fn indices() {
         let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
         assert_eq!(
-            Image::new(&data.to_be_bytes(), None, palette::CGA1, "cga").output,
+            Image::new(&data.to_be_bytes(), None, palette::CGA1.to_vec(), "cga").output,
             [
                 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 1, 2,
                 2, 1, 3, 3, 3, 3, 1, 2, 2, 1, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
@@ -197,7 +197,7 @@ mod tests {
     #[test]
     fn tiling() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let mut image = Image::new(&data.to_be_bytes(), None, palette::CGA1, "cga");
+        let mut image = Image::new(&data.to_be_bytes(), None, palette::CGA1.to_vec(), "cga");
         image.retile(2, Some(2), 4);
         assert_eq!(
             image.output,
@@ -205,7 +205,7 @@ mod tests {
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
-        let mut image = Image::new(&data.to_be_bytes(), None, palette::CGA1, "cga");
+        let mut image = Image::new(&data.to_be_bytes(), None, palette::CGA1.to_vec(), "cga");
         image.retile(2, Some(2), 6);
         assert_eq!(
             image.output,

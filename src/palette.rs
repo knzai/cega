@@ -1,10 +1,11 @@
 use crate::color::Color;
 
-pub struct WrapPalette<T, const N: usize>(pub Palette<T, N>);
-pub type Palette<T, const N: usize> = [T; N];
-pub type ColorPalette<const N: usize> = [Color; N];
-pub type CGAPalette<T> = [T; 4];
+pub type Palette<T> = Vec<T>;
+pub type ColorPalette = Vec<Color>;
+pub type CharPalette = Vec<char>;
+
 pub type CGAColorPalette = [Color; 4];
+pub type CGACharPalette = [char; 4];
 pub type EGAColorPalette = [Color; 16];
 
 pub const CGA0: CGAColorPalette = [
@@ -51,21 +52,18 @@ pub const EGA0: EGAColorPalette = [
     Color::White(true),
 ];
 
-pub const CGACHAR: CGAPalette<char> = [' ', '*', '+', '▒'];
+pub const CGACHAR: CGACharPalette = [' ', '*', '+', '▒'];
 
-pub fn cga_palette_from_abbr(name: &str) -> CGAPalette<Color> {
+pub fn palette_from_abbr(name: &str) -> ColorPalette {
     match name {
-        "0" => CGA0,
-        "0i" => CGA0I,
-        "1i" => CGA1I,
-        "1" | _ => CGA1,
+        "e" => EGA0.to_vec(),
+        "0" => CGA0.to_vec(),
+        "0i" => CGA0I.to_vec(),
+        "1i" => CGA1I.to_vec(),
+        "1" | _ => CGA1.to_vec(),
     }
 }
 
-pub fn custom_cga_chars_from_str(custom_string: &str) -> CGAPalette<char> {
-    custom_string
-        .chars()
-        .collect::<Vec<_>>()
-        .try_into()
-        .unwrap()
+pub fn custom_cga_chars_from_str(custom_string: &str) -> Palette<char> {
+    custom_string.chars().collect()
 }

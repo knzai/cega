@@ -1,4 +1,3 @@
-use crate::color::Color;
 use crate::image::Image;
 
 use crate::palette;
@@ -31,25 +30,27 @@ impl TerminalMode {
 #[allow(dead_code)]
 pub struct TerminalOptions {
     pub mode: TerminalMode,
-    chars: Option<[char; 4]>,
-    pub colors: [Color; 4],
+    chars: palette::CharPalette,
+    pub colors: palette::ColorPalette,
     pub terminal: Vec<String>,
 }
 
 impl TerminalOptions {
     pub fn new(
         mode: TerminalMode,
-        chars: Option<[char; 4]>,
-        colors: [Color; 4],
+        chars: Option<palette::CharPalette>,
+        colors: palette::ColorPalette,
     ) -> TerminalOptions {
         let chars_or = match mode {
-            TerminalMode::Pixels => [' ', ' ', ' ', ' '],
-            TerminalMode::Ascii | TerminalMode::ColoredAscii => chars.unwrap_or(palette::CGACHAR),
-            TerminalMode::HorizontalHalf => ['▌', '▌', '▌', '▌'],
-            TerminalMode::VerticalHalf => ['▀', '▀', '▀', '▀'],
+            TerminalMode::Pixels => [' ', ' ', ' ', ' '].to_vec(),
+            TerminalMode::Ascii | TerminalMode::ColoredAscii => {
+                chars.unwrap_or(palette::CGACHAR.to_vec())
+            }
+            TerminalMode::HorizontalHalf => ['▌', '▌', '▌', '▌'].to_vec(),
+            TerminalMode::VerticalHalf => ['▀', '▀', '▀', '▀'].to_vec(),
         };
         let term = if let TerminalMode::Ascii = mode {
-            chars_or.map(|m| m.to_string()).into()
+            chars_or.iter().map(|m| m.to_string()).collect()
         } else {
             let zipped = chars_or.iter().zip(colors.iter());
             match mode {
@@ -72,7 +73,7 @@ impl TerminalOptions {
 
         TerminalOptions {
             mode: mode,
-            chars: chars,
+            chars: chars_or,
             colors: colors,
             terminal: term,
         }

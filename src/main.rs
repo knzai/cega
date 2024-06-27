@@ -52,7 +52,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     let reader = std::fs::read(&Path::new(&args.image))?;
-    let palette = palette::cga_palette_from_abbr(&args.palette);
+    let palette = palette::palette_from_abbr(&args.palette);
 
     let mut image = Image::new(&reader, args.width, palette.clone(), &args.image_type);
 
