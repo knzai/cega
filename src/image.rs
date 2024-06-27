@@ -170,11 +170,12 @@ fn new_index(
 #[cfg(test)]
 mod tests {
     use crate::image::Image;
+    use crate::palette;
 
     #[test]
     fn is_fullscreen() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let image = Image::new(&data.to_be_bytes(), None);
+        let image = Image::new(&data.to_be_bytes(), None, palette::CGA1, "cga");
 
         assert!(!image.is_fullscreen());
         //todo!("Test with actual fullscreen data");
@@ -184,7 +185,7 @@ mod tests {
     fn indices() {
         let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
         assert_eq!(
-            Image::new(&data.to_be_bytes(), None).output,
+            Image::new(&data.to_be_bytes(), None, palette::CGA1, "cga").output,
             [
                 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 1, 2,
                 2, 1, 3, 3, 3, 3, 1, 2, 2, 1, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
@@ -196,7 +197,7 @@ mod tests {
     #[test]
     fn tiling() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let mut image = Image::new(&data.to_be_bytes(), None);
+        let mut image = Image::new(&data.to_be_bytes(), None, palette::CGA1, "cga");
         image.retile(2, Some(2), 4);
         assert_eq!(
             image.output,
@@ -204,7 +205,7 @@ mod tests {
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
-        let mut image = Image::new(&data.to_be_bytes(), None);
+        let mut image = Image::new(&data.to_be_bytes(), None, palette::CGA1, "cga");
         image.retile(2, Some(2), 6);
         assert_eq!(
             image.output,
