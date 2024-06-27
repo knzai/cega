@@ -28,18 +28,19 @@ impl TerminalMode {
 }
 
 #[allow(dead_code)]
-pub struct TerminalOptions {
+pub struct TerminalPalette {
     pub mode: TerminalMode,
     pub terminal: Vec<String>,
 }
 
-impl TerminalOptions {
-    pub fn new(
-        mode: TerminalMode,
-        chars: Option<palette::CharPalette>,
-        colors: palette::ColorPalette,
-    ) -> TerminalOptions {
-        let chars = chars.unwrap_or(palette::cga_char_palette()).into_iter();
+impl TerminalPalette {
+    pub fn new(mode: TerminalMode, chars: Option<&str>, colors: palette::ColorPalette) -> Self {
+        let chars = if chars.is_some() {
+            chars.unwrap().chars().collect()
+        } else {
+            palette::cga_char_palette()
+        }
+        .into_iter();
         let colors = colors.iter();
         let term = match mode {
             TerminalMode::Ascii => chars.map(|m| m.to_string()).collect(),
@@ -51,27 +52,23 @@ impl TerminalOptions {
                 .map(|co| Self::ansi_codes(co.ansi_bg(), ' '))
                 .collect(),
             TerminalMode::HorizontalHalf => colors
-                .flat_map(|co| {
-                    [
-                        format!("{}{};", ANSIOPEN, co.ansi_fg()),
-                        format!("{}m{}{}", co.ansi_bg(), '▌', ANSIRESET),
-                    ]
-                })
-                .collect::<Vec<_>>(),
+                .flat_map(|co| Self::half_ansi_codes(co.ansi_fg(), co.ansi_bg(), '▌'))
+                .collect(),
             TerminalMode::VerticalHalf => colors
-                .flat_map(|co| {
-                    [
-                        format!("{}{};", ANSIOPEN, co.ansi_fg()),
-                        format!("{}m{}{}", co.ansi_bg(), '▀', ANSIRESET),
-                    ]
-                })
+                .flat_map(|co| Self::half_ansi_codes(co.ansi_fg(), co.ansi_bg(), '▀'))
                 .collect(),
         };
 
-        TerminalOptions {
+        Self {
             mode: mode,
             terminal: term,
         }
+    }
+    pub fn half_ansi_codes(fg: u8, bg: u8, ch: char) -> [String; 2] {
+        [
+            format!("{}{};", ANSIOPEN, fg),
+            format!("{}m{}{}", bg, ch, ANSIRESET),
+        ]
     }
     pub fn ansi_codes(co: u8, ch: char) -> String {
         format!("{}{}m{}{}", ANSIOPEN, co, ch, ANSIRESET)
@@ -83,16 +80,19 @@ impl TerminalOptions {
             if i % image.width == 0 {
                 buffer.push_str("\n");
             }
-            let ind = match self.mode {
-                TerminalMode::HorizontalHalf => (index * 2) as usize + i % 2,
-                _ => *index as usize,
+            let mut index = *index as usize;
+            if let TerminalMode::HorizontalHalf = self.mode {
+                index = Self::hhalf_adjusted_index(index, i);
             };
-            buffer.push_str(&self.terminal[ind]);
+
+            buffer.push_str(&self.terminal[index]);
         }
-        //     }
-        // }
         buffer.push_str(ENABLEWRAPPING);
 
         buffer
+    }
+
+    pub fn hhalf_adjusted_index(index: usize, i: usize) -> usize {
+        (index * 2) + (i % 2)
     }
 }

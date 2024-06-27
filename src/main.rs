@@ -4,6 +4,7 @@ use clap::Parser;
 
 use cega::image::Image;
 use cega::terminal::TerminalMode;
+use cega::terminal::TerminalPalette;
 use cega::{palette, sdl, terminal};
 
 #[derive(Parser, Debug)]
@@ -54,24 +55,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = std::fs::read(&Path::new(&args.image))?;
     let palette = palette::palette_from_abbr(&args.palette);
 
-    let mut image = Image::new(&reader, args.width, palette.clone(), &args.image_type);
+    let mut image = Image::new(&reader, args.width, palette, &args.image_type);
 
     if args.width.is_some() {
         image.retile(args.width.unwrap(), args.retile_height, args.max_width);
     }
 
     if args.terminal_output.is_some() {
-        let custom_ascii = if args.custom_ascii.is_some() {
-            Some(palette::custom_cga_chars_from_str(
-                &args.custom_ascii.unwrap(),
-            ))
-        } else {
-            None
-        };
-
-        let term_op =
-            terminal::TerminalOptions::new(args.terminal_output.unwrap(), custom_ascii, palette);
-        print!("{}", term_op.output_image_string(&image));
+        print!(
+            "{}",
+            TerminalPalette::new(
+                args.terminal_output.unwrap(),
+                args.custom_ascii.as_deref(),
+                image.palette.clone()
+            )
+            .output_image_string(&image)
+        );
     }
 
     if !args.quiet {
