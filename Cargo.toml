@@ -8,6 +8,7 @@ repository = "https://github.com/knzconnor/cega"
 readme = "README.md"
 keywords = ["gamedev", "graphics"]
 categories = ["command-line-utilities"]
+exclude = [".rusty-hook.toml", ".gitignore", "Cargo.lock"]
 
 [features]
 #default = ["termart", "sdl2"]
