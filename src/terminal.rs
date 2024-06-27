@@ -30,8 +30,6 @@ impl TerminalMode {
 #[allow(dead_code)]
 pub struct TerminalOptions {
     pub mode: TerminalMode,
-    chars: palette::CharPalette,
-    pub colors: palette::ColorPalette,
     pub terminal: Vec<String>,
 }
 
@@ -41,42 +39,37 @@ impl TerminalOptions {
         chars: Option<palette::CharPalette>,
         colors: palette::ColorPalette,
     ) -> TerminalOptions {
-        let len = colors.len();
-
-        let chars_or = match mode {
-            TerminalMode::Pixels => vec![' '; len],
-            TerminalMode::Ascii | TerminalMode::ColoredAscii => {
-                chars.unwrap_or(palette::CGACHAR.to_vec())
-            }
-            TerminalMode::HorizontalHalf => vec!['▌'; len],
-            TerminalMode::VerticalHalf => vec!['▀'; len],
-        };
-        let term = if let TerminalMode::Ascii = mode {
-            chars_or.iter().map(|m| m.to_string()).collect()
-        } else {
-            let zipped = chars_or.iter().zip(colors.iter());
-            match mode {
-                TerminalMode::ColoredAscii => zipped
-                    .map(|(ch, co)| Self::ansi_codes(co.ansi_fg(), *ch))
-                    .collect::<Vec<_>>(),
-                TerminalMode::Pixels => zipped
-                    .map(|(_ch, co)| Self::ansi_codes(co.ansi_bg(), ' '))
-                    .collect::<Vec<_>>(),
-                _ => zipped
-                    .flat_map(|(ch, co)| {
-                        [
-                            format!("{}{};", ANSIOPEN, co.ansi_fg()),
-                            format!("{}m{}{}", co.ansi_bg(), ch, ANSIRESET),
-                        ]
-                    })
-                    .collect::<Vec<_>>(),
-            }
+        let chars = chars.unwrap_or(palette::cga_char_palette()).into_iter();
+        let colors = colors.iter();
+        let term = match mode {
+            TerminalMode::Ascii => chars.map(|m| m.to_string()).collect(),
+            TerminalMode::ColoredAscii => chars
+                .zip(colors)
+                .map(|(ch, co)| Self::ansi_codes(co.ansi_fg(), ch))
+                .collect(),
+            TerminalMode::Pixels => colors
+                .map(|co| Self::ansi_codes(co.ansi_bg(), ' '))
+                .collect(),
+            TerminalMode::HorizontalHalf => colors
+                .flat_map(|co| {
+                    [
+                        format!("{}{};", ANSIOPEN, co.ansi_fg()),
+                        format!("{}m{}{}", co.ansi_bg(), '▌', ANSIRESET),
+                    ]
+                })
+                .collect::<Vec<_>>(),
+            TerminalMode::VerticalHalf => colors
+                .flat_map(|co| {
+                    [
+                        format!("{}{};", ANSIOPEN, co.ansi_fg()),
+                        format!("{}m{}{}", co.ansi_bg(), '▀', ANSIRESET),
+                    ]
+                })
+                .collect(),
         };
 
         TerminalOptions {
             mode: mode,
-            chars: chars_or,
-            colors: colors,
             terminal: term,
         }
     }

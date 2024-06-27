@@ -64,6 +64,10 @@ pub fn palette_from_abbr(name: &str) -> ColorPalette {
     }
 }
 
+pub fn cga_char_palette() -> Palette<char> {
+    CGACHAR.to_vec()
+}
+
 pub fn custom_cga_chars_from_str(custom_string: &str) -> Palette<char> {
     custom_string.chars().collect()
 }
