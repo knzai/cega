@@ -5,10 +5,13 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/knzconnor/cega"
+readme = "README.md"
+keywords = ["gamedev", "graphics"]
+categories = ["command-line-utilities"]
 
 [features]
 #default = ["termart", "sdl2"]
-#termart = ["clap-v3"]
+#termart = ["clap-v4"]
 
 [dev-dependencies]
 rusty-hook = "^0.11.2"
@@ -16,10 +19,6 @@ rusty-hook = "^0.11.2"
 [dependencies]
 bitvec = "1"
 factor = "0.4.0"
-# strum = "0.26"
-# strum_macros = "0.26"
-#including for credit, but had to rework code to be a lib
-#rascii = { version = "0.1.2", optional = true } 
 
 clap = { version = "4.5.7", features = ["derive"] }
 #image = { version = "0.21.2", optional = true }
