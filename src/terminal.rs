@@ -57,10 +57,10 @@ impl TerminalOptions {
             let zipped = chars_or.iter().zip(colors.iter());
             match mode {
                 TerminalMode::ColoredAscii => zipped
-                    .map(|(ch, co)| format!("{}{}m{}{}", ANSIOPEN, co.ansi_fg(), ch, ANSIRESET))
+                    .map(|(ch, co)| Self::ansi_codes(co.ansi_fg(), *ch))
                     .collect::<Vec<_>>(),
                 TerminalMode::Pixels => zipped
-                    .map(|(ch, co)| format!("{}0;{}m{}{}", ANSIOPEN, co.ansi_bg(), ch, ANSIRESET))
+                    .map(|(_ch, co)| Self::ansi_codes(co.ansi_bg(), ' '))
                     .collect::<Vec<_>>(),
                 _ => zipped
                     .flat_map(|(ch, co)| {
@@ -80,6 +80,10 @@ impl TerminalOptions {
             terminal: term,
         }
     }
+    pub fn ansi_codes(co: u8, ch: char) -> String {
+        format!("{}{}m{}{}", ANSIOPEN, co, ch, ANSIRESET)
+    }
+
     pub fn output_image_string(&self, image: &Image) -> String {
         let mut buffer: String = DISABLEWRAPPING.to_owned();
         for (i, index) in image.output.iter().enumerate() {
