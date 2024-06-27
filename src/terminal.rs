@@ -41,13 +41,15 @@ impl TerminalOptions {
         chars: Option<palette::CharPalette>,
         colors: palette::ColorPalette,
     ) -> TerminalOptions {
+        let len = colors.len();
+
         let chars_or = match mode {
-            TerminalMode::Pixels => [' ', ' ', ' ', ' '].to_vec(),
+            TerminalMode::Pixels => vec![' '; len],
             TerminalMode::Ascii | TerminalMode::ColoredAscii => {
                 chars.unwrap_or(palette::CGACHAR.to_vec())
             }
-            TerminalMode::HorizontalHalf => ['▌', '▌', '▌', '▌'].to_vec(),
-            TerminalMode::VerticalHalf => ['▀', '▀', '▀', '▀'].to_vec(),
+            TerminalMode::HorizontalHalf => vec!['▌'; len],
+            TerminalMode::VerticalHalf => vec!['▀'; len],
         };
         let term = if let TerminalMode::Ascii = mode {
             chars_or.iter().map(|m| m.to_string()).collect()
