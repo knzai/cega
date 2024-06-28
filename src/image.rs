@@ -1,19 +1,12 @@
+use crate::exp;
 use crate::palette;
 use bitvec::prelude::*;
 
 use factor::factor::factor;
 
 pub trait ImageInputFormat {
-    fn word_size(&self) -> usize;
     fn palette_size(&self) -> usize;
-
-    fn palette_indices(&self, buffer: &[u8]) -> Vec<u8> {
-        buffer
-            .view_bits::<Msb0>()
-            .chunks(self.word_size())
-            .map(|m| m.load::<u8>())
-            .collect()
-    }
+    fn palette_indices(&self, buffer: &[u8], width: usize) -> Vec<u8>;
 }
 
 #[derive(Debug, Clone)]
@@ -46,16 +39,20 @@ pub fn type_from_str(str: &str) -> ImageType {
 }
 
 impl ImageInputFormat for ImageType {
-    fn word_size(&self) -> usize {
-        match self {
-            ImageType::CGA(_) => 2,
-            ImageType::EGA(_) => 4,
-        }
-    }
     fn palette_size(&self) -> usize {
         match self {
             ImageType::CGA(_) => 4,
             ImageType::EGA(_) => 16,
+        }
+    }
+    fn palette_indices(&self, buffer: &[u8], width: usize) -> Vec<u8> {
+        match self {
+            ImageType::CGA(_) => buffer
+                .view_bits::<Msb0>()
+                .chunks(2)
+                .map(|m| m.load::<u8>())
+                .collect(),
+            ImageType::EGA(_) => exp::EGARowPlanar::process_input(buffer, width),
         }
     }
 }
@@ -76,11 +73,12 @@ impl Image {
         img_string: &str,
     ) -> Self {
         let image_type = type_from_str(img_string);
-        let data = image_type.palette_indices(buffer);
+        let width = width.unwrap_or(320);
+        let data = image_type.palette_indices(buffer, width);
 
         Self {
             data: data.clone(),
-            width: width.unwrap_or(320),
+            width: width,
             output: data.clone(),
             palette: palette,
             image_type: image_type,

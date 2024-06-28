@@ -7,7 +7,7 @@ impl EGARowPlanar {
         let width = buffer.len() * 2;
         let mut nv: Vec<u8> = vec![0; width];
 
-        for (crow_num, color_row) in buffer.chunks(width / 8).enumerate() {
+        for color_row in buffer.chunks(width / 8) {
             for (i, b) in color_row.view_bits::<Msb0>().iter().by_vals().enumerate() {
                 nv[i] = nv[i] << 1 | b as u8;
             }
@@ -15,7 +15,7 @@ impl EGARowPlanar {
         nv
     }
 
-    fn process_input(buffer: &[u8], width: usize) -> Vec<u8> {
+    pub fn process_input(buffer: &[u8], width: usize) -> Vec<u8> {
         buffer
             .chunks(width / 2)
             .flat_map(|row| Self::process_row(row))
