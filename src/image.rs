@@ -1,63 +1,40 @@
 use crate::color::palette;
 use crate::parser;
-use crate::parser::ProcessBinary;
 
 use factor::factor::factor;
-
-#[derive(Debug, Clone)]
-pub enum ImageType {
-    CGA,
-    EGA(parser::EGARowPlanar),
-}
-
-impl std::fmt::Display for ImageType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let printable = match *self {
-            ImageType::CGA => "cga",
-            ImageType::EGA(_) => "ega",
-        };
-        write!(f, "{}", printable)
-    }
-}
-
-impl ImageType {
-    fn type_from_palette_size(size: usize) -> ImageType {
-        match size {
-            16 => ImageType::EGA(parser::EGARowPlanar),
-            4 | _ => ImageType::CGA,
-        }
-    }
-
-    fn palette_indices(&self, buffer: &[u8], width: usize) -> Vec<u8> {
-        match self {
-            ImageType::CGA => parser::CGA::process_input(buffer, width),
-            ImageType::EGA(_) => parser::EGARowPlanar::process_input(buffer, width),
-        }
-    }
-}
 
 pub struct Image {
     pub width: usize,
     pub data: Vec<u8>,
     pub output: Vec<u8>,
     pub palette: palette::ColorPalette,
-    pub image_type: ImageType,
 }
 
 impl Image {
-    pub fn new(buffer: &[u8], width: Option<usize>, palette: palette::ColorPalette) -> Self {
+    pub fn new(
+        buffer: &[u8],
+        width: Option<usize>,
+        palette: palette::ColorPalette,
+        image_parser: &str,
+    ) -> Self {
         let width = width.unwrap_or(320);
-        let pl = palette.len();
+        let parser = parser::ImageType::type_from_parser_str(image_parser);
 
-        let image_type = ImageType::type_from_palette_size(pl);
-        let data = image_type.palette_indices(buffer, width);
+        if parser.palette_length() > palette.len() {
+            panic!(
+                "{:?} needs palette_length of at least {}",
+                parser,
+                parser.palette_length()
+            )
+        }
+
+        let data = parser.process_input(buffer, width);
 
         Self {
             data: data.clone(),
             width: width,
             output: data.clone(),
             palette: palette,
-            image_type: image_type,
         }
     }
 

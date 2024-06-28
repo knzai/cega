@@ -10,16 +10,15 @@
 
 ## Warning
 
-This is currently very much in an alpha state. EGA is not currently implemented. Output to a usable file format is not either. It's currently a preview tool that uses ANSI escape codes for a terminal view and SDL2 for a gui preview window.
+This is currently very much in an alpha state. Output to a usable file format is not currently implemented. It's currently a preview tool that uses ANSI escape codes for a terminal view and SDL2 for a gui preview window.
 
 ## Usage
 
-This can be used as a library or executable. Pending finalizing internal API I'll demonstrate the CLI usage instead (check main.rs for how to call etc).
+This can be used as a library or executable. Pending finalizing internal API I'll demonstrate the CLI usage instead (check main.rs for how to call etc). Actual --help from CLI will always be up to date even if the docs aren't.
 
 The binary handles arguments (and thus help) via [clap 4](https://crates.io/crates/clap) 
 
 ```console
-     Running `target/debug/cega --help`
 Usage: cega [OPTIONS] <IMAGE>
 
 Arguments:
@@ -34,7 +33,10 @@ Options:
           h = horizontal half pixels
           Images may be wider than terminal and will then crop
   -p, --palette [<PALETTE>]
-          [default: 1] [possible values: 0, 0i, 1, 1i]
+          ega palette can be used for cga, but not the inverse
+           [default: ega] [possible values: cga0, cga0i, cga1, cga1i, ega]
+  -i, --image-parser <IMAGE_PARSER>
+          [default: cga] [possible values: ega_row_planar, erp, cga]
   -c, --custom-ascii <CUSTOM_ASCII>
           4 chars palette like -a " +%0"
   -w, --width <WIDTH>
@@ -47,13 +49,10 @@ Options:
           
   -q, --quiet
           
-  -i, --image-type <IMAGE_TYPE>
-          [default: cga] [possible values: cga, ega]
   -h, --help
           Print help
   -V, --version
           Print version
-
 ```
 
 

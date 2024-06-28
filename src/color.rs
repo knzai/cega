@@ -68,11 +68,11 @@ pub mod palette {
 
     pub fn palette_from_abbr(name: &str) -> ColorPalette {
         match name {
-            "e" => EGA0.to_vec(),
-            "0" => CGA0.to_vec(),
-            "0i" => CGA0I.to_vec(),
-            "1i" => CGA1I.to_vec(),
-            "1" | _ => CGA1.to_vec(),
+            "ega" => EGA0.to_vec(),
+            "cga0" => CGA0.to_vec(),
+            "cga0i" => CGA0I.to_vec(),
+            "cga1i" => CGA1I.to_vec(),
+            "cga1" | _ => CGA1.to_vec(),
         }
     }
 

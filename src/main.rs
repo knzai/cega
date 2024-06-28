@@ -16,8 +16,11 @@ struct Args {
     #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels\nImages may be wider than terminal and will then crop")]
     terminal_output: Option<TerminalMode>,
 
-    #[clap(value_parser(["0", "0i", "1", "1i", "e"]),num_args(0..=1), short, long, default_value="1")]
+    #[clap(value_parser(["cga0", "cga0i", "cga1", "cga1i", "ega"]),num_args(0..=1), short, long, default_value="ega", help="ega palette can be used for cga, but not the inverse\n")]
     palette: String,
+
+    #[clap(short, long, value_parser(["ega_row_planar", "erp", "cga"]), default_value="cga")]
+    image_parser: String,
 
     #[clap(short, long, value_parser = parse_asci_param, help="4 chars palette like -a \" +%0\"")]
     custom_ascii: Option<String>,
@@ -52,7 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = std::fs::read(&Path::new(&args.image))?;
     let palette = palette_from_abbr(&args.palette);
 
-    let mut image = Image::new(&reader, args.width, palette);
+    let mut image = Image::new(&reader, args.width, palette, &args.image_parser);
 
     if args.width.is_some() {
         image.retile(args.width.unwrap(), args.retile_height, args.max_width);
