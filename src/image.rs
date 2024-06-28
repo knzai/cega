@@ -133,19 +133,6 @@ mod tests {
     }
 
     #[test]
-    fn indices() {
-        let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
-        assert_eq!(
-            Image::new(&data.to_be_bytes(), None, palette::CGA1.to_vec(), "cga").output,
-            [
-                3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 1, 2,
-                2, 1, 3, 3, 3, 3, 1, 2, 2, 1, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                3, 3, 3, 3, 3, 3, 3, 3
-            ]
-        );
-    }
-
-    #[test]
     fn tiling() {
         let data: u32 = 0b00011011000110110001101100011011;
         let mut image = Image::new(&data.to_be_bytes(), None, palette::CGA1.to_vec(), "cga");

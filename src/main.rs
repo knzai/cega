@@ -13,7 +13,7 @@ struct Args {
     #[clap(name = "IMAGE")]
     image: PathBuf,
 
-    #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels\nImages may be wider than terminal and will then crop")]
+    #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels (UGLY)\nImages may be wider than terminal and will then crop")]
     terminal_output: Option<TerminalMode>,
 
     #[clap(value_parser(["cga0", "cga0i", "cga1", "cga1i", "ega"]),num_args(0..=1), short, long, default_value="ega", help="ega palette can be used for cga, but not the inverse\n")]
