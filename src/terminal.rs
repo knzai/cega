@@ -38,7 +38,7 @@ impl TerminalPalette {
         let chars = if chars.is_some() {
             chars.unwrap().chars().collect()
         } else {
-            palette::cga_char_palette()
+            palette::ega_char_palette()
         }
         .into_iter();
         let colors = colors.iter();

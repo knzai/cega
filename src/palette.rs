@@ -7,6 +7,7 @@ pub type CharPalette = Vec<char>;
 pub type CGAColorPalette = [Color; 4];
 pub type CGACharPalette = [char; 4];
 pub type EGAColorPalette = [Color; 16];
+pub type EGACharPalette = [char; 16];
 
 pub const CGA0: CGAColorPalette = [
     Color::Black(false),
@@ -53,6 +54,9 @@ pub const EGA0: EGAColorPalette = [
 ];
 
 pub const CGACHAR: CGACharPalette = [' ', '*', '+', '▒'];
+pub const EGACHAR: EGACharPalette = [
+    ' ', '.', ':', '-', '=', '+', '*', '▒', '▓', '•', '#', '‖', '%', '@', '⁌', '█',
+];
 
 pub fn palette_from_abbr(name: &str) -> ColorPalette {
     match name {
@@ -66,4 +70,7 @@ pub fn palette_from_abbr(name: &str) -> ColorPalette {
 
 pub fn cga_char_palette() -> Palette<char> {
     CGACHAR.to_vec()
+}
+pub fn ega_char_palette() -> Palette<char> {
+    EGACHAR.to_vec()
 }

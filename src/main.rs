@@ -16,7 +16,7 @@ struct Args {
     #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels\nImages may be wider than terminal and will then crop")]
     terminal_output: Option<terminal::TerminalMode>,
 
-    #[clap(value_parser(["0", "0i", "1", "1i"]),num_args(0..=1), short, long, default_value="1")]
+    #[clap(value_parser(["0", "0i", "1", "1i", "e"]),num_args(0..=1), short, long, default_value="1")]
     palette: String,
 
     #[clap(short, long, value_parser = parse_asci_param, help="4 chars palette like -a \" +%0\"")]
