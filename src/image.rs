@@ -1,58 +1,44 @@
 use crate::exp;
+use crate::exp::ProcessBinary;
 use crate::palette;
-use bitvec::prelude::*;
 
 use factor::factor::factor;
 
-pub trait ImageInputFormat {
-    fn palette_size(&self) -> usize;
-    fn palette_indices(&self, buffer: &[u8], width: usize) -> Vec<u8>;
-}
-
 #[derive(Debug, Clone)]
 pub enum ImageType {
-    CGA(CGA),
-    EGA(EGA),
+    CGA,
+    EGA,
 }
 
 impl std::fmt::Display for ImageType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let printable = match *self {
-            ImageType::CGA(_) => "cga",
-            ImageType::EGA(_) => "ega",
+            ImageType::CGA => "cga",
+            ImageType::EGA => "ega",
         };
         write!(f, "{}", printable)
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct CGA;
-#[derive(Debug, Clone)]
-pub struct EGA;
-
 pub fn type_from_str(str: &str) -> ImageType {
     match str {
-        "cga" => ImageType::CGA(CGA),
-        "ega" => ImageType::EGA(EGA),
+        "cga" => ImageType::CGA,
+        "ega" => ImageType::EGA,
         _ => panic!("invalid ImageType"),
     }
 }
 
-impl ImageInputFormat for ImageType {
+impl ImageType {
     fn palette_size(&self) -> usize {
         match self {
-            ImageType::CGA(_) => 4,
-            ImageType::EGA(_) => 16,
+            ImageType::CGA => 4,
+            ImageType::EGA => 16,
         }
     }
     fn palette_indices(&self, buffer: &[u8], width: usize) -> Vec<u8> {
         match self {
-            ImageType::CGA(_) => buffer
-                .view_bits::<Msb0>()
-                .chunks(2)
-                .map(|m| m.load::<u8>())
-                .collect(),
-            ImageType::EGA(_) => exp::EGARowPlanar::process_input(buffer, width),
+            ImageType::CGA => exp::CGA::process_input(buffer, width),
+            ImageType::EGA => exp::EGARowPlanar::process_input(buffer, width),
         }
     }
 }
