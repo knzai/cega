@@ -2,11 +2,10 @@ use std::path::{Path, PathBuf};
 
 use clap::Parser;
 
-use cega::color::palette;
+use cega::color::palette::palette_from_abbr;
 use cega::image::Image;
-use cega::terminal::TerminalMode;
-use cega::terminal::TerminalPalette;
-use cega::{sdl, terminal};
+use cega::sdl::render_sdl;
+use cega::terminal::{TerminalMode, TerminalPalette};
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
@@ -15,7 +14,7 @@ struct Args {
     image: PathBuf,
 
     #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels\nImages may be wider than terminal and will then crop")]
-    terminal_output: Option<terminal::TerminalMode>,
+    terminal_output: Option<TerminalMode>,
 
     #[clap(value_parser(["0", "0i", "1", "1i", "e"]),num_args(0..=1), short, long, default_value="1")]
     palette: String,
@@ -54,7 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     let reader = std::fs::read(&Path::new(&args.image))?;
-    let palette = palette::palette_from_abbr(&args.palette);
+    let palette = palette_from_abbr(&args.palette);
 
     let mut image = Image::new(&reader, args.width, palette, &args.image_type);
 
@@ -88,7 +87,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if args.sdl {
-        sdl::render_sdl(image)?
+        render_sdl(image)?
     }
     Ok(())
 }
