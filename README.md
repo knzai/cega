@@ -75,3 +75,8 @@ cega will ouput in different preview formats, such as colored ASCII or a gui win
 
 <img width="650" alt="cega ../../assets/game/CGATILES.BIN -w 16 -r 16 -i cga -t c -c 1234 -s" src="https://github.com/knzconnor/cega/assets/53/593e9c9f-2780-4201-af93-7073155e876c">
 
+## Acknowledgements & References
+* https://moddingwiki.shikadi.net/wiki/Main_Page
+* https://moddingwiki.shikadi.net/wiki/Raw_EGA_data
+* https://moddingwiki.shikadi.net/wiki/Ultima_I_Tile_Graphic_Format
+* https://moddingwiki.shikadi.net/wiki/User:TheAlmightyGuru
