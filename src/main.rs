@@ -36,9 +36,6 @@ struct Args {
 
     #[clap(short, long, default_value_t = false)]
     quiet: bool,
-
-    #[clap(value_parser(["cga", "ega"]),short, long, default_value = "cga")]
-    image_type: String,
 }
 
 fn parse_asci_param(arg: &str) -> Result<String, String> {
@@ -55,7 +52,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = std::fs::read(&Path::new(&args.image))?;
     let palette = palette_from_abbr(&args.palette);
 
-    let mut image = Image::new(&reader, args.width, palette, &args.image_type);
+    let mut image = Image::new(&reader, args.width, palette);
 
     if args.width.is_some() {
         image.retile(args.width.unwrap(), args.retile_height, args.max_width);

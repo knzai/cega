@@ -20,21 +20,14 @@ impl std::fmt::Display for ImageType {
     }
 }
 
-pub fn type_from_str(str: &str) -> ImageType {
-    match str {
-        "cga" => ImageType::CGA,
-        "ega" => ImageType::EGA(parser::EGARowPlanar),
-        _ => panic!("invalid ImageType"),
-    }
-}
-
 impl ImageType {
-    // fn palette_size(&self) -> usize {
-    //     match self {
-    //         ImageType::CGA => 4,
-    //         ImageType::EGA => 16,
-    //     }
-    // }
+    fn type_from_palette_size(size: usize) -> ImageType {
+        match size {
+            16 => ImageType::EGA(parser::EGARowPlanar),
+            4 | _ => ImageType::CGA,
+        }
+    }
+
     fn palette_indices(&self, buffer: &[u8], width: usize) -> Vec<u8> {
         match self {
             ImageType::CGA => parser::CGA::process_input(buffer, width),
@@ -52,14 +45,11 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn new(
-        buffer: &[u8],
-        width: Option<usize>,
-        palette: palette::ColorPalette,
-        img_string: &str,
-    ) -> Self {
-        let image_type = type_from_str(img_string);
+    pub fn new(buffer: &[u8], width: Option<usize>, palette: palette::ColorPalette) -> Self {
         let width = width.unwrap_or(320);
+        let pl = palette.len();
+
+        let image_type = ImageType::type_from_palette_size(pl);
         let data = image_type.palette_indices(buffer, width);
 
         Self {
