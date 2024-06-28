@@ -1,6 +1,6 @@
-use crate::exp;
-use crate::exp::ProcessBinary;
 use crate::palette;
+use crate::parser;
+use crate::parser::ProcessBinary;
 
 use factor::factor::factor;
 
@@ -29,16 +29,16 @@ pub fn type_from_str(str: &str) -> ImageType {
 }
 
 impl ImageType {
-    fn palette_size(&self) -> usize {
-        match self {
-            ImageType::CGA => 4,
-            ImageType::EGA => 16,
-        }
-    }
+    // fn palette_size(&self) -> usize {
+    //     match self {
+    //         ImageType::CGA => 4,
+    //         ImageType::EGA => 16,
+    //     }
+    // }
     fn palette_indices(&self, buffer: &[u8], width: usize) -> Vec<u8> {
         match self {
-            ImageType::CGA => exp::CGA::process_input(buffer, width),
-            ImageType::EGA => exp::EGARowPlanar::process_input(buffer, width),
+            ImageType::CGA => parser::CGA::process_input(buffer, width),
+            ImageType::EGA => parser::EGARowPlanar::process_input(buffer, width),
         }
     }
 }

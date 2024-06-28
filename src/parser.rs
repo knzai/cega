@@ -43,13 +43,12 @@ impl EGARowPlanar {
 
 #[cfg(test)]
 mod tests {
-    use crate::exp;
-    use crate::exp::ProcessBinary;
+    use crate::parser::*;
 
     #[test]
     fn test_ega_row_planar_row() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let buffer = exp::EGARowPlanar::process_row(&data.to_be_bytes());
+        let buffer = EGARowPlanar::process_row(&data.to_be_bytes());
         assert_eq!(buffer.len(), 8);
 
         assert_eq!(
@@ -62,7 +61,7 @@ mod tests {
     fn test_ega_row_planar_process_input() {
         let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
         assert_eq!(
-            exp::EGARowPlanar::process_input(&data.to_be_bytes(), 8),
+            EGARowPlanar::process_input(&data.to_be_bytes(), 8),
             vec!(
                 15, 15, 15, 15, 15, 15, 15, 15, 11, 14, 14, 15, 13, 15, 7, 13, 14, 11, 11, 15, 7,
                 15, 13, 7, 15, 15, 15, 15, 15, 15, 15, 15
@@ -73,7 +72,7 @@ mod tests {
     fn test_cga_process_input() {
         let data: u128 = 0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FF;
         assert_eq!(
-            exp::CGA::process_input(&data.to_be_bytes(), 8),
+            CGA::process_input(&data.to_be_bytes(), 8),
             vec!(
                 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 1, 2,
                 2, 1, 3, 3, 3, 3, 1, 2, 2, 1, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
