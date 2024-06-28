@@ -4,7 +4,8 @@ use crate::parser;
 use factor::factor::factor;
 
 pub struct Image {
-    pub width: usize,
+    pub tile_width: usize,
+    pub max_width: usize,
     pub data: Vec<u8>,
     pub output: Vec<u8>,
     pub palette: palette::ColorPalette,
@@ -13,13 +14,13 @@ pub struct Image {
 impl Image {
     pub fn new(
         buffer: &[u8],
-        width: Option<usize>,
+        tile_width: Option<usize>,
+        max_width: usize,
         palette: palette::ColorPalette,
         image_parser: &str,
     ) -> Self {
-        let width = width.unwrap_or(320);
         let parser = parser::ImageType::type_from_parser_str(image_parser);
-
+        let tile_width = tile_width.unwrap_or(max_width);
         if parser.palette_length() > palette.len() {
             panic!(
                 "{:?} needs palette_length of at least {}",
@@ -28,13 +29,14 @@ impl Image {
             )
         }
 
-        let data = parser.process_input(buffer, width);
+        let data = parser.process_input(buffer, tile_width);
 
         Self {
             data: data.clone(),
-            width: width,
+            tile_width: tile_width,
+            max_width,
             output: data.clone(),
-            palette: palette,
+            palette,
         }
     }
 
@@ -47,8 +49,8 @@ impl Image {
     }
 
     pub fn is_tall(&self) -> bool {
-        let h = self.pixel_count() / self.width;
-        if h >= self.width * 4 {
+        let h = self.pixel_count() / self.tile_width;
+        if h >= self.max_width * 4 {
             true
         } else {
             false
@@ -62,14 +64,20 @@ impl Image {
     pub fn height_factors(&self) -> Vec<i64> {
         factor(
             <usize as TryInto<i64>>::try_into(self.pixel_count()).unwrap()
-                / <usize as TryInto<i64>>::try_into(self.width).unwrap(),
+                / <usize as TryInto<i64>>::try_into(self.tile_width).unwrap(),
         )
     }
 
-    pub fn retile(&mut self, width: usize, tile_height: Option<usize>, max_width: usize) -> &Self {
-        self.width = width;
+    pub fn retile(
+        &mut self,
+        tile_width: usize,
+        tile_height: Option<usize>,
+        max_width: usize,
+    ) -> &Self {
+        self.tile_width = tile_width;
         if tile_height.is_none() {
             self.output = self.data.clone();
+            self.max_width = tile_width;
             return self;
         }
 
@@ -77,19 +85,19 @@ impl Image {
         let tile_height = tile_height.unwrap();
         //let max_width = max_width.unwrap_or(pc / tile_height);
 
-        let tiles_per_row = max_width / width;
-        self.width = tiles_per_row * width;
-        let pixel_per_tile = width * tile_height;
+        let tiles_per_row = max_width / tile_width;
+        self.max_width = tiles_per_row * tile_width;
+        let pixel_per_tile = tile_width * tile_height;
         let num_tiles = pc / pixel_per_tile;
         let tile_rows = num_tiles.div_ceil(tiles_per_row);
 
-        let mut output: Vec<u8> = vec![0; max_width * tile_rows * tile_height];
+        let mut output: Vec<u8> = vec![0; self.max_width * tile_rows * tile_height];
 
         for (i, index) in self.data.iter().enumerate() {
             output[new_index(
                 i,
                 pixel_per_tile,
-                width,
+                tile_width,
                 tile_height,
                 max_width,
                 tiles_per_row,

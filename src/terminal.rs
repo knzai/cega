@@ -93,7 +93,7 @@ impl TerminalPalette {
     pub fn output_image_string(&self, image: &Image) -> String {
         let mut buffer: String = DISABLEWRAPPING.to_owned();
         for (i, index) in image.output.iter().enumerate() {
-            if i % image.width == 0 {
+            if i % image.max_width == 0 {
                 buffer.push_str("\n");
             }
             let mut index = *index as usize;

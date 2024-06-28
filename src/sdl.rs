@@ -37,8 +37,8 @@ pub fn render_sdl(image: Image) -> Result<(), Box<dyn std::error::Error>> {
     let sdlpal: Palette<Sdl2Color> = image.palette.iter().map(|m| m.into()).collect();
 
     for (i, index) in image.output.iter().enumerate() {
-        let x = i % image.width;
-        let y = i / image.width;
+        let x = i % image.max_width;
+        let y = i / image.max_width;
         canvas.pixel(
             x.try_into().unwrap(),
             y.try_into().unwrap(),
