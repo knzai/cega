@@ -1,6 +1,5 @@
 pub mod color;
 pub mod image;
-pub mod palette;
 pub mod parser;
 
 //#[cfg(feature = "sdl2")]

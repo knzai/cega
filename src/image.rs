@@ -1,4 +1,4 @@
-use crate::palette;
+use crate::color::palette;
 use crate::parser;
 use crate::parser::ProcessBinary;
 
@@ -7,14 +7,14 @@ use factor::factor::factor;
 #[derive(Debug, Clone)]
 pub enum ImageType {
     CGA,
-    EGA,
+    EGA(parser::EGARowPlanar),
 }
 
 impl std::fmt::Display for ImageType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let printable = match *self {
             ImageType::CGA => "cga",
-            ImageType::EGA => "ega",
+            ImageType::EGA(_) => "ega",
         };
         write!(f, "{}", printable)
     }
@@ -23,7 +23,7 @@ impl std::fmt::Display for ImageType {
 pub fn type_from_str(str: &str) -> ImageType {
     match str {
         "cga" => ImageType::CGA,
-        "ega" => ImageType::EGA,
+        "ega" => ImageType::EGA(parser::EGARowPlanar),
         _ => panic!("invalid ImageType"),
     }
 }
@@ -38,7 +38,7 @@ impl ImageType {
     fn palette_indices(&self, buffer: &[u8], width: usize) -> Vec<u8> {
         match self {
             ImageType::CGA => parser::CGA::process_input(buffer, width),
-            ImageType::EGA => parser::EGARowPlanar::process_input(buffer, width),
+            ImageType::EGA(_) => parser::EGARowPlanar::process_input(buffer, width),
         }
     }
 }
@@ -153,8 +153,8 @@ fn new_index(
 
 #[cfg(test)]
 mod tests {
+    use crate::color::palette;
     use crate::image::Image;
-    use crate::palette;
 
     #[test]
     fn is_fullscreen() {

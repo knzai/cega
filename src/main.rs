@@ -2,10 +2,11 @@ use std::path::{Path, PathBuf};
 
 use clap::Parser;
 
+use cega::color::palette;
 use cega::image::Image;
 use cega::terminal::TerminalMode;
 use cega::terminal::TerminalPalette;
-use cega::{palette, sdl, terminal};
+use cega::{sdl, terminal};
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]

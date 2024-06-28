@@ -9,18 +9,10 @@ pub enum Color {
     Brown(bool), // Brown - Yellow
     White(bool), // Light Gray - White
 }
+
 impl Color {
     pub fn ansi_fg(&self) -> u8 {
         match self {
-            //this is really just 0-7 with either a 30 or 90 offset
-            //maybe revisit and make a macro with that math
-            // Color::Black(i) => {
-            //     if *i {
-            //         90
-            //     } else {
-            //         30
-            //     }
-            // }
             Color::Black(false) => 30,
             Color::Red(false) => 31,
             Color::Green(false) => 32,
@@ -64,6 +56,69 @@ impl Color {
             Color::White(false) => 0xAAAAAA,
         }
     }
+}
+
+pub mod palette {
+    use crate::color::Color;
+
+    pub type Palette<T> = Vec<T>;
+    pub type ColorPalette = Vec<Color>;
+    pub type CGAColorPalette = [Color; 4];
+    pub type EGAColorPalette = [Color; 16];
+
+    pub fn palette_from_abbr(name: &str) -> ColorPalette {
+        match name {
+            "e" => EGA0.to_vec(),
+            "0" => CGA0.to_vec(),
+            "0i" => CGA0I.to_vec(),
+            "1i" => CGA1I.to_vec(),
+            "1" | _ => CGA1.to_vec(),
+        }
+    }
+
+    pub const CGA0: CGAColorPalette = [
+        Color::Black(false),
+        Color::Cyan(true),
+        Color::Magenta(true),
+        Color::White(true),
+    ];
+    pub const CGA0I: CGAColorPalette = [
+        Color::Black(false),
+        Color::Green(true),
+        Color::Red(true),
+        Color::Brown(true),
+    ];
+    pub const CGA1: CGAColorPalette = [
+        Color::Black(false),
+        Color::Cyan(false),
+        Color::Magenta(false),
+        Color::White(false),
+    ];
+    pub const CGA1I: CGAColorPalette = [
+        Color::Black(false),
+        Color::Cyan(true),
+        Color::Magenta(true),
+        Color::White(true),
+    ];
+
+    pub const EGA0: EGAColorPalette = [
+        Color::Black(false),
+        Color::Blue(false),
+        Color::Green(false),
+        Color::Cyan(false),
+        Color::Red(false),
+        Color::Magenta(false),
+        Color::Brown(false),
+        Color::White(false),
+        Color::Black(true),
+        Color::Blue(true),
+        Color::Green(true),
+        Color::Cyan(true),
+        Color::Red(true),
+        Color::Magenta(true),
+        Color::Brown(true),
+        Color::White(true),
+    ];
 }
 
 #[cfg(test)]

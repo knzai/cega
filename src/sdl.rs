@@ -1,5 +1,5 @@
+use crate::color::palette::Palette;
 use crate::image::Image;
-use crate::palette::Palette;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::pixels::PixelFormatEnum::RGB888 as ColorFormat;
 use sdl2::{event::Event, keyboard::Keycode};

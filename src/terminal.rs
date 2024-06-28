@@ -1,11 +1,27 @@
 use crate::image::Image;
 
-use crate::palette;
+use crate::color::palette;
+
+pub type CharPalette = Vec<char>;
+pub type CGACharPalette = [char; 4];
+pub type EGACharPalette = [char; 16];
 
 pub const ANSIOPEN: &str = "\x1b[";
 pub const ANSIRESET: &str = "\x1b[0m";
 pub const DISABLEWRAPPING: &str = "\x1b[?7l";
 pub const ENABLEWRAPPING: &str = "\x1b[?7h";
+
+pub const CGACHAR: CGACharPalette = [' ', '*', '+', '▒'];
+pub const EGACHAR: EGACharPalette = [
+    ' ', '.', ':', '-', '=', '+', '*', '▒', '▓', '•', '#', '‖', '%', '@', '⁌', '█',
+];
+
+pub fn cga_char_palette() -> CharPalette {
+    CGACHAR.to_vec()
+}
+pub fn ega_char_palette() -> CharPalette {
+    EGACHAR.to_vec()
+}
 
 #[derive(Clone, Debug)]
 pub enum TerminalMode {
@@ -38,7 +54,7 @@ impl TerminalPalette {
         let chars = if chars.is_some() {
             chars.unwrap().chars().collect()
         } else {
-            palette::ega_char_palette()
+            ega_char_palette()
         }
         .into_iter();
         let colors = colors.iter();

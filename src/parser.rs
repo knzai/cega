@@ -1,7 +1,9 @@
 use bitvec::prelude::*;
 
 //https://moddingwiki.shikadi.net/wiki/Raw_EGA_data#Row-planar_EGA_data
+#[derive(Debug, Clone)]
 pub struct EGARowPlanar;
+#[derive(Debug)]
 pub struct CGA;
 
 pub trait ProcessBinary {
