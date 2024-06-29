@@ -3,9 +3,10 @@ use crate::parser;
 #[allow(unused_imports)]
 use factor::factor::factor;
 
+type Grid = Vec<Vec<u8>>;
+
 pub struct Image {
-    pub width: usize,
-    pub data: Vec<Vec<u8>>,
+    pub data: Grid,
 }
 
 impl Image {
@@ -21,36 +22,38 @@ impl Image {
 
         let data = parser.process_input(buffer, width);
 
-        Self { data, width }
+        Self { data }
+    }
+
+    pub fn pixel_count(&self) -> usize {
+        self.height() * self.width()
+    }
+
+    pub fn height(&self) -> usize {
+        self.data.len()
+    }
+    pub fn width(&self) -> usize {
+        self.data[0].len()
     }
 
     pub fn is_fullscreen(&self) -> bool {
         self.pixel_count() == 64_000
     }
 
-    pub fn pixel_count(&self) -> usize {
-        self.data.len() * self.data[0].len()
+    pub fn is_tall(&self) -> bool {
+        (self.height() / self.width()) > 4
     }
 
-    // pub fn is_tall(&self) -> bool {
-    //     let h = self.pixel_count() / self.width;
-    //     if h >= self.width * 4 {
-    //         true
-    //     } else {
-    //         false
-    //     }
-    // }
+    pub fn width_factors(&self) -> Vec<i64> {
+        factor(self.pixel_count().try_into().unwrap())
+    }
 
-    // pub fn width_factors(&self) -> Vec<i64> {
-    //     factor(self.pixel_count().try_into().unwrap())
-    // }
-    //
-    // pub fn height_factors(&self) -> Vec<i64> {
-    //     factor(
-    //         <usize as TryInto<i64>>::try_into(self.pixel_count()).unwrap()
-    //             / <usize as TryInto<i64>>::try_into(self.tile_width).unwrap(),
-    //     )
-    // }
+    pub fn height_factors(&self) -> Vec<i64> {
+        factor(
+            <usize as TryInto<i64>>::try_into(self.pixel_count()).unwrap()
+                / <usize as TryInto<i64>>::try_into(self.width()).unwrap(),
+        )
+    }
 
     fn concat_tiles(tiles: Vec<Vec<u8>>, num_rows: usize) -> Vec<Vec<u8>> {
         //TODO; make this into a fold?
@@ -65,7 +68,7 @@ impl Image {
 
     pub fn retile(&mut self, tile_height: usize, max_width: Option<usize>) -> Vec<Vec<u8>> {
         let tiles_per_row = if max_width.is_some() {
-            max_width.unwrap() / self.width
+            max_width.unwrap() / self.width()
         } else {
             self.pixel_count() / tile_height
         };
@@ -87,11 +90,21 @@ mod tests {
     #[test]
     fn basic_properties() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let image = Image::new(&data.to_be_bytes(), 4, "cga");
+        let mut image = Image::new(&data.to_be_bytes(), 4, "cga");
 
         assert_eq!(image.pixel_count(), 16);
-        assert!(!image.is_fullscreen());
-        //todo!("Test with actual fullscreen data");
+        assert_eq!(image.width(), 4);
+        assert_eq!(image.height(), 4);
+        assert!(!image.is_fullscreen()); //todo!("Test with actual fullscreen data");
+        assert_eq!(image.width_factors(), [2, 4, 8]);
+        assert_eq!(image.height_factors(), [2]);
+        assert!(!image.is_tall());
+        image = Image::new(
+            &0b0001101100011011000110110001101100011011000110110001101100011011_u64.to_be_bytes(),
+            2,
+            "cga",
+        );
+        assert!(image.is_tall());
     }
 
     #[test]
@@ -111,25 +124,48 @@ mod tests {
         );
     }
 
-    // #[test]
-    // fn tiling() {
-    //     let data: u32 = 0b00011011000110110001101100011011;
-    //     let mut image = Image::new(&data.to_be_bytes(), 2, 4, palette::CGA1.to_vec(), "cga");
-    //     image.retile(2, Some(2), 4);
-    //     assert_eq!(
-    //         image.output,
-    //         [0, 1, 0, 1, 2, 3, 2, 3, 0, 1, 0, 1, 2, 3, 2, 3]
-    //     );
-    //
-    //     let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
-    //     let mut image = Image::new(&data.to_be_bytes(), 2, 4, palette::CGA1.to_vec(), "cga");
-    //     image.retile(2, Some(2), 6);
-    //     assert_eq!(
-    //         image.output,
-    //         [
-    //             0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 0, 1, 0, 1,
-    //             0, 0, 2, 3, 2, 3, 0, 0
-    //         ]
-    //     );
-    // }
+    #[test]
+    fn tiling() {
+        let data: u32 = 0b00011011000110110001101100011011;
+        let mut image = Image::new(&data.to_be_bytes(), 2, "cga");
+        image.retile(2, Some(4));
+        assert_eq!(
+            image.data,
+            [
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3]
+            ]
+        );
+
+        let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
+        let mut image = Image::new(&data.to_be_bytes(), 2, "cga");
+        image.retile(2, Some(6));
+        assert_eq!(
+            image.data,
+            vec![
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3],
+                vec![0, 1],
+                vec![2, 3]
+            ]
+        );
+    }
 }

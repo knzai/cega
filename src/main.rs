@@ -78,18 +78,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    // if !args.quiet {
-    //     println!("\n---------");
-    //     if !image.is_fullscreen() {
-    //         if args.width_tile.is_none() {
-    //             println!("Image appears to not be fullscreen 320*200. It may be tiled, try setting an explicit -w width, which will also quiet this message.");
-    //             println!("Possible widths: {:?}", image.width_factors());
-    //         } else if image.is_tall() {
-    //             println!("Image height appears to >= 4x its width. If there are tiles, setting -t tile_height will make a more compact view");
-    //             println!("Possible heights: {:?}", image.height_factors());
-    //         }
-    //     }
-    // }
+    if !args.quiet {
+        if !image.is_fullscreen() {
+            if args.width == 320 {
+                println!("\nImage appears to not be fullscreen 320*200. It may be tiled, try setting a narrower -w width to detect tiles.");
+                println!("Possible widths: {:?}", image.width_factors());
+            } else if args.tile_height.is_none() && image.is_tall() {
+                println!("\nImage height appears to >= 4x its width. If there are tiles, setting -t tile_height will make a more compact view");
+                println!("Possible heights: {:?}", image.height_factors());
+            }
+        }
+    }
 
     if args.sdl {
         render_sdl(image_data, palette)?
