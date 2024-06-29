@@ -92,17 +92,26 @@ impl TerminalPalette {
 
     pub fn output_image_string(&self, image: &Image) -> String {
         let mut buffer: String = DISABLEWRAPPING.to_owned();
-        for (i, index) in image.output.iter().enumerate() {
-            if i % image.max_width == 0 {
-                buffer.push_str("\n");
-            }
-            let mut index = *index as usize;
-            if let TerminalMode::HorizontalHalf = self.mode {
-                index = Self::hhalf_adjusted_index(index, i);
-            };
 
-            buffer.push_str(&self.terminal[index]);
-        }
+        let out = image
+            .output
+            .iter()
+            .map(|row| {
+                row.iter()
+                    .enumerate()
+                    .map(|(i, index)| {
+                        let mut ind = *index as usize;
+                        if let TerminalMode::HorizontalHalf = self.mode {
+                            ind = Self::hhalf_adjusted_index(ind, i);
+                        };
+                        self.terminal[ind].to_owned()
+                    })
+                    .collect::<String>()
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        buffer.push_str(&out);
         buffer.push_str(ENABLEWRAPPING);
 
         buffer

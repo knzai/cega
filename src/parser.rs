@@ -9,37 +9,77 @@ pub struct CGA;
 #[derive(Debug, Clone, Copy)]
 pub enum ImageType {
     CGA,
-    EGA(EGARowPlanar),
+    EGA,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ParserType {
+    CGA,
+    EGARowPlanar,
+}
+
+impl ParserType {
+    pub fn image_type(&self) -> ImageType {
+        match self {
+            Self::CGA => ImageType::CGA,
+            Self::EGARowPlanar => ImageType::EGA,
+        }
+    }
+    pub fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>> {
+        match self {
+            Self::CGA => CGA.process_input(buffer, width),
+            Self::EGARowPlanar => EGARowPlanar.process_input(buffer, width),
+        }
+    }
+
+    pub fn type_str(str: &str) -> ParserType {
+        match str {
+            "ega_row_parser" | "erp" => ParserType::EGARowPlanar,
+            _ => ParserType::CGA,
+        }
+    }
 }
 
 impl ImageType {
     pub fn palette_length(&self) -> usize {
         match self {
-            ImageType::CGA => 4,
-            ImageType::EGA(_) => 16,
+            Self::CGA => 4,
+            Self::EGA => 16,
         }
     }
-    pub fn process_input(&self, buffer: &[u8], width: usize) -> Vec<u8> {
+    pub fn word_size(&self) -> usize {
         match self {
-            ImageType::CGA => CGA.process_input(buffer, width),
-            ImageType::EGA(EGARowPlanar) => EGARowPlanar.process_input(buffer, width),
-        }
-    }
-
-    pub fn type_from_parser_str(str: &str) -> ImageType {
-        match str {
-            "ega_row_parser" | "erp" => ImageType::EGA(EGARowPlanar),
-            _ => ImageType::CGA,
+            Self::CGA => 2,
+            Self::EGA => 4,
         }
     }
 }
 
 pub trait ProcessBinary {
-    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<u8>;
+    fn image_type(&self) -> ImageType;
+    fn process_row(&self, buffer: &[u8]) -> Vec<u8>;
+    fn word_size(&self) -> usize {
+        self.image_type().word_size()
+    }
+
+    fn pixels_per_byte(&self) -> usize {
+        8 / self.word_size()
+    }
+
+    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>> {
+        buffer
+            .chunks(width / self.pixels_per_byte())
+            .map(|row| self.process_row(row))
+            .collect()
+    }
 }
 
 impl ProcessBinary for CGA {
-    fn process_input(&self, buffer: &[u8], _width: usize) -> Vec<u8> {
+    fn image_type(&self) -> ImageType {
+        ImageType::CGA
+    }
+
+    fn process_row(&self, buffer: &[u8]) -> Vec<u8> {
         buffer
             .view_bits::<Msb0>()
             .chunks(2)
@@ -49,15 +89,10 @@ impl ProcessBinary for CGA {
 }
 
 impl ProcessBinary for EGARowPlanar {
-    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<u8> {
-        buffer
-            .chunks(width / 2)
-            .flat_map(|row| self.process_row(row))
-            .collect()
+    fn image_type(&self) -> ImageType {
+        ImageType::EGA
     }
-}
 
-impl EGARowPlanar {
     fn process_row(&self, buffer: &[u8]) -> Vec<u8> {
         let width = buffer.len() * 2;
         let mut nv: Vec<u8> = vec![0; width];
@@ -93,8 +128,10 @@ mod tests {
         assert_eq!(
             EGARowPlanar.process_input(&data.to_be_bytes(), 8),
             vec!(
-                15, 15, 15, 15, 15, 15, 15, 15, 11, 14, 14, 15, 13, 15, 7, 13, 14, 11, 11, 15, 7,
-                15, 13, 7, 15, 15, 15, 15, 15, 15, 15, 15
+                vec!(15, 15, 15, 15, 15, 15, 15, 15),
+                vec!(11, 14, 14, 15, 13, 15, 7, 13),
+                vec!(14, 11, 11, 15, 7, 15, 13, 7),
+                vec!(15, 15, 15, 15, 15, 15, 15, 15),
             )
         );
     }
@@ -104,9 +141,14 @@ mod tests {
         assert_eq!(
             CGA.process_input(&data.to_be_bytes(), 8),
             vec!(
-                3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 1, 2,
-                2, 1, 3, 3, 3, 3, 1, 2, 2, 1, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                3, 3, 3, 3, 3, 3, 3, 3
+                vec!(3, 3, 3, 3, 3, 3, 3, 3),
+                vec!(3, 3, 3, 3, 3, 3, 3, 3),
+                vec!(3, 3, 3, 1, 1, 3, 3, 3),
+                vec!(3, 3, 1, 2, 2, 1, 3, 3),
+                vec!(3, 3, 1, 2, 2, 1, 3, 3),
+                vec!(3, 3, 3, 1, 1, 3, 3, 3),
+                vec!(3, 3, 3, 3, 3, 3, 3, 3),
+                vec!(3, 3, 3, 3, 3, 3, 3, 3),
             )
         );
     }
