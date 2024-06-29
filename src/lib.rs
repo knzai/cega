@@ -15,3 +15,24 @@ pub type Palette<T> = Vec<T>;
 pub type ColorPalette = Vec<crate::color::Color>;
 pub type CGAColorPalette = [crate::color::Color; 4];
 pub type EGAColorPalette = [crate::color::Color; 16];
+
+#[derive(Debug, Clone, Copy)]
+pub enum ImageType {
+    CGA,
+    EGA,
+}
+
+impl ImageType {
+    pub fn palette_length(&self) -> usize {
+        match self {
+            Self::CGA => 4,
+            Self::EGA => 16,
+        }
+    }
+    pub fn word_size(&self) -> usize {
+        match self {
+            Self::CGA => 2,
+            Self::EGA => 4,
+        }
+    }
+}

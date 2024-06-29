@@ -1,3 +1,4 @@
+use crate::ImageType;
 use bitvec::prelude::*;
 
 //https://moddingwiki.shikadi.net/wiki/Raw_EGA_data#Row-planar_EGA_data
@@ -5,12 +6,6 @@ use bitvec::prelude::*;
 pub struct EGARowPlanar;
 #[derive(Debug, Clone, Copy)]
 pub struct CGA;
-
-#[derive(Debug, Clone, Copy)]
-pub enum ImageType {
-    CGA,
-    EGA,
-}
 
 #[derive(Debug, Clone, Copy)]
 pub enum ParserType {
@@ -36,21 +31,6 @@ impl ParserType {
         match str {
             "ega_row_parser" | "erp" => ParserType::EGARowPlanar,
             _ => ParserType::CGA,
-        }
-    }
-}
-
-impl ImageType {
-    pub fn palette_length(&self) -> usize {
-        match self {
-            Self::CGA => 4,
-            Self::EGA => 16,
-        }
-    }
-    pub fn word_size(&self) -> usize {
-        match self {
-            Self::CGA => 2,
-            Self::EGA => 4,
         }
     }
 }

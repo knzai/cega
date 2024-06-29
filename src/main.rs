@@ -3,12 +3,10 @@ use std::path::{Path, PathBuf};
 use clap::Parser;
 
 use cega::color::palette::palette_from_abbr;
-use cega::image;
 use cega::image::Image;
-use cega::parser;
 use cega::sdl::render_sdl;
-use cega::terminal;
-use cega::terminal::{CharPalette, TerminalMode, TerminalPalette};
+use cega::terminal::*;
+use cega::*;
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
@@ -72,7 +70,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         image.data()
     };
 
-    let palette_string = if let parser::ImageType::EGA = parser.image_type() {
+    let palette_string = if let ImageType::EGA = parser.image_type() {
         "ega".to_owned()
     } else {
         args.palette.unwrap_or("cga1".to_owned())
@@ -82,12 +80,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if args.ascii_mode.is_some() {
         let ascii = if args.custom_ascii.is_some() {
-            args.custom_ascii.unwrap().chars().collect::<CharPalette>()
+            args.custom_ascii.unwrap().chars().collect()
         } else {
-            match parser.image_type() {
-                parser::ImageType::CGA => terminal::cga_char_palette(),
-                parser::ImageType::EGA => terminal::cga_char_palette(),
-            }
+            default_char_palette(parser.image_type())
         };
 
         let tp = TerminalPalette::new(args.ascii_mode.unwrap(), ascii, palette.clone());

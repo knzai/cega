@@ -1,4 +1,4 @@
-use crate::{ColorPalette, Grid, Palette, RawGrid};
+use crate::{ColorPalette, Grid, ImageType, Palette, RawGrid};
 
 pub type CharPalette = Palette<char>;
 pub type CGACharPalette = [char; 4];
@@ -14,11 +14,11 @@ pub const EGACHAR: EGACharPalette = [
     ' ', '.', ':', '-', '=', '+', '*', '▒', '▓', '•', '#', '‖', '%', '@', '⁌', '█',
 ];
 
-pub fn cga_char_palette() -> CharPalette {
-    CGACHAR.to_vec()
-}
-pub fn ega_char_palette() -> CharPalette {
-    EGACHAR.to_vec()
+pub fn default_char_palette(image_type: ImageType) -> CharPalette {
+    match image_type {
+        ImageType::CGA => CGACHAR.to_vec(),
+        ImageType::EGA => EGACHAR.to_vec(),
+    }
 }
 
 #[derive(Clone, Debug)]

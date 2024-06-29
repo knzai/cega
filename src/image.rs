@@ -1,7 +1,5 @@
 use crate::parser;
 use crate::RawGrid;
-
-#[allow(unused_imports)]
 use factor::factor::factor;
 
 pub struct Image(RawGrid);
