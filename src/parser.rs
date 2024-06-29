@@ -57,7 +57,6 @@ impl ImageType {
 
 pub trait ProcessBinary {
     fn image_type(&self) -> ImageType;
-    fn process_row(&self, buffer: &[u8]) -> Vec<u8>;
     fn word_size(&self) -> usize {
         self.image_type().word_size()
     }
@@ -66,12 +65,7 @@ pub trait ProcessBinary {
         8 / self.word_size()
     }
 
-    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>> {
-        buffer
-            .chunks(width / self.pixels_per_byte())
-            .map(|row| self.process_row(row))
-            .collect()
-    }
+    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>>;
 }
 
 impl ProcessBinary for CGA {
@@ -79,10 +73,19 @@ impl ProcessBinary for CGA {
         ImageType::CGA
     }
 
-    fn process_row(&self, buffer: &[u8]) -> Vec<u8> {
+    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>> {
+        self.process_bytes(buffer)
+            .chunks(width)
+            .map(|v| v.into())
+            .collect()
+    }
+}
+
+impl CGA {
+    fn process_bytes(&self, buffer: &[u8]) -> Vec<u8> {
         buffer
             .view_bits::<Msb0>()
-            .chunks(2)
+            .chunks(self.word_size())
             .map(|m| m.load::<u8>())
             .collect()
     }
@@ -93,6 +96,19 @@ impl ProcessBinary for EGARowPlanar {
         ImageType::EGA
     }
 
+    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>> {
+        if width < 8 {
+            //TODO don't know if the spec supports this due to row planar. Maybe smarter handling of row chunking
+            panic!("This parser cannot handle width less than 8")
+        }
+        buffer
+            .chunks(width / self.pixels_per_byte())
+            .map(|row| self.process_row(row))
+            .collect()
+    }
+}
+
+impl EGARowPlanar {
     fn process_row(&self, buffer: &[u8]) -> Vec<u8> {
         let width = buffer.len() * 2;
         let mut nv: Vec<u8> = vec![0; width];

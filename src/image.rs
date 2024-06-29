@@ -27,9 +27,9 @@ impl Image {
     // pub fn is_fullscreen(&self) -> bool {
     //     self.pixel_count() == 64_000
     // }
-
+    //
     // pub fn pixel_count(&self) -> usize {
-    //     self.data.len()
+    //     self.data.iter().flat_map(|s| s).sum::<u8>().into()
     // }
 
     // pub fn is_tall(&self) -> bool {
@@ -79,17 +79,18 @@ impl Image {
 
 #[cfg(test)]
 mod tests {
-    use crate::color::palette;
     use crate::image::Image;
 
-    //#[test]
-    // fn is_fullscreen() {
+    // #[test]
+    // fn basic_properties() {
     //     let data: u32 = 0b00011011000110110001101100011011;
-    //     let image = Image::new(&data.to_be_bytes(), None, palette::CGA1.to_vec(), "cga");
+    //     let image = Image::new(&data.to_be_bytes(), 4, "cga");
     //
-    //     assert!(!image.is_fullscreen());
+    //     assert_eq!(image.pixel_count(), 16);
+    //     //assert!(!image.is_fullscreen());
     //     //todo!("Test with actual fullscreen data");
     // }
+
     #[test]
     fn concat_vecs() {
         let tiles = vec![
