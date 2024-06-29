@@ -24,7 +24,7 @@ This is currently very much in an alpha state. Output to a usable file format is
 ###Everything else
 - [ ] Document the code beyond a simple readme
 - [ ] Palettes beyond the defaults- cga from the full 16 and ega from the full 256.
-- [x] Breaking the features back out now that I have a better understanding of the modules~~
+- [x] ~~Breaking the features back out now that I have a better understanding of the modules~~
 - [ ] More tests. Adding as I go, but as I learn rust more and understand the problem space better will make sense to do more
 - [ ] Outputting to CGA/EGA encodings - useful for making non copyrighted test format files to ship
 - [ ] Full paletting from RGB(?A alpha support maybe)
