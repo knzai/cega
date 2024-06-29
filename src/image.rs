@@ -5,20 +5,16 @@ use factor::factor::factor;
 
 type Grid = Vec<Vec<u8>>;
 
-pub struct Image {
-    pub buffer: Grid,
-}
+pub struct Image(Grid);
 
 impl Image {
     pub fn new(buffer: &[u8], width: usize, image_parser: &str) -> Self {
         let parser = parser::ParserType::type_str(image_parser);
-        Self {
-            buffer: parser.process_input(buffer, width),
-        }
+        Self(parser.process_input(buffer, width))
     }
 
     pub fn data(&self) -> Grid {
-        self.buffer.clone()
+        self.0.clone()
     }
 
     pub fn pixel_count(&self) -> usize {
@@ -26,10 +22,10 @@ impl Image {
     }
 
     pub fn height(&self) -> usize {
-        self.buffer.len()
+        self.0.len()
     }
     pub fn width(&self) -> usize {
-        self.buffer[0].len()
+        self.0[0].len()
     }
 
     pub fn is_fullscreen(&self) -> bool {
@@ -50,31 +46,35 @@ impl Image {
                 / <usize as TryInto<i64>>::try_into(self.width()).unwrap(),
         )
     }
+}
 
-    fn concat_tiles(tiles: Vec<Vec<u8>>, num_rows: usize) -> Vec<Vec<u8>> {
-        //TODO; make this into a fold?
-        let mut rows: Vec<Vec<u8>> = vec![vec![]; num_rows];
-        for tile in tiles.chunks(num_rows) {
-            for (i, row) in tile.into_iter().enumerate() {
-                rows[i].extend(row);
-            }
+pub fn tile<T: std::clone::Clone>(
+    data: Vec<Vec<T>>,
+    tile_height: usize,
+    max_width: Option<usize>,
+) -> Vec<Vec<T>> {
+    let width = data[0].len();
+    let tiles_per_row = if max_width.is_some() {
+        max_width.unwrap() / width
+    } else {
+        width
+    };
+
+    data.chunks(tiles_per_row * tile_height)
+        .map(|tile_row| concat_tiles(tile_row.to_vec(), tile_height))
+        .flatten()
+        .collect()
+}
+
+fn concat_tiles<T: std::clone::Clone>(tiles: Vec<Vec<T>>, num_rows: usize) -> Vec<Vec<T>> {
+    //TODO; make this into a fold?
+    let mut rows: Vec<Vec<T>> = vec![vec![]; num_rows];
+    for tile in tiles.chunks(num_rows) {
+        for (i, row) in tile.into_iter().enumerate() {
+            rows[i].extend(row.clone());
         }
-        rows
     }
-
-    pub fn tile(data: Vec<Vec<u8>>, tile_height: usize, max_width: Option<usize>) -> Vec<Vec<u8>> {
-        let width = data[0].len();
-        let tiles_per_row = if max_width.is_some() {
-            max_width.unwrap() / width
-        } else {
-            width
-        };
-
-        data.chunks(tiles_per_row * tile_height)
-            .map(|tile_row| Self::concat_tiles(tile_row.to_vec(), tile_height))
-            .flatten()
-            .collect()
-    }
+    rows
 }
 
 #[cfg(test)]

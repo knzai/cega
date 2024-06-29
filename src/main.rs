@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use clap::Parser;
 
 use cega::color::palette::palette_from_abbr;
+use cega::image;
 use cega::image::Image;
 use cega::sdl::render_sdl;
 use cega::terminal::{TerminalMode, TerminalPalette};
@@ -61,7 +62,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let image = Image::new(&reader, args.width, &args.image_parser);
 
     let image_data = if args.tile_height.is_some() {
-        Image::tile(image.data(), args.tile_height.unwrap(), args.max_width)
+        image::tile(image.data(), args.tile_height.unwrap(), args.max_width)
     } else {
         image.data()
     };
