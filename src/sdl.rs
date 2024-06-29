@@ -1,4 +1,4 @@
-use crate::color::palette::{ColorPalette, Palette};
+use crate::{ColorPalette, Palette};
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::pixels::PixelFormatEnum::RGB888 as ColorFormat;
 use sdl2::{event::Event, keyboard::Keycode};

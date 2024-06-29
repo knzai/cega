@@ -1,7 +1,6 @@
-use crate::color::palette;
-use crate::{Grid, RawGrid};
+use crate::{ColorPalette, Grid, Palette, RawGrid};
 
-pub type CharPalette = Vec<char>;
+pub type CharPalette = Palette<char>;
 pub type CGACharPalette = [char; 4];
 pub type EGACharPalette = [char; 16];
 
@@ -20,20 +19,6 @@ pub fn cga_char_palette() -> CharPalette {
 }
 pub fn ega_char_palette() -> CharPalette {
     EGACHAR.to_vec()
-}
-
-pub fn disable_wrapping(string: &str) -> String {
-    let mut buffer = DISABLEWRAPPING.to_owned();
-    buffer.push_str(string);
-    buffer.push_str(ENABLEWRAPPING);
-    buffer
-}
-
-pub fn to_string(grid: Grid<String>) -> String {
-    grid.iter()
-        .map(|row| row.join(""))
-        .collect::<Vec<_>>()
-        .join("\n")
 }
 
 #[derive(Clone, Debug)]
@@ -62,7 +47,7 @@ pub struct TerminalPalette {
 }
 
 impl TerminalPalette {
-    pub fn new(mode: TerminalMode, chars: Option<&str>, colors: palette::ColorPalette) -> Self {
+    pub fn new(mode: TerminalMode, chars: Option<&str>, colors: ColorPalette) -> Self {
         let chars = if chars.is_some() {
             chars.unwrap().chars().collect()
         } else {
@@ -74,13 +59,11 @@ impl TerminalPalette {
             TerminalMode::Ascii => chars.map(|m| m.to_string()).collect(),
             TerminalMode::ColoredAscii => chars
                 .zip(colors)
-                .map(|(ch, co)| Self::ansi_codes(co.ansi_fg(), ch))
+                .map(|(ch, co)| ansi_codes(co.ansi_fg(), ch))
                 .collect(),
-            TerminalMode::Pixels => colors
-                .map(|co| Self::ansi_codes(co.ansi_bg(), ' '))
-                .collect(),
+            TerminalMode::Pixels => colors.map(|co| ansi_codes(co.ansi_bg(), ' ')).collect(),
             TerminalMode::HorizontalHalf => colors
-                .flat_map(|co| Self::half_ansi_codes(co.ansi_fg(), co.ansi_bg(), '▌'))
+                .flat_map(|co| half_ansi_codes(co.ansi_fg(), co.ansi_bg(), '▌'))
                 .collect(),
         };
 
@@ -88,15 +71,6 @@ impl TerminalPalette {
             mode: mode,
             terminal: term,
         }
-    }
-    pub fn half_ansi_codes(fg: u8, bg: u8, ch: char) -> [String; 2] {
-        [
-            format!("{}{};", ANSIOPEN, fg),
-            format!("{}m{}{}", bg, ch, ANSIRESET),
-        ]
-    }
-    pub fn ansi_codes(co: u8, ch: char) -> String {
-        format!("{}{}m{}{}", ANSIOPEN, co, ch, ANSIRESET)
     }
 
     pub fn apply(&self, image_data: RawGrid) -> Grid<String> {
@@ -108,7 +82,7 @@ impl TerminalPalette {
                     .map(|(i, index)| {
                         let mut ind = *index as usize;
                         if let TerminalMode::HorizontalHalf = self.mode {
-                            ind = Self::hhalf_adjusted_index(ind, i);
+                            ind = hhalf_adjusted_index(ind, i);
                         };
                         self.terminal[ind].to_owned()
                     })
@@ -116,8 +90,31 @@ impl TerminalPalette {
             })
             .collect::<Grid<String>>()
     }
+}
 
-    pub fn hhalf_adjusted_index(index: usize, i: usize) -> usize {
-        (index * 2) + (i % 2)
-    }
+pub fn disable_wrapping(string: &str) -> String {
+    let mut buffer = DISABLEWRAPPING.to_owned();
+    buffer.push_str(string);
+    buffer.push_str(ENABLEWRAPPING);
+    buffer
+}
+
+pub fn to_string(grid: Grid<String>) -> String {
+    grid.iter()
+        .map(|row| row.join(""))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+pub fn ansi_codes(co: u8, ch: char) -> String {
+    format!("{}{}m{}{}", ANSIOPEN, co, ch, ANSIRESET)
+}
+pub fn half_ansi_codes(fg: u8, bg: u8, ch: char) -> [String; 2] {
+    [
+        format!("{}{};", ANSIOPEN, fg),
+        format!("{}m{}{}", bg, ch, ANSIRESET),
+    ]
+}
+pub fn hhalf_adjusted_index(index: usize, i: usize) -> usize {
+    (index * 2) + (i % 2)
 }

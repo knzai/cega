@@ -61,10 +61,7 @@ impl Color {
 pub mod palette {
     use crate::color::Color;
 
-    pub type Palette<T> = Vec<T>;
-    pub type ColorPalette = Vec<Color>;
-    pub type CGAColorPalette = [Color; 4];
-    pub type EGAColorPalette = [Color; 16];
+    use crate::{CGAColorPalette, ColorPalette, EGAColorPalette};
 
     pub fn palette_from_abbr(name: &str) -> ColorPalette {
         match name {
