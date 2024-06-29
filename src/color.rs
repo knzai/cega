@@ -69,7 +69,7 @@ pub mod palette {
             "cga0" => CGA0.to_vec(),
             "cga0i" => CGA0I.to_vec(),
             "cga1i" => CGA1I.to_vec(),
-            "cga1" | _ => CGA1.to_vec(),
+            _ => CGA1.to_vec(), //| "cga1" to shutup clippy
         }
     }
 

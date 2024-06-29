@@ -35,7 +35,7 @@ impl TerminalMode {
             "c" => Ok(TerminalMode::ColoredAscii),
             "p" => Ok(TerminalMode::Pixels),
             "h" => Ok(TerminalMode::HorizontalHalf),
-            _ => Err(format!("possible values: a, c, p, h")),
+            _ => Err("possible values: a, c, p, h".to_string()),
         }
     }
     pub fn adjusted_index(&self, index: usize, i: usize) -> usize {
@@ -75,7 +75,7 @@ impl TerminalPalette {
         };
 
         Self {
-            mode: mode,
+            mode,
             terminal: term,
         }
     }

@@ -50,15 +50,14 @@ pub fn tile<T: std::clone::Clone>(
     max_width: Option<usize>,
 ) -> Vec<Vec<T>> {
     let width = data[0].len();
-    let tiles_per_row = if max_width.is_some() {
-        max_width.unwrap() / width
+    let tiles_per_row = if let Some(mw) = max_width {
+        mw / width
     } else {
         width
     };
 
     data.chunks(tiles_per_row * tile_height)
-        .map(|tile_row| concat_tiles(tile_row.to_vec(), tile_height))
-        .flatten()
+        .flat_map(|tile_row| concat_tiles(tile_row.to_vec(), tile_height))
         .collect()
 }
 
@@ -66,7 +65,7 @@ fn concat_tiles<T: std::clone::Clone>(tiles: Vec<Vec<T>>, num_rows: usize) -> Ve
     //TODO; make this into a fold?
     let mut rows: Vec<Vec<T>> = vec![vec![]; num_rows];
     for tile in tiles.chunks(num_rows) {
-        for (i, row) in tile.into_iter().enumerate() {
+        for (i, row) in tile.iter().enumerate() {
             rows[i].extend(row.clone());
         }
     }

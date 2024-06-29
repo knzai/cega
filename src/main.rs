@@ -50,16 +50,14 @@ fn parse_asci_param(arg: &str) -> Result<String, String> {
     if let 0 | 4 | 16 = arg.len() {
         Ok(arg.to_string())
     } else {
-        Err(format!(
-            "requires a 4 or 16 character string like: -a \" +%0\""
-        ))
+        Err("requires a 4 or 16 character string like: -a \" +%0\"".to_string())
     }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    let reader = std::fs::read(&Path::new(&args.image))?;
+    let reader = std::fs::read(Path::new(&args.image))?;
     let parser = parser::ParserType::type_str(&args.image_parser);
 
     let image = Image::new(&reader, args.width, parser);
@@ -92,15 +90,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    if !args.quiet {
-        if !image.is_fullscreen() {
-            if args.width == 320 {
-                println!("\nImage appears to not be fullscreen 320*200. It may be tiled, try setting a narrower -w width to detect tiles.");
-                println!("Possible widths: {:?}", image.width_factors());
-            } else if args.tile_height.is_none() && image.is_tall() {
-                println!("\nImage height appears to >= 4x its width. If there are tiles, setting -t tile_height will make a more compact view");
-                println!("Possible heights: {:?}", image.height_factors());
-            }
+    if !args.quiet && !image.is_fullscreen() {
+        if args.width == 320 {
+            println!("\nImage appears to not be fullscreen 320*200. It may be tiled, try setting a narrower -w width to detect tiles.");
+            println!("Possible widths: {:?}", image.width_factors());
+        } else if args.tile_height.is_none() && image.is_tall() {
+            println!("\nImage height appears to >= 4x its width. If there are tiles, setting -t tile_height will make a more compact view");
+            println!("Possible heights: {:?}", image.height_factors());
         }
     }
 
