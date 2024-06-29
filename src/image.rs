@@ -1,11 +1,11 @@
 use crate::color::palette;
 use crate::parser;
 
+#[allow(unused_imports)]
 use factor::factor::factor;
 
 pub struct Image {
-    pub tile_width: usize,
-    pub max_width: usize,
+    pub width: usize,
     pub data: Vec<Vec<u8>>,
     pub output: Vec<Vec<u8>>,
     pub palette: palette::ColorPalette,
@@ -14,13 +14,11 @@ pub struct Image {
 impl Image {
     pub fn new(
         buffer: &[u8],
-        tile_width: Option<usize>,
-        max_width: usize,
+        width: usize,
         palette: palette::ColorPalette,
         image_parser: &str,
     ) -> Self {
         let parser = parser::ParserType::type_str(image_parser);
-        let tile_width = tile_width.unwrap_or(max_width);
         let parser_pal_len = parser.image_type().palette_length();
         if parser_pal_len > palette.len() {
             panic!(
@@ -29,44 +27,43 @@ impl Image {
             )
         }
 
-        let data = parser.process_input(buffer, tile_width);
+        let data = parser.process_input(buffer, width);
 
         Self {
             data: data.clone(),
-            tile_width: tile_width,
-            max_width,
+            width,
             output: data.clone(),
             palette,
         }
     }
 
-    pub fn is_fullscreen(&self) -> bool {
-        self.pixel_count() == 64_000
-    }
+    // pub fn is_fullscreen(&self) -> bool {
+    //     self.pixel_count() == 64_000
+    // }
 
-    pub fn pixel_count(&self) -> usize {
-        self.data.len()
-    }
+    // pub fn pixel_count(&self) -> usize {
+    //     self.data.len()
+    // }
 
-    pub fn is_tall(&self) -> bool {
-        let h = self.pixel_count() / self.tile_width;
-        if h >= self.max_width * 4 {
-            true
-        } else {
-            false
-        }
-    }
+    // pub fn is_tall(&self) -> bool {
+    //     let h = self.pixel_count() / self.width;
+    //     if h >= self.width * 4 {
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
 
-    pub fn width_factors(&self) -> Vec<i64> {
-        factor(self.pixel_count().try_into().unwrap())
-    }
-
-    pub fn height_factors(&self) -> Vec<i64> {
-        factor(
-            <usize as TryInto<i64>>::try_into(self.pixel_count()).unwrap()
-                / <usize as TryInto<i64>>::try_into(self.tile_width).unwrap(),
-        )
-    }
+    // pub fn width_factors(&self) -> Vec<i64> {
+    //     factor(self.pixel_count().try_into().unwrap())
+    // }
+    //
+    // pub fn height_factors(&self) -> Vec<i64> {
+    //     factor(
+    //         <usize as TryInto<i64>>::try_into(self.pixel_count()).unwrap()
+    //             / <usize as TryInto<i64>>::try_into(self.tile_width).unwrap(),
+    //     )
+    // }
 
     fn concat_tiles(tiles: Vec<Vec<u8>>, num_rows: usize) -> Vec<Vec<u8>> {
         //TODO; make this into a fold?
@@ -79,23 +76,8 @@ impl Image {
         rows
     }
 
-    pub fn retile(
-        &mut self,
-        tile_width: usize,
-        tile_height: Option<usize>,
-        max_width: usize,
-    ) -> &Self {
-        self.tile_width = tile_width;
-        if tile_height.is_none() {
-            self.output = self.data.clone();
-            self.max_width = tile_width;
-            return self;
-        }
-
-        let tile_height = tile_height.unwrap();
-
-        let tiles_per_row = max_width / tile_width;
-        self.max_width = tiles_per_row * tile_width;
+    pub fn retile(&mut self, tile_height: usize, max_width: Option<usize>) -> &Self {
+        let tiles_per_row = max_width.unwrap_or(self.data.len() / tile_height) / self.width;
 
         let out: Vec<Vec<u8>> = self
             .data

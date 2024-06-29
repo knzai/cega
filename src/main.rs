@@ -25,11 +25,15 @@ struct Args {
     #[clap(short, long, value_parser = parse_asci_param, help="4 chars palette like -a \" +%0\"")]
     custom_ascii: Option<String>,
 
-    #[clap(short, long)]
-    width_tile: Option<usize>,
+    #[clap(short, long, default_value_t = 320)]
+    width: usize,
 
-    #[clap(short = 'm', long, default_value_t = 320)]
-    max_width: usize,
+    #[clap(
+        short,
+        long,
+        help = "used for wrapping rows if retiling with tile_height\n"
+    )]
+    max_width: Option<usize>,
 
     #[clap(short, long)]
     tile_height: Option<usize>,
@@ -55,16 +59,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = std::fs::read(&Path::new(&args.image))?;
     let palette = palette_from_abbr(&args.palette);
 
-    let mut image = Image::new(
-        &reader,
-        args.width_tile,
-        args.max_width,
-        palette,
-        &args.image_parser,
-    );
+    let mut image = Image::new(&reader, args.width, palette, &args.image_parser);
 
-    if args.width_tile.is_some() {
-        image.retile(args.width_tile.unwrap(), args.tile_height, args.max_width);
+    if args.tile_height.is_some() {
+        image.retile(args.tile_height.unwrap(), args.max_width);
     }
 
     if args.ascii_mode.is_some() {
@@ -79,18 +77,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    if !args.quiet {
-        println!("\n---------");
-        if !image.is_fullscreen() {
-            if args.width_tile.is_none() {
-                println!("Image appears to not be fullscreen 320*200. It may be tiled, try setting an explicit -w width, which will also quiet this message.");
-                println!("Possible widths: {:?}", image.width_factors());
-            } else if image.is_tall() {
-                println!("Image height appears to >= 4x its width. If there are tiles, setting -t tile_height will make a more compact view");
-                println!("Possible heights: {:?}", image.height_factors());
-            }
-        }
-    }
+    // if !args.quiet {
+    //     println!("\n---------");
+    //     if !image.is_fullscreen() {
+    //         if args.width_tile.is_none() {
+    //             println!("Image appears to not be fullscreen 320*200. It may be tiled, try setting an explicit -w width, which will also quiet this message.");
+    //             println!("Possible widths: {:?}", image.width_factors());
+    //         } else if image.is_tall() {
+    //             println!("Image height appears to >= 4x its width. If there are tiles, setting -t tile_height will make a more compact view");
+    //             println!("Possible heights: {:?}", image.height_factors());
+    //         }
+    //     }
+    // }
 
     if args.sdl {
         render_sdl(image)?
