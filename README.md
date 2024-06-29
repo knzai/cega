@@ -14,7 +14,7 @@ This is currently very much in an alpha state. Output to a usable file format is
 
 ## Roadmap/Upcoming
 
-###Priority
+### Priority
 * png output (half the point of the whole library).
    - If I use image::DynamicImage there are additional encoders/decoders that will be free
 * Zooming/scaling (for png and gui output)
@@ -22,7 +22,7 @@ This is currently very much in an alpha state. Output to a usable file format is
 * Map viewing (the other half) 
   - using the tile/spritesheets as palettes for larger images in psuedo CGA/EGA form (common in 80s games)
 
-###Everything else
+### Everything else
 * Palettes beyond the defaults- cga from the full 16 and ega from the full 256.
 * Breaking the features back out now that I have a better understanding of the modules
 * More tests
@@ -31,8 +31,8 @@ This is currently very much in an alpha state. Output to a usable file format is
 * Full paletting from RGB(?A alpha support maybe)
 * Better terminal support - rascii for iterm/sixel/etc or ratitui for full tui (helpful for discovering formats) and scrollbars
 
-###Great if I get to it, but significant work and a tangetn
-* Train a model to recognize format and tiling patterns for smart discovery
+### Great if I get to it, but a bit of a tangent
+* Train a model to recognize format and tiling patterns for smart discovery. I don't know how many test files I can get my hands on but I guess I could generate them
 
 
 
