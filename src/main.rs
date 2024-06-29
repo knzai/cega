@@ -58,13 +58,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let reader = std::fs::read(&Path::new(&args.image))?;
     let palette = palette_from_abbr(&args.palette);
-    let mut image = Image::new(&reader, args.width, &args.image_parser);
+    let image = Image::new(&reader, args.width, &args.image_parser);
 
-    let mut image_data = image.data.clone();
-
-    if args.tile_height.is_some() {
-        image_data = image.retile(args.tile_height.unwrap(), args.max_width);
-    }
+    let image_data = if args.tile_height.is_some() {
+        Image::tile(image.data(), args.tile_height.unwrap(), args.max_width)
+    } else {
+        image.data()
+    };
 
     if args.ascii_mode.is_some() {
         print!(

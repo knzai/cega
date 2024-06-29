@@ -6,23 +6,19 @@ use factor::factor::factor;
 type Grid = Vec<Vec<u8>>;
 
 pub struct Image {
-    pub data: Grid,
+    pub buffer: Grid,
 }
 
 impl Image {
     pub fn new(buffer: &[u8], width: usize, image_parser: &str) -> Self {
         let parser = parser::ParserType::type_str(image_parser);
-        // let parser_pal_len = parser.image_type().palette_length();
-        // if parser_pal_len > palette.len() {
-        //     panic!(
-        //         "{:?} needs palette_length of at least {}",
-        //         parser, parser_pal_len
-        //     )
-        // }
+        Self {
+            buffer: parser.process_input(buffer, width),
+        }
+    }
 
-        let data = parser.process_input(buffer, width);
-
-        Self { data }
+    pub fn data(&self) -> Grid {
+        self.buffer.clone()
     }
 
     pub fn pixel_count(&self) -> usize {
@@ -30,10 +26,10 @@ impl Image {
     }
 
     pub fn height(&self) -> usize {
-        self.data.len()
+        self.buffer.len()
     }
     pub fn width(&self) -> usize {
-        self.data[0].len()
+        self.buffer[0].len()
     }
 
     pub fn is_fullscreen(&self) -> bool {
@@ -66,16 +62,14 @@ impl Image {
         rows
     }
 
-    pub fn retile(&mut self, tile_height: usize, max_width: Option<usize>) -> Vec<Vec<u8>> {
+    pub fn tile(data: Vec<Vec<u8>>, tile_height: usize, max_width: Option<usize>) -> Vec<Vec<u8>> {
+        let width = data[0].len();
         let tiles_per_row = if max_width.is_some() {
-            max_width.unwrap() / self.width()
+            max_width.unwrap() / width
         } else {
-            self.pixel_count() / tile_height
+            width
         };
-        Self::tile(self.data.clone(), tile_height, tiles_per_row)
-    }
 
-    pub fn tile(data: Vec<Vec<u8>>, tile_height: usize, tiles_per_row: usize) -> Vec<Vec<u8>> {
         data.chunks(tiles_per_row * tile_height)
             .map(|tile_row| Self::concat_tiles(tile_row.to_vec(), tile_height))
             .flatten()
@@ -127,44 +121,28 @@ mod tests {
     #[test]
     fn tiling() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let mut image = Image::new(&data.to_be_bytes(), 2, "cga");
-        image.retile(2, Some(4));
+        let tiled = Image::tile(Image::new(&data.to_be_bytes(), 2, "cga").data, 2, Some(4));
         assert_eq!(
-            image.data,
+            tiled,
             [
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3]
+                vec![0, 1, 0, 1],
+                vec![2, 3, 2, 3],
+                vec![0, 1, 0, 1],
+                vec![2, 3, 2, 3],
             ]
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
-        let mut image = Image::new(&data.to_be_bytes(), 2, "cga");
-        image.retile(2, Some(6));
+        let tiled = Image::tile(Image::new(&data.to_be_bytes(), 2, "cga").data, 2, Some(6));
         assert_eq!(
-            image.data,
+            tiled,
             vec![
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3],
-                vec![0, 1],
-                vec![2, 3]
+                vec![0, 1, 0, 1, 0, 1],
+                vec![2, 3, 2, 3, 2, 3],
+                vec![0, 1, 0, 1, 0, 1],
+                vec![2, 3, 2, 3, 2, 3],
+                vec![0, 1, 0, 1],
+                vec![2, 3, 2, 3],
             ]
         );
     }
