@@ -1,5 +1,3 @@
-use crate::image::Image;
-
 use crate::color::palette;
 
 pub type CharPalette = Vec<char>;
@@ -90,11 +88,10 @@ impl TerminalPalette {
         format!("{}{}m{}{}", ANSIOPEN, co, ch, ANSIRESET)
     }
 
-    pub fn output_image_string(&self, image: &Image) -> String {
+    pub fn output_image_string(&self, image_data: Vec<Vec<u8>>) -> String {
         let mut buffer: String = DISABLEWRAPPING.to_owned();
 
-        let out = image
-            .output
+        let out = image_data
             .iter()
             .map(|row| {
                 row.iter()

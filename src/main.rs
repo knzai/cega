@@ -58,11 +58,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let reader = std::fs::read(&Path::new(&args.image))?;
     let palette = palette_from_abbr(&args.palette);
+    let mut image = Image::new(&reader, args.width, &args.image_parser);
 
-    let mut image = Image::new(&reader, args.width, palette, &args.image_parser);
+    let mut image_data = image.data.clone();
 
     if args.tile_height.is_some() {
-        image.retile(args.tile_height.unwrap(), args.max_width);
+        image_data = image.retile(args.tile_height.unwrap(), args.max_width);
     }
 
     if args.ascii_mode.is_some() {
@@ -71,9 +72,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             TerminalPalette::new(
                 args.ascii_mode.unwrap(),
                 args.custom_ascii.as_deref(),
-                image.palette.clone()
+                palette.clone()
             )
-            .output_image_string(&image)
+            .output_image_string(image_data.clone())
         );
     }
 
@@ -91,7 +92,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // }
 
     if args.sdl {
-        render_sdl(image)?
+        render_sdl(image_data, palette)?
     }
     Ok(())
 }

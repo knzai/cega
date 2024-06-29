@@ -1,4 +1,3 @@
-use crate::color::palette;
 use crate::parser;
 
 #[allow(unused_imports)]
@@ -7,34 +6,22 @@ use factor::factor::factor;
 pub struct Image {
     pub width: usize,
     pub data: Vec<Vec<u8>>,
-    pub output: Vec<Vec<u8>>,
-    pub palette: palette::ColorPalette,
 }
 
 impl Image {
-    pub fn new(
-        buffer: &[u8],
-        width: usize,
-        palette: palette::ColorPalette,
-        image_parser: &str,
-    ) -> Self {
+    pub fn new(buffer: &[u8], width: usize, image_parser: &str) -> Self {
         let parser = parser::ParserType::type_str(image_parser);
-        let parser_pal_len = parser.image_type().palette_length();
-        if parser_pal_len > palette.len() {
-            panic!(
-                "{:?} needs palette_length of at least {}",
-                parser, parser_pal_len
-            )
-        }
+        // let parser_pal_len = parser.image_type().palette_length();
+        // if parser_pal_len > palette.len() {
+        //     panic!(
+        //         "{:?} needs palette_length of at least {}",
+        //         parser, parser_pal_len
+        //     )
+        // }
 
         let data = parser.process_input(buffer, width);
 
-        Self {
-            data: data.clone(),
-            width,
-            output: data.clone(),
-            palette,
-        }
+        Self { data, width }
     }
 
     // pub fn is_fullscreen(&self) -> bool {
@@ -76,18 +63,17 @@ impl Image {
         rows
     }
 
-    pub fn retile(&mut self, tile_height: usize, max_width: Option<usize>) -> &Self {
+    pub fn retile(&mut self, tile_height: usize, max_width: Option<usize>) -> Vec<Vec<u8>> {
         let tiles_per_row = max_width.unwrap_or(self.data.len() / tile_height) / self.width;
 
-        let out: Vec<Vec<u8>> = self
-            .data
-            .chunks(tiles_per_row * tile_height)
+        Self::tile(self.data.clone(), tile_height, tiles_per_row)
+    }
+
+    pub fn tile(data: Vec<Vec<u8>>, tile_height: usize, tiles_per_row: usize) -> Vec<Vec<u8>> {
+        data.chunks(tiles_per_row * tile_height)
             .map(|tile_row| Self::concat_tiles(tile_row.to_vec(), tile_height))
             .flatten()
-            .collect();
-
-        self.output = out;
-        self
+            .collect()
     }
 }
 

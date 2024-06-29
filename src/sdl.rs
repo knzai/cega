@@ -1,5 +1,4 @@
-use crate::color::palette::Palette;
-use crate::image::Image;
+use crate::color::palette::{ColorPalette, Palette};
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::pixels::PixelFormatEnum::RGB888 as ColorFormat;
 use sdl2::{event::Event, keyboard::Keycode};
@@ -17,7 +16,10 @@ impl From<&MyColor> for Sdl2Color {
     }
 }
 
-pub fn render_sdl(image: Image) -> Result<(), Box<dyn std::error::Error>> {
+pub fn render_sdl(
+    image_data: Vec<Vec<u8>>,
+    palette: ColorPalette,
+) -> Result<(), Box<dyn std::error::Error>> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
@@ -34,9 +36,9 @@ pub fn render_sdl(image: Image) -> Result<(), Box<dyn std::error::Error>> {
     canvas.set_draw_color(Sdl2Color::BLACK);
     canvas.clear();
 
-    let sdlpal: Palette<Sdl2Color> = image.palette.iter().map(|m| m.into()).collect();
+    let sdlpal: Palette<Sdl2Color> = palette.iter().map(|m| m.into()).collect();
 
-    for (y, row) in image.output.iter().enumerate() {
+    for (y, row) in image_data.iter().enumerate() {
         for (x, index) in row.iter().enumerate() {
             dbg!(x, index);
             canvas.pixel(
