@@ -8,7 +8,7 @@ use cega::image::Image;
 use cega::parser;
 use cega::sdl::render_sdl;
 use cega::terminal;
-use cega::terminal::{TerminalMode, TerminalPalette};
+use cega::terminal::{CharPalette, TerminalMode, TerminalPalette};
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
@@ -25,7 +25,7 @@ struct Args {
     #[clap(short, long, value_parser(["ega_row_planar", "erp", "cga"]), default_value="cga")]
     image_parser: String,
 
-    #[clap(short, long, value_parser = parse_asci_param, help="4 chars palette like -a \" +%0\"")]
+    #[clap(short, long, value_parser = parse_asci_param, help="4 or 16 chars palette like -a \" +%0\"")]
     custom_ascii: Option<String>,
 
     #[clap(short, long, default_value_t = 320)]
@@ -49,10 +49,12 @@ struct Args {
 }
 
 fn parse_asci_param(arg: &str) -> Result<String, String> {
-    if let 0 | 4 = arg.len() {
+    if let 0 | 4 | 16 = arg.len() {
         Ok(arg.to_string())
     } else {
-        Err(format!("requires a 4 character string like: -a \" +%0\""))
+        Err(format!(
+            "requires a 4 or 16 character string like: -a \" +%0\""
+        ))
     }
 }
 
@@ -79,14 +81,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let palette = palette_from_abbr(&palette_string);
 
     if args.ascii_mode.is_some() {
-        let strings = TerminalPalette::new(
-            args.ascii_mode.unwrap(),
-            args.custom_ascii.as_deref(),
-            palette.clone(),
-        )
-        .apply(image_data.clone());
-        let output = terminal::disable_wrapping(&terminal::to_string(strings));
-        print!("{}", output);
+        let ascii = if args.custom_ascii.is_some() {
+            args.custom_ascii.unwrap().chars().collect::<CharPalette>()
+        } else {
+            match parser.image_type() {
+                parser::ImageType::CGA => terminal::cga_char_palette(),
+                parser::ImageType::EGA => terminal::cga_char_palette(),
+            }
+        };
+
+        let tp = TerminalPalette::new(args.ascii_mode.unwrap(), ascii, palette.clone());
+        print!(
+            "{}",
+            terminal::disable_wrapping(&terminal::to_string(tp.apply(image_data.clone())))
+        );
     }
 
     if !args.quiet {

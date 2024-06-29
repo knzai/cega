@@ -38,31 +38,38 @@ impl TerminalMode {
             _ => Err(format!("possible values: a, c, p, h")),
         }
     }
+    pub fn adjusted_index(&self, index: usize, i: usize) -> usize {
+        match self {
+            TerminalMode::HorizontalHalf => (index * 2) + (i % 2),
+            _ => index,
+        }
+    }
 }
 
 #[allow(dead_code)]
 pub struct TerminalPalette {
     pub mode: TerminalMode,
-    pub terminal: Vec<String>,
+    pub terminal: Palette<String>,
 }
 
 impl TerminalPalette {
-    pub fn new(mode: TerminalMode, chars: Option<&str>, colors: ColorPalette) -> Self {
-        let chars = if chars.is_some() {
-            chars.unwrap().chars().collect()
-        } else {
-            ega_char_palette()
+    pub fn new(mode: TerminalMode, chars: CharPalette, colors: ColorPalette) -> Self {
+        if chars.len() != colors.len() {
+            panic!("Incompatible character and color palette lengths");
         }
-        .into_iter();
-        let colors = colors.iter();
         let term = match mode {
-            TerminalMode::Ascii => chars.map(|m| m.to_string()).collect(),
+            TerminalMode::Ascii => chars.iter().map(|m| m.to_string()).collect(),
             TerminalMode::ColoredAscii => chars
-                .zip(colors)
+                .iter()
+                .zip(colors.iter())
                 .map(|(ch, co)| ansi_codes(co.ansi_fg(), ch))
                 .collect(),
-            TerminalMode::Pixels => colors.map(|co| ansi_codes(co.ansi_bg(), ' ')).collect(),
+            TerminalMode::Pixels => colors
+                .iter()
+                .map(|co| ansi_codes(co.ansi_bg(), &' '))
+                .collect(),
             TerminalMode::HorizontalHalf => colors
+                .iter()
                 .flat_map(|co| half_ansi_codes(co.ansi_fg(), co.ansi_bg(), '▌'))
                 .collect(),
         };
@@ -72,6 +79,9 @@ impl TerminalPalette {
             terminal: term,
         }
     }
+    pub fn adjusted_get(&self, index: usize, i: usize) -> String {
+        self.terminal[self.mode.adjusted_index(index, i)].to_owned()
+    }
 
     pub fn apply(&self, image_data: RawGrid) -> Grid<String> {
         image_data
@@ -79,13 +89,7 @@ impl TerminalPalette {
             .map(|row| {
                 row.iter()
                     .enumerate()
-                    .map(|(i, index)| {
-                        let mut ind = *index as usize;
-                        if let TerminalMode::HorizontalHalf = self.mode {
-                            ind = hhalf_adjusted_index(ind, i);
-                        };
-                        self.terminal[ind].to_owned()
-                    })
+                    .map(|(i, index)| self.adjusted_get(*index as usize, i).to_owned())
                     .collect::<Vec<String>>()
             })
             .collect::<Grid<String>>()
@@ -106,7 +110,7 @@ pub fn to_string(grid: Grid<String>) -> String {
         .join("\n")
 }
 
-pub fn ansi_codes(co: u8, ch: char) -> String {
+pub fn ansi_codes(co: u8, ch: &char) -> String {
     format!("{}{}m{}{}", ANSIOPEN, co, ch, ANSIRESET)
 }
 pub fn half_ansi_codes(fg: u8, bg: u8, ch: char) -> [String; 2] {
@@ -114,7 +118,4 @@ pub fn half_ansi_codes(fg: u8, bg: u8, ch: char) -> [String; 2] {
         format!("{}{};", ANSIOPEN, fg),
         format!("{}m{}{}", bg, ch, ANSIRESET),
     ]
-}
-pub fn hhalf_adjusted_index(index: usize, i: usize) -> usize {
-    (index * 2) + (i % 2)
 }
