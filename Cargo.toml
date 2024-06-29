@@ -11,8 +11,8 @@ categories = ["command-line-utilities"]
 exclude = [".rusty-hook.toml", ".gitignore"]
 
 [features]
-#default = ["termart", "sdl2"]
-#termart = ["clap-v4"]
+default = ["terminal"]
+terminal = ["clap", "sdl2"]
 
 [dev-dependencies]
 rusty-hook = "^0.11.2"
@@ -21,12 +21,10 @@ rusty-hook = "^0.11.2"
 bitvec = "1"
 factor = "0.4.0"
 
-clap = { version = "4.5.7", features = ["derive"] }
-#image = { version = "0.21.2", optional = true }
-#termcolor = { version = "1", optional = true } 
+clap = { version = "4.5.7", features = ["derive"], optional = true }
 
 [dependencies.sdl2]
 version = "0.37.0"
-#optional = true
+optional = true
 default-features = false
 features = ["gfx"]

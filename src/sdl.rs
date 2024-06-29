@@ -16,6 +16,7 @@ impl From<&MyColor> for Sdl2Color {
     }
 }
 
+#[cfg(feature = "sdl2")]
 pub fn render_sdl(
     image_data: Vec<Vec<u8>>,
     palette: ColorPalette,

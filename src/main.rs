@@ -3,10 +3,18 @@ use std::path::{Path, PathBuf};
 use clap::Parser;
 
 use cega::color::palette::palette_from_abbr;
+use cega::image;
 use cega::image::Image;
-use cega::sdl::render_sdl;
+use cega::parser::ParserType;
+use cega::ImageType;
+
+#[cfg(feature = "terminal")]
+use cega::terminal;
+#[cfg(feature = "terminal")]
 use cega::terminal::*;
-use cega::*;
+
+#[cfg(feature = "sdl2")]
+use cega::sdl::render_sdl;
 
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
@@ -54,11 +62,12 @@ fn parse_asci_param(arg: &str) -> Result<String, String> {
     }
 }
 
+#[cfg(feature = "terminal")]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     let reader = std::fs::read(Path::new(&args.image))?;
-    let parser = parser::ParserType::type_str(&args.image_parser);
+    let parser = ParserType::type_str(&args.image_parser);
 
     let image = Image::new(&reader, args.width, parser);
 
