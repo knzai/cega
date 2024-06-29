@@ -12,7 +12,7 @@ exclude = [".rusty-hook.toml", ".gitignore"]
 
 [features]
 default = ["terminal"]
-terminal = ["clap", "sdl2"]
+terminal = ["clap"]
 
 [dev-dependencies]
 rusty-hook = "^0.11.2"

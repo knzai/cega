@@ -1,5 +1,8 @@
+#![cfg(feature = "terminal")]
+
 use std::path::{Path, PathBuf};
 
+#[cfg(feature = "clap")]
 use clap::Parser;
 
 use cega::color::palette::palette_from_abbr;
@@ -8,14 +11,13 @@ use cega::image::Image;
 use cega::parser::ParserType;
 use cega::ImageType;
 
-#[cfg(feature = "terminal")]
 use cega::terminal;
-#[cfg(feature = "terminal")]
 use cega::terminal::*;
 
 #[cfg(feature = "sdl2")]
 use cega::sdl::render_sdl;
 
+#[cfg(feature = "clap")]
 #[derive(Parser, Debug)]
 #[clap(version = "0.1", author = "Kenzi Connor")]
 struct Args {
@@ -62,7 +64,6 @@ fn parse_asci_param(arg: &str) -> Result<String, String> {
     }
 }
 
-#[cfg(feature = "terminal")]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
@@ -110,6 +111,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if args.sdl {
+        #[cfg(feature = "sdl2")]
         render_sdl(image_data, palette)?
     }
     Ok(())
