@@ -12,6 +12,30 @@
 
 This is currently very much in an alpha state. Output to a usable file format is not currently implemented. It's currently a preview tool that uses ANSI escape codes for a terminal view and SDL2 for a gui preview window.
 
+## Roadmap/Upcoming
+
+###Priority
+* png output (half the point of the whole library).
+   - If I use image::DynamicImage there are additional encoders/decoders that will be free
+* Zooming/scaling (for png and gui output)
+* Additional EGA planar encodings
+* Map viewing (the other half) 
+  - using the tile/spritesheets as palettes for larger images in psuedo CGA/EGA form (common in 80s games)
+
+###Everything else
+* Palettes beyond the defaults- cga from the full 16 and ega from the full 256.
+* Breaking the features back out now that I have a better understanding of the modules
+* More tests
+  A priority, adding as I go, but as I learn rust more and understand the problem space better will make sense to do more
+* Outputting to CGA/EGA encodings - useful for making non copyrighted test format files to ship
+* Full paletting from RGB(?A alpha support maybe)
+* Better terminal support - rascii for iterm/sixel/etc or ratitui for full tui (helpful for discovering formats) and scrollbars
+
+###Great if I get to it, but significant work and a tangetn
+* Train a model to recognize format and tiling patterns for smart discovery
+
+
+
 ## Usage
 
 This can be used as a library or executable. Pending finalizing internal API I'll demonstrate the CLI usage instead (check main.rs for how to call etc). Actual --help from CLI will always be up to date even if the docs aren't.
