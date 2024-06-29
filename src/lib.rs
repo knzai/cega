@@ -8,6 +8,9 @@ pub mod sdl;
 #[cfg(feature = "terminal")]
 pub mod terminal;
 
+#[cfg(feature = "png")]
+pub mod png;
+
 pub type RawGrid = Vec<Vec<u8>>;
 pub type Grid<T> = Vec<Vec<T>>;
 
