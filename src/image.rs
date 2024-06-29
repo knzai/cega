@@ -8,8 +8,7 @@ type Grid = Vec<Vec<u8>>;
 pub struct Image(Grid);
 
 impl Image {
-    pub fn new(buffer: &[u8], width: usize, image_parser: &str) -> Self {
-        let parser = parser::ParserType::type_str(image_parser);
+    pub fn new(buffer: &[u8], width: usize, parser: parser::ParserType) -> Self {
         Self(parser.process_input(buffer, width))
     }
 
