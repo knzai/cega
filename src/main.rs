@@ -7,6 +7,7 @@ use cega::image;
 use cega::image::Image;
 use cega::parser;
 use cega::sdl::render_sdl;
+use cega::terminal;
 use cega::terminal::{TerminalMode, TerminalPalette};
 
 #[derive(Parser, Debug)]
@@ -76,16 +77,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let palette = palette_from_abbr(&palette_string);
+
     if args.ascii_mode.is_some() {
-        print!(
-            "{}",
-            TerminalPalette::new(
-                args.ascii_mode.unwrap(),
-                args.custom_ascii.as_deref(),
-                palette.clone()
-            )
-            .output_image_string(image_data.clone())
-        );
+        let strings = TerminalPalette::new(
+            args.ascii_mode.unwrap(),
+            args.custom_ascii.as_deref(),
+            palette.clone(),
+        )
+        .apply(image_data.clone());
+        let output = terminal::disable_wrapping(&terminal::to_string(strings));
+        print!("{}", output);
     }
 
     if !args.quiet {

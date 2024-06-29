@@ -1,18 +1,17 @@
 use crate::parser;
+use crate::RawGrid;
 
 #[allow(unused_imports)]
 use factor::factor::factor;
 
-type Grid = Vec<Vec<u8>>;
-
-pub struct Image(Grid);
+pub struct Image(RawGrid);
 
 impl Image {
     pub fn new(buffer: &[u8], width: usize, parser: parser::ParserType) -> Self {
         Self(parser.process_input(buffer, width))
     }
 
-    pub fn data(&self) -> Grid {
+    pub fn data(&self) -> RawGrid {
         self.0.clone()
     }
 

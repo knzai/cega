@@ -1,4 +1,5 @@
 use crate::color::palette;
+use crate::{Grid, RawGrid};
 
 pub type CharPalette = Vec<char>;
 pub type CGACharPalette = [char; 4];
@@ -21,13 +22,26 @@ pub fn ega_char_palette() -> CharPalette {
     EGACHAR.to_vec()
 }
 
+pub fn disable_wrapping(string: &str) -> String {
+    let mut buffer = DISABLEWRAPPING.to_owned();
+    buffer.push_str(string);
+    buffer.push_str(ENABLEWRAPPING);
+    buffer
+}
+
+pub fn to_string(grid: Grid<String>) -> String {
+    grid.iter()
+        .map(|row| row.join(""))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 #[derive(Clone, Debug)]
 pub enum TerminalMode {
     Ascii,
     ColoredAscii,
     Pixels,         //full ansi_bg color pixels
     HorizontalHalf, // half left blocks + bg color for 2x density
-    VerticalHalf,   // half top blocks + bg color for 2x density
 }
 impl TerminalMode {
     pub fn from_short(short: &str) -> Result<TerminalMode, String> {
@@ -68,9 +82,6 @@ impl TerminalPalette {
             TerminalMode::HorizontalHalf => colors
                 .flat_map(|co| Self::half_ansi_codes(co.ansi_fg(), co.ansi_bg(), '▌'))
                 .collect(),
-            TerminalMode::VerticalHalf => colors
-                .flat_map(|co| Self::half_ansi_codes(co.ansi_fg(), co.ansi_bg(), '▀'))
-                .collect(),
         };
 
         Self {
@@ -88,10 +99,8 @@ impl TerminalPalette {
         format!("{}{}m{}{}", ANSIOPEN, co, ch, ANSIRESET)
     }
 
-    pub fn output_image_string(&self, image_data: Vec<Vec<u8>>) -> String {
-        let mut buffer: String = DISABLEWRAPPING.to_owned();
-
-        let out = image_data
+    pub fn apply(&self, image_data: RawGrid) -> Grid<String> {
+        image_data
             .iter()
             .map(|row| {
                 row.iter()
@@ -103,15 +112,9 @@ impl TerminalPalette {
                         };
                         self.terminal[ind].to_owned()
                     })
-                    .collect::<String>()
+                    .collect::<Vec<String>>()
             })
-            .collect::<Vec<String>>()
-            .join("\n");
-
-        buffer.push_str(&out);
-        buffer.push_str(ENABLEWRAPPING);
-
-        buffer
+            .collect::<Grid<String>>()
     }
 
     pub fn hhalf_adjusted_index(index: usize, i: usize) -> usize {
