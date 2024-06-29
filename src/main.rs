@@ -86,7 +86,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let tp = TerminalPalette::new(args.ascii_mode.unwrap(), ascii, palette.clone());
         print!(
             "{}",
-            terminal::disable_wrapping(&terminal::to_string(tp.apply(image_data.clone())))
+            terminal::disable_wrapping(terminal::to_string(tp.apply(image_data.clone())))
         );
     }
 

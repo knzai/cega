@@ -96,11 +96,8 @@ impl TerminalPalette {
     }
 }
 
-pub fn disable_wrapping(string: &str) -> String {
-    let mut buffer = DISABLEWRAPPING.to_owned();
-    buffer.push_str(string);
-    buffer.push_str(ENABLEWRAPPING);
-    buffer
+pub fn disable_wrapping(string: String) -> String {
+    format!("{}{}{}", DISABLEWRAPPING, string, ENABLEWRAPPING)
 }
 
 pub fn to_string(grid: Grid<String>) -> String {
