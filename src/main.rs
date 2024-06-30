@@ -26,7 +26,7 @@ struct Args {
     #[clap(name = "IMAGE")]
     image: PathBuf,
 
-    #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels (UGLY)\nImages may be wider than terminal and will then crop")]
+    #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="images will horizontally crop to terminal\n[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels (UGLY)")]
     ascii_mode: Option<TerminalMode>,
 
     #[clap(value_parser(["cga0", "cga0i", "cga1", "cga1i", "ega"]),num_args(0..=1), short, long, help="ega palette can be used for cga, but not the inverse\n")]
@@ -44,12 +44,12 @@ struct Args {
     #[clap(
         short,
         long,
-        help = "used for wrapping rows if retiling with tile_height\n"
+        help = "used for wrapping rows if retiling with tile_height"
     )]
     max_width: Option<usize>,
 	
-    #[clap(short, long)]
-    output: Option<PathBuf>,
+    #[clap(short, long, help="format based on extension - see image crate")]
+    output_file: Option<PathBuf>,
 	
     #[clap(short, long)]
     tile_height: Option<usize>,
@@ -94,9 +94,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let palette = palette_from_abbr(&palette_string);
 
 	#[cfg(feature = "png")]
-	if let Some(output) = args.output  {
+	if let Some(output) = args.output_file  {
 		
-		return Ok(png::output(output, image_data, palette)?)
+		png::output(output, image_data.clone(), palette.clone())?
 	}
 
     if args.ascii_mode.is_some() {

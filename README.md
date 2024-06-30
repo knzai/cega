@@ -1,6 +1,6 @@
 # cega
 
-> **CGA/EGA graphics binary file parsing for Rust**
+> **CGA/EGA graphics binary file parsing with png/gif/etc output Rust**
 
 [![Crates.io](https://img.shields.io/crates/v/cega?style=flat-square)](https://crates.io/crates/cega)
 [![Crates.io](https://img.shields.io/crates/d/cega?style=flat-square)](https://crates.io/crates/cega)
@@ -10,13 +10,13 @@
 
 ## Warning
 
-This is currently very much in an alpha state. Output to a usable file format is not currently implemented. It's currently a preview tool that uses ANSI escape codes for a terminal view and SDL2 for a gui preview window.
+This is currently very much in an alpha state: apis and CLI arguments may still change heavily and the apis aren't documented. This file has decent usage examples below.
 
 ## Roadmap/Upcoming
 
 ### Priority
-- [ ] gif or png output (half the point of the whole library).
-- [ ] If I use image::DynamicImage there are additional encoders/decoders that will be free
+- [x] ~~gif or png output (half the point of the whole library).
+- [x] ~~If I use image::DynamicImage there are additional encoders/decoders that will be free~~
 - [ ] Zooming/scaling (for png and gui output)
 - [ ] Additional EGA planar encodings
 - [ ] Map viewing (the other half): using the tile/spritesheets as palettes for larger images in psuedo CGA/EGA form (common in 80s games)
@@ -49,36 +49,27 @@ Arguments:
   <IMAGE>  
 
 Options:
-  -t, --terminal-output <TERMINAL_OUTPUT>
-          [possible values: a, c, p, h]
-          a = plain ascii
-          c = colored ascii
-          p = full pixels via ansi bg color
-          h = horizontal half pixels
-          Images may be wider than terminal and will then crop
-  -p, --palette [<PALETTE>]
-          ega palette can be used for cga, but not the inverse
-           [default: ega] [possible values: cga0, cga0i, cga1, cga1i, ega]
-  -i, --image-parser <IMAGE_PARSER>
-          [default: cga] [possible values: ega_row_planar, erp, cga]
-  -c, --custom-ascii <CUSTOM_ASCII>
-          4 chars palette like -a " +%0"
-  -w, --width <WIDTH>
-          
-  -m, --max-width <MAX_WIDTH>
-          [default: 320]
-  -r, --retile-height <RETILE_HEIGHT>
-          
-  -s, --sdl
-          
-  -q, --quiet
-          
-  -h, --help
-          Print help
-  -V, --version
-          Print version
+  -a, --ascii-mode <ASCII_MODE>      images will horizontally crop to terminal
+                                     [possible values: a, c, p, h]
+                                     a = plain ascii
+                                     c = colored ascii
+                                     p = full pixels via ansi bg color
+                                     h = horizontal half pixels (UGLY)
+  -p, --palette [<PALETTE>]          ega palette can be used for cga, but not the inverse
+                                      [possible values: cga0, cga0i, cga1, cga1i, ega]
+  -i, --image-parser <IMAGE_PARSER>  [default: cga] [possible values: ega_row_planar, erp, cga]
+  -c, --custom-ascii <CUSTOM_ASCII>  4 or 16 chars palette like -a " +%0"
+  -w, --width <WIDTH>                [default: 320]
+  -m, --max-width <MAX_WIDTH>        used for wrapping rows if retiling with tile_height
+  -o, --output-file <OUTPUT_FILE>    format based on extension - see image crate
+  -t, --tile-height <TILE_HEIGHT>    
+  -s, --sdl                          
+  -q, --quiet                        
+  -h, --help                         Print help
+  -V, --version                      Print version
 ```
-
+cega can parse output to png (and other formats) Formats:
+https://docs.rs/image/latest/image/codecs/index.html#supported-formats
 
 cega can parse tiled/spritesheet style cga and output "pixels" to the terminal
 
@@ -97,6 +88,16 @@ cega will ouput in different preview formats, such as colored ASCII or a gui win
 ```cega ../../assets/game/CGATILES.BIN -w 16 -r 16 -i cga -t c -c "1234" -s```:
 
 <img width="650" alt="cega ../../assets/game/CGATILES.BIN -w 16 -r 16 -i cga -t c -c 1234 -s" src="https://github.com/knzconnor/cega/assets/53/593e9c9f-2780-4201-af93-7073155e876c">
+
+## Features and library usage
+
+```toml
+default = ["terminal", "sdl2", "png"]
+terminal = ["clap"]
+png = ["image"]
+```
+
+disable will result in an empty main.rs/main() in addition to skipping the terminal functionality
 
 ## Acknowledgements & References
 * https://moddingwiki.shikadi.net/wiki/Main_Page

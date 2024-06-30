@@ -18,3 +18,5 @@ assets/
 # Added by cargo
 
 /target
+
+*.png

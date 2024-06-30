@@ -74,12 +74,13 @@ fn concat_tiles<T: std::clone::Clone>(tiles: Vec<Vec<T>>, num_rows: usize) -> Ve
 
 #[cfg(test)]
 mod tests {
-    use crate::image::Image;
+    use crate::image::{self, Image};
+	use crate::parser::ParserType;
 
     #[test]
     fn basic_properties() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let mut image = Image::new(&data.to_be_bytes(), 4, "cga");
+        let mut image = Image::new(&data.to_be_bytes(), 4, ParserType::type_str("cga"));
 
         assert_eq!(image.pixel_count(), 16);
         assert_eq!(image.width(), 4);
@@ -91,7 +92,7 @@ mod tests {
         image = Image::new(
             &0b0001101100011011000110110001101100011011000110110001101100011011_u64.to_be_bytes(),
             2,
-            "cga",
+            ParserType::type_str("cga"),
         );
         assert!(image.is_tall());
     }
@@ -106,7 +107,7 @@ mod tests {
             vec![8, 9],
             vec![10, 11],
         ];
-        let new_vecs = Image::concat_tiles(tiles, 2);
+        let new_vecs = image::concat_tiles(tiles, 2);
         assert_eq!(
             vec![vec![0, 1, 4, 5, 8, 9], vec![2, 3, 6, 7, 10, 11]],
             new_vecs
@@ -116,7 +117,7 @@ mod tests {
     #[test]
     fn tiling() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let tiled = Image::tile(Image::new(&data.to_be_bytes(), 2, "cga").data, 2, Some(4));
+        let tiled = image::tile(Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(), 2, Some(4));
         assert_eq!(
             tiled,
             [
@@ -128,7 +129,7 @@ mod tests {
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
-        let tiled = Image::tile(Image::new(&data.to_be_bytes(), 2, "cga").data, 2, Some(6));
+        let tiled = image::tile(Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(), 2, Some(6));
         assert_eq!(
             tiled,
             vec![
