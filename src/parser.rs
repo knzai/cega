@@ -1,4 +1,5 @@
 use crate::ImageType;
+use crate::RawGrid;
 use bitvec::prelude::*;
 
 //https://moddingwiki.shikadi.net/wiki/Raw_EGA_data#Row-planar_EGA_data
@@ -20,7 +21,7 @@ impl ParserType {
             Self::EGARowPlanar => ImageType::EGA,
         }
     }
-    pub fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>> {
+    pub fn process_input(&self, buffer: &[u8], width: usize) -> RawGrid {
         match self {
             Self::CGA => CGA.process_input(buffer, width),
             Self::EGARowPlanar => EGARowPlanar.process_input(buffer, width),
@@ -33,6 +34,10 @@ impl ParserType {
             _ => ParserType::CGA,
         }
     }
+	
+	pub fn to_bytes(&self, image_data: RawGrid) -> Vec<u8> {
+        CGA.to_bytes(image_data)
+	}
 }
 
 pub trait ProcessBinary {
@@ -45,7 +50,7 @@ pub trait ProcessBinary {
         8 / self.word_size()
     }
 
-    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>>;
+    fn process_input(&self, buffer: &[u8], width: usize) -> RawGrid;
 }
 
 impl ProcessBinary for CGA {
@@ -53,8 +58,8 @@ impl ProcessBinary for CGA {
         ImageType::CGA
     }
 
-    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>> {
-        self.process_bytes(buffer)
+    fn process_input(&self, buffer: &[u8], width: usize) -> RawGrid {
+        self.words_to_bytes(buffer)
             .chunks(width)
             .map(|v| v.into())
             .collect()
@@ -62,13 +67,24 @@ impl ProcessBinary for CGA {
 }
 
 impl CGA {
-    fn process_bytes(&self, buffer: &[u8]) -> Vec<u8> {
+    fn words_to_bytes(&self, buffer: &[u8]) -> Vec<u8> {
         buffer
             .view_bits::<Msb0>()
             .chunks(self.word_size())
             .map(|m| m.load::<u8>())
             .collect()
     }
+	
+	fn to_bytes(&self, image_data: RawGrid) -> Vec<u8> {
+		image_data.into_iter().flatten().collect::<Vec<_>>().chunks(4).map(|bytes| {
+			let mut raw = 0u8;
+			let bits = raw.view_bits_mut::<Msb0>();
+			for (i, byte) in bytes.into_iter().enumerate() {
+				bits[i*2..i*2+1].store_be::<u8>(*byte);
+			}
+			raw
+			}).collect()
+	}
 }
 
 impl ProcessBinary for EGARowPlanar {
@@ -76,20 +92,20 @@ impl ProcessBinary for EGARowPlanar {
         ImageType::EGA
     }
 
-    fn process_input(&self, buffer: &[u8], width: usize) -> Vec<Vec<u8>> {
+    fn process_input(&self, buffer: &[u8], width: usize) -> RawGrid {
         if width < 8 {
             //TODO don't know if the spec supports this due to row planar. Maybe smarter handling of row chunking
             panic!("This parser cannot handle width less than 8")
         }
         buffer
             .chunks(width / self.pixels_per_byte())
-            .map(|row| self.process_row(row))
+            .map(|row| self.words_to_bytes_row(row))
             .collect()
     }
 }
 
 impl EGARowPlanar {
-    fn process_row(&self, buffer: &[u8]) -> Vec<u8> {
+    fn words_to_bytes_row(&self, buffer: &[u8]) -> Vec<u8> {
         let width = buffer.len() * 2;
         let mut nv: Vec<u8> = vec![0; width];
 

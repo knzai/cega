@@ -84,6 +84,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         image.data()
     };
+	//parser.to_bytes(image_data.clone());
 
     let palette_string = if let ImageType::EGA = parser.image_type() {
         "ega".to_owned()
