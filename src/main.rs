@@ -1,18 +1,17 @@
-#![cfg(feature = "terminal")]
-
-use std::path::{Path, PathBuf};
+#[cfg(feature = "terminal")]
+use {
+	std::path::{Path, PathBuf},
+	cega::color::palette::palette_from_abbr,
+	cega::image,
+	cega::image::Image,
+	cega::parser::ParserType,
+	cega::ImageType,
+	cega::terminal,
+	cega::terminal::*,
+};
 
 #[cfg(feature = "clap")]
 use clap::Parser;
-
-use cega::color::palette::palette_from_abbr;
-use cega::image;
-use cega::image::Image;
-use cega::parser::ParserType;
-use cega::ImageType;
-
-use cega::terminal;
-use cega::terminal::*;
 
 #[cfg(feature = "sdl2")]
 use cega::sdl::render_sdl;
@@ -56,6 +55,7 @@ struct Args {
     quiet: bool,
 }
 
+#[cfg(feature = "clap")]
 fn parse_asci_param(arg: &str) -> Result<String, String> {
     if let 0 | 4 | 16 = arg.len() {
         Ok(arg.to_string())
@@ -64,6 +64,7 @@ fn parse_asci_param(arg: &str) -> Result<String, String> {
     }
 }
 
+#[cfg(feature = "terminal")]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
@@ -116,3 +117,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+
+#[cfg(not(feature = "terminal"))]
+fn main() -> Result<(), Box<dyn std::error::Error>> {Ok(())}
