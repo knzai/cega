@@ -1,6 +1,8 @@
 #[cfg(feature = "terminal")]
 use {
 	std::path::{Path, PathBuf},
+	std::fs,
+	std::io::Write,
 	cega::color::palette::palette_from_abbr,
 	cega::image,
 	cega::image::Image,
@@ -84,7 +86,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         image.data()
     };
-	//parser.to_bytes(image_data.clone());
+	let bytes = parser.to_bytes(image_data.clone());
+	fs::write("test.cga", bytes).unwrap();
 
     let palette_string = if let ImageType::EGA = parser.image_type() {
         "ega".to_owned()
