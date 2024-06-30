@@ -1,12 +1,21 @@
 use image::{RgbImage, Rgb};
 use std::path::PathBuf;
+use crate::{RawGrid, ColorPalette};
 
-pub fn output(path: PathBuf) -> Result<(), image::ImageError> {
-	let mut img = RgbImage::new(32, 32);
-	for x in 15..=17 {
-	    for y in 8..24 {
-	        img.put_pixel(x, y, Rgb([255, 0, 0]));
-	        img.put_pixel(y, x, Rgb([255, 0, 0]));
+impl crate::color::Color {
+    pub fn to_rgb(&self) -> Rgb<u8> {
+		let r = self.rgb24().to_be_bytes();
+		Rgb([r[1], r[2], r[3]])
+    }
+}
+
+
+pub fn output(path: PathBuf, image_data:RawGrid, palette:ColorPalette) -> Result<(), image::ImageError> {
+	let mut img = RgbImage::new(image_data.len() as u32, image_data[0].len() as u32);
+	
+	for (x, row) in image_data.iter().enumerate(){
+	    for (y, index) in image_data.iter().enumerate() {
+	        img.put_pixel(x as u32, y as u32, palette[index as usize].to_rgb());
 	    }
 	}
 	

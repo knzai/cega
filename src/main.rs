@@ -95,7 +95,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	#[cfg(feature = "png")]
 	if let Some(output) = args.output  {
-		return Ok(png::output(output)?)
+		
+		return Ok(png::output(output, image_data, palette)?)
 	}
 
     if args.ascii_mode.is_some() {
