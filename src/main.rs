@@ -13,6 +13,9 @@ use {
 #[cfg(feature = "clap")]
 use clap::Parser;
 
+#[cfg(feature = "png")]
+use cega::png;
+
 #[cfg(feature = "sdl2")]
 use cega::sdl::render_sdl;
 
@@ -44,7 +47,10 @@ struct Args {
         help = "used for wrapping rows if retiling with tile_height\n"
     )]
     max_width: Option<usize>,
-
+	
+    #[clap(short, long)]
+    output: Option<PathBuf>,
+	
     #[clap(short, long)]
     tile_height: Option<usize>,
 
@@ -86,6 +92,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let palette = palette_from_abbr(&palette_string);
+
+	#[cfg(feature = "png")]
+	if let Some(output) = args.output  {
+		return Ok(png::output(output)?)
+	}
 
     if args.ascii_mode.is_some() {
         let ascii = if args.custom_ascii.is_some() {

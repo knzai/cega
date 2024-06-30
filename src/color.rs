@@ -56,6 +56,10 @@ impl Color {
             Color::White(false) => 0xAAAAAA,
         }
     }
+    pub fn rgb_array(&self) -> [u8; 3] {
+		let r = self.rgb24().to_be_bytes();
+		[r[1], r[2], r[3]]
+    }
 }
 
 pub mod palette {
