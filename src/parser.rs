@@ -34,10 +34,10 @@ impl ParserType {
             _ => ParserType::CGA,
         }
     }
-	
-	pub fn to_bytes(&self, image_data: RawGrid) -> Vec<u8> {
+
+    pub fn to_bytes(&self, image_data: RawGrid) -> Vec<u8> {
         CGA.to_bytes(image_data)
-	}
+    }
 }
 
 pub trait ProcessBinary {
@@ -74,17 +74,25 @@ impl CGA {
             .map(|m| m.load::<u8>())
             .collect()
     }
-	
-	fn to_bytes(&self, image_data: RawGrid) -> Vec<u8> {
-		image_data.into_iter().flatten().collect::<Vec<_>>().chunks(4).map(|bytes| {
-			let mut raw = 0u8;
-			let bits = raw.view_bits_mut::<Msb0>();
-			for (i, byte) in bytes.into_iter().enumerate() {
-				bits[i*2..i*2+1].store_be::<u8>(*byte);
-			}
-			raw
-			}).collect()
-	}
+
+    fn to_bytes(&self, image_data: RawGrid) -> Vec<u8> {
+        let bytes_per_new_byte = 8 / self.word_size();
+        image_data
+            .into_iter()
+            .flatten()
+            .collect::<Vec<_>>()
+            .chunks(bytes_per_new_byte)
+            .map(|bytes| Self::compress_bytes_to_words(bytes))
+            .collect()
+    }
+    fn compress_bytes_to_words(bytes: &[u8]) -> u8 {
+        let mut raw = 0u8;
+        let bits = raw.view_bits_mut::<Msb0>();
+        for (i, byte) in bytes.into_iter().enumerate() {
+            bits[i * 2..=i * 2 + 1].store_be::<u8>(*byte);
+        }
+        raw
+    }
 }
 
 impl ProcessBinary for EGARowPlanar {
@@ -125,7 +133,7 @@ mod tests {
     #[test]
     fn test_ega_row_planar_row() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let buffer = EGARowPlanar.process_row(&data.to_be_bytes());
+        let buffer = EGARowPlanar.words_to_bytes_row(&data.to_be_bytes());
         assert_eq!(buffer.len(), 8);
 
         assert_eq!(
@@ -162,6 +170,31 @@ mod tests {
                 vec!(3, 3, 3, 3, 3, 3, 3, 3),
                 vec!(3, 3, 3, 3, 3, 3, 3, 3),
             )
+        );
+    }
+
+    #[test]
+    fn test_cga_to_bytes() {
+        let data = vec![
+            vec![3, 3, 3, 3, 3, 3, 3, 3],
+            vec![3, 3, 3, 3, 3, 3, 3, 3],
+            vec![3, 3, 3, 1, 1, 3, 3, 3],
+            vec![3, 3, 1, 2, 2, 1, 3, 3],
+            vec![3, 3, 1, 2, 2, 1, 3, 3],
+            vec![3, 3, 3, 1, 1, 3, 3, 3],
+            vec![3, 3, 3, 3, 3, 3, 3, 3],
+            vec![3, 3, 3, 3, 3, 3, 3, 3],
+        ];
+        assert_eq!(
+            CGA.to_bytes(data),
+            0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FFu128.to_be_bytes()
+        );
+    }
+    #[test]
+    fn test_compress_bytes_to_words() {
+        assert_eq!(
+            CGA::compress_bytes_to_words(&[0b00, 0b01, 0b10, 0b11]),
+            0b00011011
         );
     }
 }

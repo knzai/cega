@@ -1,15 +1,14 @@
 #[cfg(feature = "terminal")]
 use {
-	std::path::{Path, PathBuf},
-	std::fs,
-	std::io::Write,
-	cega::color::palette::palette_from_abbr,
-	cega::image,
-	cega::image::Image,
-	cega::parser::ParserType,
-	cega::ImageType,
-	cega::terminal,
-	cega::terminal::*,
+    cega::color::palette::palette_from_abbr,
+    cega::image,
+    cega::image::Image,
+    cega::parser::ParserType,
+    cega::terminal,
+    cega::terminal::*,
+    cega::ImageType,
+    std::fs,
+    std::path::{Path, PathBuf},
 };
 
 #[cfg(feature = "clap")]
@@ -49,10 +48,13 @@ struct Args {
         help = "used for wrapping rows if retiling with tile_height"
     )]
     max_width: Option<usize>,
-	
-    #[clap(short, long, help="format based on extension - see image crate")]
+
+    #[clap(short, long, help = "format based on extension - see image crate")]
     output_file: Option<PathBuf>,
-	
+
+    #[clap(short, long)]
+    ga_file: Option<PathBuf>,
+
     #[clap(short, long)]
     tile_height: Option<usize>,
 
@@ -86,8 +88,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         image.data()
     };
-	let bytes = parser.to_bytes(image_data.clone());
-	fs::write("test.cga", bytes).unwrap();
 
     let palette_string = if let ImageType::EGA = parser.image_type() {
         "ega".to_owned()
@@ -97,11 +97,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let palette = palette_from_abbr(&palette_string);
 
-	#[cfg(feature = "png")]
-	if let Some(output) = args.output_file  {
-		
-		png::output(output, image_data.clone(), palette.clone())?
-	}
+    #[cfg(feature = "png")]
+    if let Some(output) = args.output_file {
+        png::output(output, image_data.clone(), palette.clone())?
+    }
+
+    if let Some(ga_file) = args.ga_file {
+        let bytes = parser.to_bytes(image_data.clone());
+        fs::write(ga_file, bytes).unwrap();
+    }
 
     if args.ascii_mode.is_some() {
         let ascii = if args.custom_ascii.is_some() {
@@ -135,4 +139,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[cfg(not(feature = "terminal"))]
-fn main() -> Result<(), Box<dyn std::error::Error>> {Ok(())}
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    Ok(())
+}
