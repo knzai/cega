@@ -1,3 +1,4 @@
+use crate::png;
 use crate::ImageType;
 use crate::RawGrid;
 use bitvec::prelude::*;
@@ -12,12 +13,13 @@ pub struct CGA;
 pub enum ParserType {
     CGA,
     EGARowPlanar,
+    Png,
 }
 
 impl ParserType {
     pub fn image_type(&self) -> ImageType {
         match self {
-            Self::CGA => ImageType::CGA,
+            Self::CGA | Self::Png => ImageType::CGA,
             Self::EGARowPlanar => ImageType::EGA,
         }
     }
@@ -25,12 +27,14 @@ impl ParserType {
         match self {
             Self::CGA => CGA.process_input(buffer, width),
             Self::EGARowPlanar => EGARowPlanar.process_input(buffer, width),
+            Self::Png => png::process_input(buffer),
         }
     }
 
     pub fn type_str(str: &str) -> ParserType {
         match str {
             "ega_row_parser" | "erp" => ParserType::EGARowPlanar,
+            "png" => ParserType::Png,
             _ => ParserType::CGA,
         }
     }

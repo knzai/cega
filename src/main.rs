@@ -33,7 +33,7 @@ struct Args {
     #[clap(value_parser(["cga0", "cga0i", "cga1", "cga1i", "ega"]),num_args(0..=1), short, long, help="ega palette can be used for cga, but not the inverse\n")]
     palette: Option<String>,
 
-    #[clap(short, long, value_parser(["ega_row_planar", "erp", "cga"]), default_value="cga")]
+    #[clap(short, long, value_parser(["ega_row_planar", "erp", "cga", "png"]), default_value="cga")]
     image_parser: String,
 
     #[clap(short, long, value_parser = parse_asci_param, help="4 or 16 chars palette like -a \" +%0\"")]
@@ -80,7 +80,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let reader = std::fs::read(Path::new(&args.image))?;
     let parser = ParserType::type_str(&args.image_parser);
-
     let image = Image::new(&reader, args.width, parser);
 
     let image_data = if args.tile_height.is_some() {
@@ -88,6 +87,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         image.data()
     };
+
+    //dbg!(image_data.clone());
 
     let palette_string = if let ImageType::EGA = parser.image_type() {
         "ega".to_owned()

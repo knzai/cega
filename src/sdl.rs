@@ -41,7 +41,6 @@ pub fn render_sdl(
 
     for (y, row) in image_data.iter().enumerate() {
         for (x, index) in row.iter().enumerate() {
-            dbg!(x, index);
             canvas.pixel(
                 x.try_into().unwrap(),
                 y.try_into().unwrap(),

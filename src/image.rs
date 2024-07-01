@@ -75,7 +75,7 @@ fn concat_tiles<T: std::clone::Clone>(tiles: Vec<Vec<T>>, num_rows: usize) -> Ve
 #[cfg(test)]
 mod tests {
     use crate::image::{self, Image};
-	use crate::parser::ParserType;
+    use crate::parser::ParserType;
 
     #[test]
     fn basic_properties() {
@@ -117,7 +117,11 @@ mod tests {
     #[test]
     fn tiling() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let tiled = image::tile(Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(), 2, Some(4));
+        let tiled = image::tile(
+            Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(),
+            2,
+            Some(4),
+        );
         assert_eq!(
             tiled,
             [
@@ -129,7 +133,11 @@ mod tests {
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
-        let tiled = image::tile(Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(), 2, Some(6));
+        let tiled = image::tile(
+            Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(),
+            2,
+            Some(6),
+        );
         assert_eq!(
             tiled,
             vec![
