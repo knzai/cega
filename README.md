@@ -15,7 +15,7 @@ This is currently very much in an alpha state: apis and CLI arguments may still 
 ## Roadmap/Upcoming
 
 ### Priority
-- [x] ~~gif or png output (half the point of the whole library).
+- [x] ~~gif or png output (half the point of the whole library).~~
 - [x] ~~If I use image::DynamicImage there are additional encoders/decoders that will be free~~
 - [ ] Zooming/scaling (for png and gui output)
 - [ ] Additional EGA planar encodings
