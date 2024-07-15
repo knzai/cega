@@ -68,8 +68,7 @@ Options:
   -h, --help                         Print help
   -V, --version                      Print version
 ```
-cega can parse output to png, and other formats. Uses [image](https://crates.io/crates/image) formats:
-https://docs.rs/image/latest/image/codecs/index.html#supported-formats
+cega can parse output to png, and [other formats](https://docs.rs/image/latest/image/codecs/index.html#supported-formats).
 
 cega can parse tiled/spritesheet style cga and output "pixels" to the terminal
 
