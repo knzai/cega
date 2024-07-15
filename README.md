@@ -96,7 +96,8 @@ terminal = ["clap"]
 png = ["image"]
 ```
 
-disabling default or terminal will result in an empty main.rs/main() in addition to skipping the terminal functionality
+disabling terminal (via default and reinclude others) will result in an empty main.rs/main() in addition to skipping the terminal functionality.
+png feature is handled via [image](https://crates.io/crates/image) so includes that dep
 
 ## Acknowledgements & References
 * https://moddingwiki.shikadi.net/wiki/Main_Page
