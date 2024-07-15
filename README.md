@@ -68,7 +68,7 @@ Options:
   -h, --help                         Print help
   -V, --version                      Print version
 ```
-cega can parse output to png (and other formats) Formats:
+cega can parse output to png, and other formats. Uses [image](https://crates.io/crates/image) formats:
 https://docs.rs/image/latest/image/codecs/index.html#supported-formats
 
 cega can parse tiled/spritesheet style cga and output "pixels" to the terminal
@@ -97,7 +97,7 @@ terminal = ["clap"]
 png = ["image"]
 ```
 
-disable will result in an empty main.rs/main() in addition to skipping the terminal functionality
+disabling default or terminal will result in an empty main.rs/main() in addition to skipping the terminal functionality
 
 ## Acknowledgements & References
 * https://moddingwiki.shikadi.net/wiki/Main_Page
