@@ -2,16 +2,15 @@
 
 //std
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-//ext
 use clap::Parser;
 
 //int
 use cega::color::palette::palette_from_abbr;
 use cega::image::{self, Image};
 use cega::parser::ParserType;
-use cega::terminal::{self, *};
+use cega::terminal::{self, *, args};
 use cega::ImageType;
 
 #[cfg(feature = "png")]
@@ -20,60 +19,8 @@ use cega::png;
 #[cfg(feature = "sdl2")]
 use cega::sdl::render_sdl;
 
-#[derive(Parser, Debug)]
-#[clap(version = "0.1", author = "Kenzi Connor")]
-struct Args {
-    #[clap(name = "IMAGE")]
-    image: PathBuf,
-
-    #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="images will horizontally crop to terminal\n[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels (UGLY)")]
-    ascii_mode: Option<TerminalMode>,
-
-    #[clap(value_parser(["cga0", "cga0i", "cga1", "cga1i", "ega"]),num_args(0..=1), short, long, help="ega palette can be used for cga, but not the inverse\n")]
-    palette: Option<String>,
-
-    #[clap(short, long, value_parser(["ega_row_planar", "erp", "cga", "png"]), default_value="cga")]
-    image_parser: String,
-
-    #[clap(short, long, value_parser = parse_asci_param, help="4 or 16 chars palette like -a \" +%0\"")]
-    custom_ascii: Option<String>,
-
-    #[clap(short, long, default_value_t = 320)]
-    width: usize,
-
-    #[clap(
-        short,
-        long,
-        help = "used for wrapping rows if retiling with tile_height"
-    )]
-    max_width: Option<usize>,
-
-    #[clap(short, long, help = "format based on extension - see image crate")]
-    output_file: Option<PathBuf>,
-
-    #[clap(short, long)]
-    ga_file: Option<PathBuf>,
-
-    #[clap(short, long)]
-    tile_height: Option<usize>,
-
-    #[clap(short, long, default_value_t = false)]
-    sdl: bool,
-
-    #[clap(short, long, default_value_t = false)]
-    quiet: bool,
-}
-
-fn parse_asci_param(arg: &str) -> Result<String, String> {
-    if let 0 | 4 | 16 = arg.len() {
-        Ok(arg.to_string())
-    } else {
-        Err("requires a 4 or 16 character string like: -a \" +%0\"".to_string())
-    }
-}
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args = Args::parse();
+    let args = args::Args::parse();
 
     let reader = std::fs::read(Path::new(&args.image))?;
     let parser = ParserType::type_str(&args.image_parser);

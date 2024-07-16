@@ -1,3 +1,5 @@
+pub mod args;
+
 use crate::{ColorPalette, Grid, ImageType, Palette, RawGrid};
 
 pub type CharPalette = Palette<char>;
