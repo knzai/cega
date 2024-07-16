@@ -1,17 +1,12 @@
+# cega
 
-[![Crates.io](https://img.shields.io/crates/v/cega?style=flat-square)](https://crates.io/crates/cega)
+## CGA/EGA graphics binary file parsing with png/gif/etc output Rust**
+
+[![github](https://img.shields.io/badge/github-knzai/cega-8da0cb?logo=github)](https://github.com/knzai/cega)
+[![crates.io](https://img.shields.io/crates/v/cega?logo=crates.io)](https://crates.io/crates/cega)
+[![docs.rs](https://img.shields.io/docsrs/cega?logo=docs.rs)](https://docs.rs/cega/latest/cega/)
 [![Crates.io](https://img.shields.io/crates/d/cega?style=flat-square)](https://crates.io/crates/cega)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](LICENSE-APACHE)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE-MIT)
-[![Contributors](https://img.shields.io/github/contributors/knzconnor/cega?style=flat-square)](https://github.com/knzconnor/cega/graphs/contributors)
-
-Current version: 0.2.0
-
-License: MIT OR Apache-2.0
-
-## cega
-
-CGA/EGA graphics binary file parsing with png/gif/etc output with both terminal (ascii and colored) and gui (sld2) window preview
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 
 ## Warning
 
@@ -39,11 +34,9 @@ This is currently very much in an alpha state: apis and CLI arguments may still 
 ### Great if I get to it, but a bit of a tangent
 - [ ] Train a model to recognize format and tiling patterns for smart discovery. I don't know how many test files I can get my hands on but I guess I could generate them
 
+## Binary/Terminal Usage
 
-
-## Usage
-
-This can be used as a library or executable. Pending finalizing internal API I'll demonstrate the CLI usage instead (check main.rs for how to call etc). Actual --help from CLI will always be up to date even if the docs aren't.
+This can be used as a library or executable.
 
 The binary handles arguments (and thus help) via [clap 4](https://crates.io/crates/clap) 
 
@@ -54,37 +47,24 @@ Arguments:
   <IMAGE>  
 
 Options:
-  -a, --ascii-preview [<ASCII_PREVIEW>]
-          images will horizontally crop to terminal
-          a = plain ascii: default for empty -a 
-          c = colored ascii
-          p = full pixels via ansi bg color
-          h = horizontal half pixels (UGLY)
-  -p, --palette [<PALETTE>]
-          ega palette can be used for cga, but not the inverse
-           [possible values: cga0, cga0i, cga1, cga1i, ega]
-  -i, --image-parser <IMAGE_PARSER>
-          [default: cga] [possible values: ega_row_planar, erp, cga, png]
-  -c, --custom-ascii <CUSTOM_ASCII>
-          4 or 16 chars palette like -a " +%0"
-  -w, --width <WIDTH>
-          [default: 320]
-  -m, --max-width <MAX_WIDTH>
-          used for wrapping rows if retiling with tile_height
-  -o, --output-file <OUTPUT_FILE>
-          format based on extension - see image crate
-  -g, --ga-file <GA_FILE>
-          
-  -t, --tile-height <TILE_HEIGHT>
-          
-  -s, --sdl
-          
-  -q, --quiet
-          
-  -h, --help
-          Print help
-  -V, --version
-          Print version
+  -a, --ascii-mode <ASCII_MODE>      images will horizontally crop to terminal
+                                     [possible values: a, c, p, h]
+                                     a = plain ascii
+                                     c = colored ascii
+                                     p = full pixels via ansi bg color
+                                     h = horizontal half pixels (UGLY)
+  -p, --palette [<PALETTE>]          ega palette can be used for cga, but not the inverse
+                                      [possible values: cga0, cga0i, cga1, cga1i, ega]
+  -i, --image-parser <IMAGE_PARSER>  [default: cga] [possible values: ega_row_planar, erp, cga]
+  -c, --custom-ascii <CUSTOM_ASCII>  4 or 16 chars palette like -a " +%0"
+  -w, --width <WIDTH>                [default: 320]
+  -m, --max-width <MAX_WIDTH>        used for wrapping rows if retiling with tile_height
+  -o, --output-file <OUTPUT_FILE>    format based on extension - see image crate
+  -t, --tile-height <TILE_HEIGHT>    
+  -s, --sdl                          
+  -q, --quiet                        
+  -h, --help                         Print help
+  -V, --version                      Print version
 ```
 cega can parse output to png, and [other formats](https://docs.rs/image/latest/image/codecs/index.html#supported-formats).
 
@@ -106,7 +86,7 @@ cega will ouput in different preview formats, such as colored ASCII or a gui win
 
 <img width="650" alt="cega ../../assets/game/CGATILES.BIN -w 16 -r 16 -i cga -t c -c 1234 -s" src="https://github.com/knzconnor/cega/assets/53/593e9c9f-2780-4201-af93-7073155e876c">
 
-## Features and library usage
+## Cargo features and library usage
 
 ```toml
 default = ["terminal", "sdl2", "png"]
@@ -114,11 +94,10 @@ terminal = ["clap"]
 png = ["image"]
 ```
 
-disabling terminal (via default and reinclude others) will result in an empty main.rs/main() in addition to skipping the terminal functionality.
-png feature is handled via [image](https://crates.io/crates/image) so includes that dep
+Disabling terminal will skip the binary target
+Png feature is handled via [image](https://crates.io/crates/image) so includes that dep
 
 ## Acknowledgements & References
-* https://moddingwiki.shikadi.net/wiki/Main_Page
-* https://moddingwiki.shikadi.net/wiki/Raw_EGA_data
-* https://moddingwiki.shikadi.net/wiki/Ultima_I_Tile_Graphic_Format
-* https://moddingwiki.shikadi.net/wiki/User:TheAlmightyGuru
+ - [The DOS Game Modding Wiki](https://moddingwiki.shikadi.net/wiki/Main_Page), particularly [User:TheAlmightyGuru](https://moddingwiki.shikadi.net/wiki/User:TheAlmightyGuru)
+   - [Raw_EGA_data](https://moddingwiki.shikadi.net/wiki/Raw_EGA_data)
+   - [Ultima_I_Tile_Graphic_Format](https://moddingwiki.shikadi.net/wiki/Ultima_I_Tile_Graphic_Format)
