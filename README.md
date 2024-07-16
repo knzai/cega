@@ -49,24 +49,37 @@ Arguments:
   <IMAGE>  
 
 Options:
-  -a, --ascii-mode <ASCII_MODE>      images will horizontally crop to terminal
-                                     [possible values: a, c, p, h]
-                                     a = plain ascii
-                                     c = colored ascii
-                                     p = full pixels via ansi bg color
-                                     h = horizontal half pixels (UGLY)
-  -p, --palette [<PALETTE>]          ega palette can be used for cga, but not the inverse
-                                      [possible values: cga0, cga0i, cga1, cga1i, ega]
-  -i, --image-parser <IMAGE_PARSER>  [default: cga] [possible values: ega_row_planar, erp, cga]
-  -c, --custom-ascii <CUSTOM_ASCII>  4 or 16 chars palette like -a " +%0"
-  -w, --width <WIDTH>                [default: 320]
-  -m, --max-width <MAX_WIDTH>        used for wrapping rows if retiling with tile_height
-  -o, --output-file <OUTPUT_FILE>    format based on extension - see image crate
-  -t, --tile-height <TILE_HEIGHT>    
-  -s, --sdl                          
-  -q, --quiet                        
-  -h, --help                         Print help
-  -V, --version                      Print version
+  -a, --ascii-preview [<ASCII_PREVIEW>]
+          images will horizontally crop to terminal
+          a = plain ascii: default for empty -a 
+          c = colored ascii
+          p = full pixels via ansi bg color
+          h = horizontal half pixels (UGLY)
+  -p, --palette [<PALETTE>]
+          ega palette can be used for cga, but not the inverse
+           [possible values: cga0, cga0i, cga1, cga1i, ega]
+  -i, --image-parser <IMAGE_PARSER>
+          [default: cga] [possible values: ega_row_planar, erp, cga, png]
+  -c, --custom-ascii <CUSTOM_ASCII>
+          4 or 16 chars palette like -a " +%0"
+  -w, --width <WIDTH>
+          [default: 320]
+  -m, --max-width <MAX_WIDTH>
+          used for wrapping rows if retiling with tile_height
+  -o, --output-file <OUTPUT_FILE>
+          format based on extension - see image crate
+  -g, --ga-file <GA_FILE>
+          
+  -t, --tile-height <TILE_HEIGHT>
+          
+  -s, --sdl
+          
+  -q, --quiet
+          
+  -h, --help
+          Print help
+  -V, --version
+          Print version
 ```
 cega can parse output to png, and [other formats](https://docs.rs/image/latest/image/codecs/index.html#supported-formats).
 

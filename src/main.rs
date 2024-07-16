@@ -1,21 +1,17 @@
 #![cfg(feature = "terminal")]
 
-//std
 use std::fs;
 use std::path::Path;
 
 use clap::Parser;
 
-//int
 use cega::color::palette::palette_from_abbr;
 use cega::image::{self, Image};
 use cega::parser::ParserType;
-use cega::terminal::{self, *, args};
+use cega::terminal::{self, args, *};
 use cega::ImageType;
-
 #[cfg(feature = "png")]
 use cega::png;
-
 #[cfg(feature = "sdl2")]
 use cega::sdl::render_sdl;
 
@@ -52,28 +48,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         fs::write(ga_file, bytes).unwrap();
     }
 
-    if args.ascii_mode.is_some() {
+    if let Some(ascii_mode) = args.ascii_preview {
         let ascii = if args.custom_ascii.is_some() {
             args.custom_ascii.unwrap().chars().collect()
         } else {
             default_char_palette(parser.image_type())
         };
 
-        let tp = TerminalPalette::new(args.ascii_mode.unwrap(), ascii, palette.clone());
+        let tp = TerminalPalette::new(ascii_mode, ascii, palette.clone());
         print!(
             "{}",
             terminal::disable_wrapping(terminal::to_string(tp.apply(image_data.clone())))
         );
     }
 
-    if !args.quiet && !image.is_fullscreen() {
-        if args.width == 320 {
-            println!("\nImage appears to not be fullscreen 320*200. It may be tiled, try setting a narrower -w width to detect tiles.");
-            println!("Possible widths: {:?}", image.width_factors());
-        } else if args.tile_height.is_none() && image.is_tall() {
-            println!("\nImage height appears to >= 4x its width. If there are tiles, setting -t tile_height will make a more compact view");
-            println!("Possible heights: {:?}", image.height_factors());
-        }
+    //downside of the current approach is the image doesn't know it's been retiled, so need to know to not ask it if it's tall
+    if !args.quiet && args.tile_height.is_none() {
+        println!("\n{}", image.suggestions());
     }
 
     #[cfg(feature = "sdl2")]

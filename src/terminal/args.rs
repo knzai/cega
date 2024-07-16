@@ -9,8 +9,9 @@ pub struct Args {
     #[clap(name = "IMAGE")]
     pub image: PathBuf,
 
-    #[clap(value_enum, short, long, value_parser = TerminalMode::from_short, help="images will horizontally crop to terminal\n[possible values: a, c, p, h]\na = plain ascii\nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels (UGLY)")]
-    pub ascii_mode: Option<TerminalMode>,
+    #[clap(value_enum, short, long, default_missing_value="a", num_args(0..=1), value_parser = TerminalMode::from_short, 
+        help="images will horizontally crop to terminal\na = plain ascii: default for empty -a \nc = colored ascii\np = full pixels via ansi bg color\nh = horizontal half pixels (UGLY)")]
+    pub ascii_preview: Option<TerminalMode>,
 
     #[clap(value_parser(["cga0", "cga0i", "cga1", "cga1i", "ega"]),num_args(0..=1), short, long, help="ega palette can be used for cga, but not the inverse\n")]
     pub palette: Option<String>,
