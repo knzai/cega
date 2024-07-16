@@ -1,6 +1,6 @@
 # cega
 
-## CGA/EGA graphics binary file parsing with png/gif/etc output Rust**
+## CGA/EGA (the graphics formats from 80s games) parsing with png/gif/etc output and colored terminal preview
 
 [![github](https://img.shields.io/badge/github-knzai/cega-8da0cb?logo=github)](https://github.com/knzai/cega)
 [![crates.io](https://img.shields.io/crates/v/cega?logo=crates.io)](https://crates.io/crates/cega)
