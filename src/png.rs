@@ -1,8 +1,10 @@
-use crate::{ColorPalette, RawGrid};
-use image::io::Reader as ImageReader;
-use image::{Rgb, RgbImage};
 use std::io::Cursor;
 use std::path::PathBuf;
+
+use image::io::Reader as ImageReader;
+use image::{Rgb, RgbImage};
+
+use crate::{ColorPalette, RawGrid};
 
 impl crate::color::Color {
     pub fn to_rgb(&self) -> Rgb<u8> {

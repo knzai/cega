@@ -1,8 +1,9 @@
+use bitvec::prelude::*;
+
+use crate::{ImageType, RawGrid};
+
 #[cfg(feature = "png")]
 use crate::png;
-use crate::ImageType;
-use crate::RawGrid;
-use bitvec::prelude::*;
 
 //https://moddingwiki.shikadi.net/wiki/Raw_EGA_data#Row-planar_EGA_data
 #[derive(Debug, Clone, Copy)]

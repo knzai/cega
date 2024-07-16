@@ -1,7 +1,8 @@
-use crate::{ColorPalette, Palette};
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::pixels::PixelFormatEnum::RGB888 as ColorFormat;
 use sdl2::{event::Event, keyboard::Keycode};
+
+use crate::{ColorPalette, Palette};
 
 type Sdl2Color = sdl2::pixels::Color;
 type MyColor = crate::color::Color;

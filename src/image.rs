@@ -1,6 +1,6 @@
-use crate::parser;
-use crate::RawGrid;
 use factor::factor::factor;
+
+use crate::{parser, RawGrid};
 
 pub struct Image(RawGrid);
 

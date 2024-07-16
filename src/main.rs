@@ -1,15 +1,18 @@
 #![cfg(feature = "terminal")]
 
-use cega::color::palette::palette_from_abbr;
-use cega::image;
-use cega::image::Image;
-use cega::parser::ParserType;
-use cega::terminal;
-use cega::terminal::*;
-use cega::ImageType;
-use clap::Parser;
+//std
 use std::fs;
 use std::path::{Path, PathBuf};
+
+//ext
+use clap::Parser;
+
+//int
+use cega::color::palette::palette_from_abbr;
+use cega::image::{self, Image};
+use cega::parser::ParserType;
+use cega::terminal::{self, *};
+use cega::ImageType;
 
 #[cfg(feature = "png")]
 use cega::png;
