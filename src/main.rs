@@ -8,12 +8,12 @@ use clap::Parser;
 use cega::color::palette::palette_from_abbr;
 use cega::image::{self, Image};
 use cega::parser::ParserType;
-use cega::terminal::{self, args, *};
-use cega::ImageType;
 #[cfg(feature = "png")]
 use cega::png;
 #[cfg(feature = "sdl2")]
 use cega::sdl::render_sdl;
+use cega::terminal::{self, args, *};
+use cega::ImageType;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = args::Args::parse();

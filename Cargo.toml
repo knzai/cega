@@ -10,8 +10,13 @@ keywords = ["gamedev", "graphics"]
 categories = ["command-line-utilities"]
 exclude = [".rusty-hook.toml", ".gitignore"]
 
+[badges]
+github = { repository = "knzai/cega" }
+maintenance = { status = "actively-developed" }
+
 [[bin]]
 name = 'cega'
+path = "src/main.rs"
 required-features = ["terminal"]
 
 [features]
@@ -21,6 +26,7 @@ png = ["image"]
 
 [dev-dependencies]
 rusty-hook = "^0.11.2"
+cargo-readme = "3.3.1"
 
 [dependencies]
 bitvec = "1"

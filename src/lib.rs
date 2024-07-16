@@ -1,3 +1,7 @@
+//! # cega
+//!
+//! CGA/EGA graphics binary file parsing with png/gif/etc output with both terminal (ascii and colored) and gui (sld2) window preview
+
 pub mod color;
 pub mod image;
 pub mod parser;

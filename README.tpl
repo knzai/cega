@@ -5,13 +5,11 @@
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE-MIT)
 [![Contributors](https://img.shields.io/github/contributors/knzconnor/cega?style=flat-square)](https://github.com/knzconnor/cega/graphs/contributors)
 
-Current version: 0.2.0
+Current version: {{version}}
 
-License: MIT OR Apache-2.0
+License: {{license}}
 
-## cega
-
-CGA/EGA graphics binary file parsing with png/gif/etc output with both terminal (ascii and colored) and gui (sld2) window preview
+{{readme}}
 
 ## Warning
 

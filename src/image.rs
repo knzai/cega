@@ -45,10 +45,12 @@ impl Image {
 
     pub fn suggestions(&self) -> String {
         if !self.is_fullscreen() && self.width() == 320 {
-            format!("Image appears to not be fullscreen 320*200.\
+            format!(
+                "Image appears to not be fullscreen 320*200.\
                 It may be tiled, try setting a narrower -w width to detect tiles.\n\
-                Possible widths: {:?}", self.width_factors())
-
+                Possible widths: {:?}",
+                self.width_factors()
+            )
         } else if self.is_tall() {
             format!("Image height appears to >= 4x its width.\
                 If there are tiles, setting a smaller -t tile_height will make a more compact view\n\
