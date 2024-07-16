@@ -30,6 +30,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: install_dependencies
+        run: sudo apt-get install libsdl2-dev libsdl2-gfx-dev libsdl2-image-dev
+
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -59,14 +62,12 @@ jobs:
 
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
-        continue-on-error: true  # WARNING: only for this example, remove it!
         with:
           command: fmt
           args: --all -- --check
 
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
-        continue-on-error: true  # WARNING: only for this example, remove it!
         with:
           command: clippy
           args: -- -D warnings
