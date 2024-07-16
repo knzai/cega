@@ -6,6 +6,7 @@
 [![crates.io](https://img.shields.io/crates/v/cega?logo=crates.io)](https://crates.io/crates/cega)
 [![docs.rs](https://img.shields.io/docsrs/cega?logo=docs.rs)](https://docs.rs/cega/latest/cega/)
 [![Crates.io](https://img.shields.io/crates/d/cega?style=flat-square)](https://crates.io/crates/cega)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/knzai/cega/commit.yml)](https://github.com/knzai/cega/actions/workflows/commit.yml)
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 
 ## Warning
