@@ -43,8 +43,9 @@ impl ParserType {
         }
     }
 
-    pub fn to_bytes(&self, image_data: RawGrid) -> Vec<u8> {
-        CGA.to_bytes(image_data)
+    pub fn to_bytes(self, image_data: RawGrid) -> Vec<u8> {
+        //Placeholder only does CGA. Need to implement the others
+        CGA::to_bytes(image_data)
     }
 }
 
@@ -67,7 +68,7 @@ impl ProcessBinary for CGA {
     }
 
     fn process_input(&self, buffer: &[u8], width: usize) -> RawGrid {
-        self.words_to_bytes(buffer)
+        CGA::words_to_bytes(buffer)
             .chunks(width)
             .map(|v| v.into())
             .collect()
@@ -75,16 +76,16 @@ impl ProcessBinary for CGA {
 }
 
 impl CGA {
-    fn words_to_bytes(&self, buffer: &[u8]) -> Vec<u8> {
+    fn words_to_bytes(buffer: &[u8]) -> Vec<u8> {
         buffer
             .view_bits::<Msb0>()
-            .chunks(self.word_size())
+            .chunks(Self.word_size())
             .map(|m| m.load::<u8>())
             .collect()
     }
 
-    fn to_bytes(self, image_data: RawGrid) -> Vec<u8> {
-        let bytes_per_new_byte = 8 / self.word_size();
+    fn to_bytes(image_data: RawGrid) -> Vec<u8> {
+        let bytes_per_new_byte = 8 / Self.word_size();
         image_data
             .into_iter()
             .flatten()
@@ -194,7 +195,7 @@ mod tests {
             vec![3, 3, 3, 3, 3, 3, 3, 3],
         ];
         assert_eq!(
-            CGA.to_bytes(data),
+            CGA::to_bytes(data),
             0xFF_FF_FF_FF_FD_7F_F6_9F_F6_9F_FD_7F_FF_FF_FF_FFu128.to_be_bytes()
         );
     }
