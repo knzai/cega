@@ -10,10 +10,6 @@ keywords = ["gamedev", "graphics"]
 categories = ["command-line-utilities"]
 exclude = [".rusty-hook.toml", ".gitignore"]
 
-[badges]
-github = { repository = "knzai/cega" }
-maintenance = { status = "actively-developed" }
-
 [[bin]]
 name = 'cega'
 path = "src/main.rs"
