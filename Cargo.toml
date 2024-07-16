@@ -10,6 +10,10 @@ keywords = ["gamedev", "graphics"]
 categories = ["command-line-utilities"]
 exclude = [".rusty-hook.toml", ".gitignore"]
 
+[[bin]]
+name = 'cega'
+required-features = ["terminal"]
+
 [features]
 default = ["terminal", "sdl2", "png"]
 terminal = ["clap"]

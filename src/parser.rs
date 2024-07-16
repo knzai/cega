@@ -1,3 +1,4 @@
+#[cfg(feature = "png")]
 use crate::png;
 use crate::ImageType;
 use crate::RawGrid;
@@ -13,20 +14,22 @@ pub struct CGA;
 pub enum ParserType {
     CGA,
     EGARowPlanar,
+    #[cfg(feature = "png")]
     Png,
 }
 
 impl ParserType {
     pub fn image_type(&self) -> ImageType {
         match self {
-            Self::CGA | Self::Png => ImageType::CGA,
             Self::EGARowPlanar => ImageType::EGA,
+            _ => ImageType::CGA,
         }
     }
     pub fn process_input(&self, buffer: &[u8], width: usize) -> RawGrid {
         match self {
             Self::CGA => CGA.process_input(buffer, width),
             Self::EGARowPlanar => EGARowPlanar.process_input(buffer, width),
+            #[cfg(feature = "png")]
             Self::Png => png::process_input(buffer),
         }
     }
@@ -34,6 +37,7 @@ impl ParserType {
     pub fn type_str(str: &str) -> ParserType {
         match str {
             "ega_row_parser" | "erp" => ParserType::EGARowPlanar,
+            #[cfg(feature = "png")]
             "png" => ParserType::Png,
             _ => ParserType::CGA,
         }
@@ -79,20 +83,20 @@ impl CGA {
             .collect()
     }
 
-    fn to_bytes(&self, image_data: RawGrid) -> Vec<u8> {
+    fn to_bytes(self, image_data: RawGrid) -> Vec<u8> {
         let bytes_per_new_byte = 8 / self.word_size();
         image_data
             .into_iter()
             .flatten()
             .collect::<Vec<_>>()
             .chunks(bytes_per_new_byte)
-            .map(|bytes| Self::compress_bytes_to_words(bytes))
+            .map(Self::compress_bytes_to_words)
             .collect()
     }
     fn compress_bytes_to_words(bytes: &[u8]) -> u8 {
         let mut raw = 0u8;
         let bits = raw.view_bits_mut::<Msb0>();
-        for (i, byte) in bytes.into_iter().enumerate() {
+        for (i, byte) in bytes.iter().enumerate() {
             bits[i * 2..=i * 2 + 1].store_be::<u8>(*byte);
         }
         raw
