@@ -39,6 +39,7 @@ Including terminal or wasm produces the corresponding binary
 ### Priority
 - [x] ~~gif or png output (half the point of the whole library).~~
 - [x] ~~If I use image::DynamicImage there are additional encoders/decoders that will be free~~
+- [ ] wasm web based processing app - basic happy path with no options works
 - [ ] Zooming/scaling (for png and gui output)
 - [ ] Additional EGA planar encodings
 - [ ] Map viewing (the other half): using the tile/spritesheets as palettes for larger images in psuedo CGA/EGA form (common in 80s games)

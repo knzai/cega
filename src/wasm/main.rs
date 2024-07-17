@@ -2,7 +2,6 @@
 extern crate base64;
 use std::collections::HashMap;
 
-
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 use gloo::file::callbacks::FileReader;
@@ -10,6 +9,11 @@ use gloo::file::File;
 use web_sys::{DragEvent, Event, FileList, HtmlInputElement};
 use yew::html::TargetCast;
 use yew::{html, Callback, Component, Context, Html};
+
+use cega::color::palette::palette_from_abbr;
+use cega::image::Image;
+use cega::parser::ParserType;
+use cega::png;
 
 struct FileDetails {
     name: String,
@@ -76,7 +80,7 @@ impl Component for App {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <div id="wrapper">
-                <p id="title">{ "Upload Your Files To The Cloud" }</p>
+                <p id="title">{ "Process your image files" }</p>
                 <label for="file-upload">
                     <div
                         id="drop-container"
@@ -99,7 +103,7 @@ impl Component for App {
                 <input
                     id="file-upload"
                     type="file"
-                    accept="image/*,video/*"
+                    accept="image/*,.bin,.cga,.ega"
                     multiple={true}
                     onchange={ctx.link().callback(move |e: Event| {
                         let input: HtmlInputElement = e.target_unchecked_into();
@@ -116,17 +120,25 @@ impl Component for App {
 
 impl App {
     fn view_file(file: &FileDetails) -> Html {
+        let src = if file.file_type.contains("image") {
+            format!(
+                "data:{};base64,{}",
+                file.file_type,
+                STANDARD.encode(&file.data)
+            )
+        } else {
+            let image = Image::new(&file.data, 320, ParserType::CGA);
+            let palette = palette_from_abbr("cga0");
+            let mut bytes: Vec<u8> = Vec::new();
+            let _ = png::write_to(&mut bytes, image.data(), palette.clone());
+            format!("data:image/png;base64,{}", STANDARD.encode(bytes))
+        };
+
         html! {
             <div class="preview-tile">
                 <p class="preview-name">{ format!("{}", file.name) }</p>
                 <div class="preview-media">
-                    if file.file_type.contains("image") {
-                        <img src={format!("data:{};base64,{}", file.file_type, STANDARD.encode(&file.data))} />
-                    } else if file.file_type.contains("video") {
-                        <video controls={true}>
-                            <source src={format!("data:{};base64,{}", file.file_type, STANDARD.encode(&file.data))} type={file.file_type.clone()}/>
-                        </video>
-                    }
+                    <img src={src} />
                 </div>
             </div>
         }
