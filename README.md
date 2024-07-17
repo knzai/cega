@@ -13,6 +13,16 @@
 
 This is currently very much in an alpha state: apis and CLI arguments may still change heavily and the apis aren't documented. This file has decent usage examples below.
 
+## Installation dependencies
+
+If you use feature `sdl2` you must install the sdl2 libraries first
+
+## MacOS
+`brew install sdl2 sdl2_gfx sdl2_image`
+
+## Linux
+`[sudo] apt-get install libsdl2-dev libsdl2-gfx-dev libsdl2-image-dev`
+
 ## Roadmap/Upcoming
 
 ### Priority
