@@ -25,7 +25,7 @@ required-features = ["wasm"]
 default = ["terminal", "png"]
 terminal = ["dep:clap"]
 png = ["dep:image"]
-wasm = ["dep:yew", "png", "dep:gloo"]
+wasm = ["png", "dep:base64", "dep:gloo", "dep:js-sys", "dep:web-sys", "dep:yew"]
 #sdl2 = ["dep:sdl2"]
 
 [dev-dependencies]
@@ -36,8 +36,15 @@ bitvec = "1"
 factor = "0.4.0"
 
 #optional deps
-clap  = { optional = true, version = "4.5.7",                            features = ["derive"] }
-gloo  = { optional = true, version = "0.10" }
 image = { optional = true, version = "0.25.1" }
-sdl2  = { optional = true, version = "0.37.0", default-features = false, features = ["gfx"]    }
-yew   = { optional = true, git = "https://github.com/yewstack/yew/",     features = ["csr"]    }
+
+#terminal
+clap = { optional = true, version = "4.5.7", features = ["derive"]                        }
+sdl2 = { optional = true, version = "0.37.0", features = ["gfx"], default-features = false }
+
+#wasm
+base64  = { optional = true, version = "0.21.5"}
+gloo    = { optional = true, version = "0.10" }
+js-sys  = { optional = true, version = "0.3"}
+web-sys = { optional = true, version = "0.3", features = ["File", "DragEvent", "DataTransfer"] }
+yew     = { optional = true, git = "https://github.com/yewstack/yew/", features = ["csr"] }
