@@ -40,7 +40,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     #[cfg(feature = "png")]
     if let Some(output) = args.output_file {
-        png::output(output, image_data.clone(), palette.clone())?
+        png::save(output, image_data.clone(), palette.clone())?
     }
 
     if let Some(ga_file) = args.ga_file {

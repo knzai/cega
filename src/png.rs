@@ -31,20 +31,22 @@ pub fn process_input(buffer: &[u8]) -> RawGrid {
         .collect()
 }
 
-pub fn output(
-    path: PathBuf,
-    image_data: RawGrid,
-    palette: ColorPalette,
-) -> Result<(), image::ImageError> {
+pub fn convert_image(image_data: RawGrid, palette: ColorPalette) -> RgbImage {
     let mut img = RgbImage::new(image_data[0].len() as u32, image_data.len() as u32);
-
     for (x, row) in image_data.iter().enumerate() {
         for (y, index) in row.iter().enumerate() {
             img.put_pixel(y as u32, x as u32, palette[*index as usize].to_rgb());
         }
     }
+    img
+}
 
-    img.save(path)
+pub fn save(
+    path: PathBuf,
+    image_data: RawGrid,
+    palette: ColorPalette,
+) -> Result<(), image::ImageError> {
+    convert_image(image_data, palette).save(path)
 }
 
 pub fn write_to(
@@ -52,12 +54,5 @@ pub fn write_to(
     image_data: RawGrid,
     palette: ColorPalette,
 ) -> Result<(), image::ImageError> {
-    let mut img = RgbImage::new(image_data[0].len() as u32, image_data.len() as u32);
-
-    for (x, row) in image_data.iter().enumerate() {
-        for (y, index) in row.iter().enumerate() {
-            img.put_pixel(y as u32, x as u32, palette[*index as usize].to_rgb());
-        }
-    }
-    img.write_to(&mut Cursor::new(bytes), image::ImageFormat::Png)
+    convert_image(image_data, palette).write_to(&mut Cursor::new(bytes), image::ImageFormat::Png)
 }
