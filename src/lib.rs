@@ -4,7 +4,7 @@ pub mod color;
 pub mod image;
 pub mod parser;
 
-#[cfg(feature = "sdl2")]
+#[cfg(feature = "gui")]
 pub mod sdl;
 
 #[cfg(feature = "terminal")]

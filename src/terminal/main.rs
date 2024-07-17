@@ -10,7 +10,7 @@ use cega::image::{self, Image};
 use cega::parser::ParserType;
 #[cfg(feature = "png")]
 use cega::png;
-#[cfg(feature = "sdl2")]
+#[cfg(feature = "gui")]
 use cega::sdl::render_sdl;
 use cega::terminal::{self, args, *};
 use cega::ImageType;

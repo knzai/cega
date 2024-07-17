@@ -1,6 +1,6 @@
 # cega
 
-## CGA/EGA (the graphics formats from 80s games) parsing with png/gif/etc output and colored terminal preview
+## CGA/EGA (graphics formats from 80s games) parsing with png/etc output, colored terminal preview, pre-alpha of wasm front-end
 
 [![github](https://img.shields.io/badge/github-knzai/cega-8da0cb?logo=github)](https://github.com/knzai/cega)
 [![crates.io](https://img.shields.io/crates/v/cega?logo=crates.io)](https://crates.io/crates/cega)
@@ -11,28 +11,33 @@
 
 ## Warning
 
-This is currently very much in an alpha state: apis and CLI arguments may still change heavily and the apis aren't documented. This file has decent usage examples below.
+This is currently very much in an alpha state/early beta state: apis and CLI arguments may still change heavily and the apis aren't documented. This file has decent usage examples below.
 
-## Installation dependencies
+## Installation
 
-If you use feature `sdl2` you must install the sdl2 libraries first
+Standard crate/cargo install
+
+### Features/conditional compilation and related dependencies
+```toml
+[features]
+default = ["terminal", "png"]
+png = ["dep:image"]
+#terminal related features
+terminal = ["dep:clap"]
+#Preview window popup for the terminal
+gui = ["dep:sdl2"]
+#web usage may want to build with no-default-features to skip irrelevant terminal stuff
+wasm = ["png", "dep:base64", "dep:gloo", "dep:js-sys", "dep:web-sys", "dep:yew"]
+```
+Including terminal or wasm produces the corresponding binary
+
+If you use feature `gui` you must install the sdl2 libraries:
 
 ### MacOS
 `brew install sdl2 sdl2_gfx sdl2_image`
 
 ### Linux
 `[sudo] apt-get install libsdl2-dev libsdl2-gfx-dev libsdl2-image-dev`
-
-### Features/conditional compilation and related dependencies
-```toml
-[features]
-default = ["terminal", "png"]
-terminal = ["dep:clap"]
-png = ["dep:image"]
-wasm = ["dep:yew"]
-#sdl2 = ["dep:sdl2"]
-```
-Including terminal or wasm produces the corresponding binary
 
 ## Roadmap/Upcoming
 

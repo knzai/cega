@@ -23,10 +23,14 @@ required-features = ["wasm"]
 
 [features]
 default = ["terminal", "png"]
-terminal = ["dep:clap"]
 png = ["dep:image"]
+#terminal related features
+terminal = ["dep:clap"]
+#Preview window popup for the terminal
+gui = ["dep:sdl2"]
+#Web usage, may want to build with no-default-features to skip irrelevant terminal stuff
 wasm = ["png", "dep:base64", "dep:gloo", "dep:js-sys", "dep:web-sys", "dep:yew"]
-#sdl2 = ["dep:sdl2"]
+
 
 [dev-dependencies]
 rusty-hook = "^0.11.2"
