@@ -9,16 +9,24 @@ readme = "README.md"
 keywords = ["gamedev", "graphics"]
 categories = ["command-line-utilities"]
 exclude = [".rusty-hook.toml", ".gitignore"]
+default-run = 'cega'
 
 [[bin]]
 name = 'cega'
-path = "src/main.rs"
+path = "src/terminal/main.rs"
 required-features = ["terminal"]
+
+[[bin]]
+name = 'cega-wasm'
+path = "src/wasm/main.rs"
+required-features = ["wasm"]
 
 [features]
 default = ["terminal", "png"]
-terminal = ["clap"]
-png = ["image"]
+terminal = ["dep:clap"]
+png = ["dep:image"]
+wasm = ["dep:yew", "png", "dep:gloo"]
+#sdl2 = ["dep:sdl2"]
 
 [dev-dependencies]
 rusty-hook = "^0.11.2"
@@ -26,11 +34,10 @@ rusty-hook = "^0.11.2"
 [dependencies]
 bitvec = "1"
 factor = "0.4.0"
-image =  { version = "0.25.1", optional = true }
-clap = { version = "4.5.7", features = ["derive"], optional = true }
 
-[dependencies.sdl2]
-version = "0.37.0"
-optional = true
-default-features = false
-features = ["gfx"]
+#optional deps
+clap  = { optional = true, version = "4.5.7",                            features = ["derive"] }
+gloo  = { optional = true, version = "0.10" }
+image = { optional = true, version = "0.25.1" }
+sdl2  = { optional = true, version = "0.37.0", default-features = false, features = ["gfx"]    }
+yew   = { optional = true, git = "https://github.com/yewstack/yew/",     features = ["csr"]    }

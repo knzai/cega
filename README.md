@@ -17,11 +17,22 @@ This is currently very much in an alpha state: apis and CLI arguments may still 
 
 If you use feature `sdl2` you must install the sdl2 libraries first
 
-## MacOS
+### MacOS
 `brew install sdl2 sdl2_gfx sdl2_image`
 
-## Linux
+### Linux
 `[sudo] apt-get install libsdl2-dev libsdl2-gfx-dev libsdl2-image-dev`
+
+### Features/conditional compilation and related dependencies
+```toml
+[features]
+default = ["terminal", "png"]
+terminal = ["dep:clap"]
+png = ["dep:image"]
+wasm = ["dep:yew"]
+#sdl2 = ["dep:sdl2"]
+```
+Including terminal or wasm produces the corresponding binary
 
 ## Roadmap/Upcoming
 
@@ -96,17 +107,6 @@ cega will ouput in different preview formats, such as colored ASCII or a gui win
 ```cega ../../assets/game/CGATILES.BIN -w 16 -r 16 -i cga -t c -c "1234" -s```:
 
 <img width="650" alt="cega ../../assets/game/CGATILES.BIN -w 16 -r 16 -i cga -t c -c 1234 -s" src="https://github.com/knzconnor/cega/assets/53/593e9c9f-2780-4201-af93-7073155e876c">
-
-## Cargo features and library usage
-
-```toml
-default = ["terminal", "sdl2", "png"]
-terminal = ["clap"]
-png = ["image"]
-```
-
-Disabling terminal will skip the binary target
-Png feature is handled via [image](https://crates.io/crates/image) so includes that dep
 
 ## Acknowledgements & References
  - [The DOS Game Modding Wiki](https://moddingwiki.shikadi.net/wiki/Main_Page), particularly [User:TheAlmightyGuru](https://moddingwiki.shikadi.net/wiki/User:TheAlmightyGuru)

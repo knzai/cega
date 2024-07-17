@@ -15,7 +15,7 @@ use cega::sdl::render_sdl;
 use cega::terminal::{self, args, *};
 use cega::ImageType;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = args::Args::parse();
 
     let reader = std::fs::read(Path::new(&args.image))?;
