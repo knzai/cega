@@ -1,7 +1,7 @@
 #![cfg(feature = "wasm")]
-use gloo::file::callbacks::FileReader;
 use gloo::file::File;
 use web_sys::HtmlInputElement;
+use web_sys::wasm_bindgen::UnwrapThrowExt;
 use yew::prelude::*;
 
 pub enum Msg {
@@ -21,6 +21,22 @@ pub struct App {
     width_value: String,
     file_value: Option<FileDetails>,
 }
+
+impl App {
+    async fn write_file(&mut self, file: File) {
+        let data = gloo::file::futures::read_as_bytes(&file)
+            .await
+            .expect("read file");
+
+        self.file_value = Some(FileDetails {
+            data,
+            file_type: file.raw_mime_type(),
+            name: file.name(),
+        });
+    }
+}
+
+
 impl Component for App {
     type Message = Msg;
     type Properties = ();
@@ -36,13 +52,12 @@ impl Component for App {
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::Loaded(file_name, file_type, data) => {
+            Msg::Loaded(name, file_type, data) => {
                 self.file_value = Some(FileDetails {
                     data,
                     file_type,
-                    name: file_name.clone(),
+                    name,
                 });
-                true
             }
             Msg::Submit => {
                 let width_field = self.width.cast::<HtmlInputElement>().unwrap();
@@ -54,18 +69,11 @@ impl Component for App {
                 let el = self.file.cast::<HtmlInputElement>().unwrap();
                 if let Some(f) = el.files().and_then(|m| m.item(0)) {
                     let file = File::from(web_sys::File::from(f));
-                    let link = ctx.link().clone();
-                    gloo::file::callbacks::read_as_bytes(&file.clone(), move |res| {
-                        link.send_message(Msg::Loaded(
-                            file.name(),
-                            file.raw_mime_type(),
-                            res.expect("failed to read file"),
-                        ));
-                    });
+                    self.write_file(file);
                 }
-                true
             }
         }
+        true
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
