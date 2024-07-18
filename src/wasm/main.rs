@@ -51,24 +51,18 @@ impl Component for App {
                 } else {
                     width_field.value()
                 };
-                // let el = self.file.cast::<HtmlInputElement>().unwrap();
-                // if let Some(file) = el.files().and_then(|m| m.item(0)) {
-                //     let file_name = el.name();
-                //     let file_type = file.raw_mime_type();
-
-                //     let task = {
-                //         let link = ctx.link().clone();
-                //         let file_name = file_name.clone();
-
-                //         gloo::file::callbacks::read_as_bytes(&file, move |res| {
-                //             link.send_message(Msg::Loaded(
-                //                 file_name,
-                //                 file_type,
-                //                 res.expect("failed to read file"),
-                //             ))
-                //         })
-                //     };
-                // }
+                let el = self.file.cast::<HtmlInputElement>().unwrap();
+                if let Some(f) = el.files().and_then(|m| m.item(0)) {
+                    let file = File::from(web_sys::File::from(f));
+                    let link = ctx.link().clone();
+                    gloo::file::callbacks::read_as_bytes(&file.clone(), move |res| {
+                        link.send_message(Msg::Loaded(
+                            file.name(),
+                            file.raw_mime_type(),
+                            res.expect("failed to read file"),
+                        ));
+                    });
+                }
                 true
             }
         }
