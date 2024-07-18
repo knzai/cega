@@ -8,7 +8,7 @@ use gloo::file::callbacks::FileReader;
 use gloo::file::File;
 use web_sys::{DragEvent, Event, FileList, HtmlInputElement};
 use yew::html::TargetCast;
-use yew::{html, Callback, Component, Context, Html};
+use yew::{html, NodeRef, Callback, Component, Context, Html};
 
 use cega::color::palette::palette_from_abbr;
 use cega::image::Image;
@@ -23,12 +23,13 @@ struct FileDetails {
 
 pub enum Msg {
     Loaded(String, String, Vec<u8>),
-    Files(Option<FileList>),
+    Submit,
 }
 
 pub struct App {
     readers: HashMap<String, FileReader>,
     files: Vec<FileDetails>,
+    file_browser: NodeRef,
 }
 
 impl Component for App {
@@ -37,6 +38,7 @@ impl Component for App {
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
+            file_browser: NodeRef::default(),
             readers: HashMap::default(),
             files: Vec::default(),
         }
@@ -53,8 +55,9 @@ impl Component for App {
                 self.readers.remove(&file_name);
                 true
             }
-            Msg::Files(files) => {
-                if let Some(files) = files {
+            Msg::Submit => {
+                let el = self.file_browser.cast::<HtmlInputElement>().unwrap();
+                if let Some(files) = el.files() {
                     for file in js_sys::try_iter(&files)
                         .unwrap()
                         .unwrap()
@@ -95,10 +98,8 @@ impl Component for App {
                     type="file"
                     accept="image/*,.bin,.cga,.ega"
                     multiple={true}
-                    onchange={ctx.link().callback(move |e: Event| {
-                        let input: HtmlInputElement = e.target_unchecked_into();
-                        Msg::Files(input.files())
-                    })}
+                    ref={&self.file_browser}
+                    onchange={ctx.link().callback(|_| Msg::Submit)}
                 />
                 <div id="preview-area">
                     { for self.files.iter().map(Self::view_file) }
