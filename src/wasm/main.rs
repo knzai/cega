@@ -2,16 +2,10 @@
 extern crate base64;
 use std::collections::HashMap;
 
-use base64::engine::general_purpose::STANDARD;
-use base64::Engine;
-use gloo::file::callbacks::FileReader;
-use web_sys::HtmlInputElement;
-use yew::{html, Component, Context, Html, NodeRef};
-
-use cega::color::palette::palette_from_abbr;
-use cega::image::Image;
-use cega::parser::ParserType;
-use cega::png;
+use base64::{engine::general_purpose::STANDARD, Engine};
+use gloo::file::{callbacks::FileReader, FileList};
+use web_sys::{Event, HtmlInputElement};
+use yew::{html, html::TargetCast, Component, Context, Html, NodeRef};
 
 pub struct FileDetails {
     name: String,
@@ -21,7 +15,7 @@ pub struct FileDetails {
 
 pub enum Msg {
     Loaded(FileDetails),
-    Submit,
+    Submit(FileList),
 }
 
 pub struct App {
@@ -50,24 +44,21 @@ impl Component for App {
                 self.readers.remove(&name);
                 true
             }
-            Msg::Submit => {
-                let el = self.file_browser.cast::<HtmlInputElement>().unwrap();
-                if let Some(files) = el.files() {
-                    for file in gloo::file::FileList::from(files).iter() {
-                        let link = ctx.link().clone();
-                        let name = file.name().clone();
-                        let file_type = file.raw_mime_type();
-                        let task = {
-                            gloo::file::callbacks::read_as_bytes(&file, move |res| {
-                                link.send_message(Msg::Loaded(FileDetails {
-                                    data: res.expect("failed to read file"),
-                                    file_type,
-                                    name,
-                                }))
-                            })
-                        };
-                        self.readers.insert(file.name(), task);
-                    }
+            Msg::Submit(files) => {
+                for file in files.iter() {
+                    let link = ctx.link().clone();
+                    let name = file.name().clone();
+                    let file_type = file.raw_mime_type();
+                    let task = {
+                        gloo::file::callbacks::read_as_bytes(&file, move |res| {
+                            link.send_message(Msg::Loaded(FileDetails {
+                                data: res.expect("failed to read file"),
+                                file_type,
+                                name,
+                            }))
+                        })
+                    };
+                    self.readers.insert(file.name(), task);
                 }
                 true
             }
@@ -83,10 +74,14 @@ impl Component for App {
                 <input
                     id="file-upload"
                     type="file"
-                    accept="image/*,.bin,.cga,.ega"
-                    multiple={true}
+                    accept="image/*"
+                    multiple={false}
                     ref={&self.file_browser}
-                    onchange={ctx.link().callback(|_| Msg::Submit)}
+                    onchange={ctx.link().callback(move |e: Event| {
+                        let input: HtmlInputElement = e.target_unchecked_into();
+                        let files = gloo::file::FileList::from(input.files().unwrap());
+                        Msg::Submit(files)
+                    })}
                 />
                 <div id="preview-area">
                     { for self.files.iter().map(Self::view_file) }
@@ -98,19 +93,11 @@ impl Component for App {
 
 impl App {
     fn view_file(file: &FileDetails) -> Html {
-        let src = if file.file_type.contains("image") {
-            format!(
-                "data:{};base64,{}",
-                file.file_type,
-                STANDARD.encode(&file.data)
-            )
-        } else {
-            let image = Image::new(&file.data, 320, ParserType::CGA);
-            let palette = palette_from_abbr("cga0");
-            let mut bytes: Vec<u8> = Vec::new();
-            let _ = png::write_to(&mut bytes, image.data(), palette.clone());
-            format!("data:image/png;base64,{}", STANDARD.encode(bytes))
-        };
+        let src = format!(
+            "data:{};base64,{}",
+            file.file_type,
+            STANDARD.encode(&file.data)
+        );
 
         html! {
             <div class="preview-tile">
