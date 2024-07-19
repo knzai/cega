@@ -3,7 +3,7 @@ extern crate base64;
 use std::collections::HashMap;
 
 use base64::{engine::general_purpose::STANDARD, Engine};
-use gloo::file::{callbacks::FileReader, FileList};
+use gloo::file::{callbacks::FileReader, File};
 use web_sys::{Event, HtmlInputElement};
 use yew::{html, html::TargetCast, Component, Context, Html, NodeRef};
 
@@ -15,7 +15,7 @@ pub struct FileDetails {
 
 pub enum Msg {
     Loaded(FileDetails),
-    Submit(FileList),
+    Submit(File),
 }
 
 pub struct App {
@@ -44,22 +44,20 @@ impl Component for App {
                 self.readers.remove(&name);
                 true
             }
-            Msg::Submit(files) => {
-                for file in files.iter() {
-                    let link = ctx.link().clone();
-                    let name = file.name().clone();
-                    let file_type = file.raw_mime_type();
-                    let task = {
-                        gloo::file::callbacks::read_as_bytes(&file, move |res| {
-                            link.send_message(Msg::Loaded(FileDetails {
-                                data: res.expect("failed to read file"),
-                                file_type,
-                                name,
-                            }))
-                        })
-                    };
-                    self.readers.insert(file.name(), task);
-                }
+            Msg::Submit(file) => {
+                let link = ctx.link().clone();
+                let name = file.name().clone();
+                let file_type = file.raw_mime_type();
+                let task = {
+                    gloo::file::callbacks::read_as_bytes(&file, move |res| {
+                        link.send_message(Msg::Loaded(FileDetails {
+                            data: res.expect("failed to read file"),
+                            file_type,
+                            name,
+                        }))
+                    })
+                };
+                self.readers.insert(file.name(), task);
                 true
             }
         }
@@ -77,10 +75,10 @@ impl Component for App {
                     accept="image/*"
                     multiple={false}
                     ref={&self.file_browser}
-                    onchange={ctx.link().callback(move |e: Event| {
+                    onchange={ctx.link().callback( |e: Event| {
                         let input: HtmlInputElement = e.target_unchecked_into();
                         let files = gloo::file::FileList::from(input.files().unwrap());
-                        Msg::Submit(files)
+                        Msg::Submit(files[0].clone())
                     })}
                 />
                 <div id="preview-area">
