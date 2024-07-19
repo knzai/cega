@@ -5,24 +5,22 @@ use std::collections::HashMap;
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 use gloo::file::callbacks::FileReader;
-use gloo::file::File;
-use web_sys::{DragEvent, Event, FileList, HtmlInputElement};
-use yew::html::TargetCast;
-use yew::{html, NodeRef, Callback, Component, Context, Html};
+use web_sys::HtmlInputElement;
+use yew::{html, Component, Context, Html, NodeRef};
 
 use cega::color::palette::palette_from_abbr;
 use cega::image::Image;
 use cega::parser::ParserType;
 use cega::png;
 
-struct FileDetails {
+pub struct FileDetails {
     name: String,
     file_type: String,
     data: Vec<u8>,
 }
 
 pub enum Msg {
-    Loaded(String, String, Vec<u8>),
+    Loaded(FileDetails),
     Submit,
 }
 
@@ -46,40 +44,29 @@ impl Component for App {
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::Loaded(file_name, file_type, data) => {
-                self.files.push(FileDetails {
-                    data,
-                    file_type,
-                    name: file_name.clone(),
-                });
-                self.readers.remove(&file_name);
+            Msg::Loaded(file) => {
+                let name = file.name.clone();
+                self.files.push(file);
+                self.readers.remove(&name);
                 true
             }
             Msg::Submit => {
                 let el = self.file_browser.cast::<HtmlInputElement>().unwrap();
                 if let Some(files) = el.files() {
-                    for file in js_sys::try_iter(&files)
-                        .unwrap()
-                        .unwrap()
-                        .map(|v| web_sys::File::from(v.unwrap()))
-                        .map(File::from)
-                    {
-                        let file_name = file.name();
+                    for file in gloo::file::FileList::from(files).iter() {
+                        let link = ctx.link().clone();
+                        let name = file.name().clone();
                         let file_type = file.raw_mime_type();
-
                         let task = {
-                            let link = ctx.link().clone();
-                            let file_name = file_name.clone();
-
                             gloo::file::callbacks::read_as_bytes(&file, move |res| {
-                                link.send_message(Msg::Loaded(
-                                    file_name,
+                                link.send_message(Msg::Loaded(FileDetails {
+                                    data: res.expect("failed to read file"),
                                     file_type,
-                                    res.expect("failed to read file"),
-                                ))
+                                    name,
+                                }))
                             })
                         };
-                        self.readers.insert(file_name, task);
+                        self.readers.insert(file.name(), task);
                     }
                 }
                 true
