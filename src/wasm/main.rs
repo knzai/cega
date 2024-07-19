@@ -4,8 +4,9 @@ use std::collections::HashMap;
 
 use base64::{engine::general_purpose::STANDARD, Engine};
 use gloo::file::{callbacks::FileReader, File};
-use web_sys::{Event, HtmlInputElement};
-use yew::{html, html::TargetCast, Component, Context, Html, NodeRef};
+use gloo_console::debug;
+use web_sys::{FormData, HtmlFormElement};
+use yew::prelude::*;
 
 pub struct FileDetails {
     name: String,
@@ -64,31 +65,31 @@ impl Component for App {
         }
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
+        let onsubmit = |e: SubmitEvent| {
+            let form: HtmlFormElement = e.target_unchecked_into();
+            let form_data = FormData::new_with_form(&form).expect("form data");
+            let alt_text = form_data.get("alt-text");
+            let image_file = form_data.get("file-upload");
+            debug!(alt_text, image_file);
+            e.prevent_default();
+
+        };
+
         html! {
             <div id="wrapper">
-                <p id="title">{ "Process your image files" }</p>
-                <label for="file-upload">
-                </label>
-                <input
-                    id="file-upload"
-                    type="file"
-                    accept="image/*"
-                    multiple={false}
-                    onchange={ctx.link().callback( |e: Event| {
-                        let input: HtmlInputElement = e.target_unchecked_into();
-                        let files = gloo::file::FileList::from(input.files().unwrap());
-                        let file = files[0].clone();
-                        let name = file.name().clone();
-                        let file_type = file.raw_mime_type();
-
-
-
-
-                        let msg = Msg::Submit(file);
-                        msg
-                    })}
-                />
+                <form onsubmit={onsubmit}>
+                    <p id="title">{ "Process your image files" }</p>
+                    <input name="alt-text"/>
+                    <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        accept="image/*"
+                        multiple={false}
+                    />
+                    <input type="submit"/>
+                </form>
                 <div id="preview-area">
                     { for self.files.iter().map(Self::view_file) }
                 </div>
