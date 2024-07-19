@@ -5,7 +5,8 @@ use std::collections::HashMap;
 use base64::{engine::general_purpose::STANDARD, Engine};
 use gloo::file::{callbacks::FileReader, File};
 use gloo_console::debug;
-use web_sys::{FormData, HtmlFormElement};
+use web_sys::File as RawFile;
+use web_sys::{Event, FormData, HtmlFormElement};
 use yew::prelude::*;
 
 pub struct FileDetails {
@@ -16,7 +17,7 @@ pub struct FileDetails {
 
 pub enum Msg {
     Loaded(String, String, Vec<u8>),
-    Submit(File),
+    Submit(FormData),
 }
 
 pub struct App {
@@ -44,36 +45,54 @@ impl Component for App {
                     name: file_name.clone(),
                 });
                 self.readers.remove(&file_name);
-                true
             }
-            Msg::Submit(file) => {
-                let link = ctx.link().clone();
-                let name = file.name().clone();
-                let file_type = file.raw_mime_type();
-                let task = {
-                    gloo::file::callbacks::read_as_bytes(&file, move |res| {
-                        link.send_message(Msg::Loaded(
-                            name,
-                            file_type,
-                            res.expect("failed to read file"),
-                        ));
-                    })
-                };
-                self.readers.insert(file.name(), task);
-                true
+            Msg::Submit(form) => {
+                // let link = ctx.link().clone();
+                // let name = file.name().clone();
+                // let file_type = file.raw_mime_type();
+                // let task = {
+                //     gloo::file::callbacks::read_as_bytes(&file, move |res| {
+                //         link.send_message(Msg::Loaded(
+                //             name,
+                //             file_type,
+                //             res.expect("failed to read file"),
+                //         ));
+                //     })
+                // };
+                // self.readers.insert(file.name(), task);
+
+                //                 let form: HtmlFormElement = e.target_unchecked_into();
+                //
+                // let alt_text = form_data.get("alt-text");
+                // let image_file = File::from(RawFile::from(form_data.get("file-upload")));
+                // let link = ctx.link().clone();
+                // let name = image_file.name().clone();
+                // let file_type = image_file.raw_mime_type();
+                // let task = {
+                //     gloo::file::callbacks::read_as_bytes(&image_file, move |res| {
+                //         link.send_message(Msg::Loaded(
+                //             name,
+                //             file_type,
+                //             res.expect("failed to read file"),
+                //         ));
+                //     })
+                // };
+                // self.readers.insert(name.clone(), task);
             }
         }
+        true
     }
 
-    fn view(&self, _ctx: &Context<Self>) -> Html {
-        let onsubmit = |e: SubmitEvent| {
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let link = ctx.link().clone();
+
+        let onsubmit = move |e: SubmitEvent| {
             let form: HtmlFormElement = e.target_unchecked_into();
             let form_data = FormData::new_with_form(&form).expect("form data");
-            let alt_text = form_data.get("alt-text");
-            let image_file = form_data.get("file-upload");
-            debug!(alt_text, image_file);
+            //let image_file = File::from(RawFile::from(form_data.get("file-upload")));
+            debug!(form_data.clone()); //seems to be an empty formdata
+            link.send_message(Msg::Submit(form_data));
             e.prevent_default();
-
         };
 
         html! {

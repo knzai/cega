@@ -49,7 +49,7 @@ sdl2 = { optional = true, version = "0.37.0", features = ["gfx"], default-featur
 #wasm
 base64       = { optional = true, version = "0.21.5"}
 gloo-console = { optional = true, version = "0.3.0"}
-gloo         = { optional = true, version = "0.10", features = ["futures"] }
+gloo         = { optional = true, version = "0.10" }
 js-sys       = { optional = true, version = "0.3"}
-web-sys      = { optional = true, version = "0.3.69", features = ["FormData","HtmlFormElement", "File", "DragEvent", "DataTransfer"] }
+web-sys      = { optional = true, version = "0.3.69", features = ["Event", "FormData","HtmlFormElement", "File"] }
 yew          = { optional = true, git = "https://github.com/yewstack/yew/", features = ["csr"] }
