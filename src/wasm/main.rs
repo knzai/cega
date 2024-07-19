@@ -14,14 +14,13 @@ pub struct FileDetails {
 }
 
 pub enum Msg {
-    Loaded(FileDetails),
+    Loaded(String, String, Vec<u8>),
     Submit(File),
 }
 
 pub struct App {
     readers: HashMap<String, FileReader>,
     files: Vec<FileDetails>,
-    file_browser: NodeRef,
 }
 
 impl Component for App {
@@ -30,7 +29,6 @@ impl Component for App {
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
-            file_browser: NodeRef::default(),
             readers: HashMap::default(),
             files: Vec::default(),
         }
@@ -38,10 +36,13 @@ impl Component for App {
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::Loaded(file) => {
-                let name = file.name.clone();
-                self.files.push(file);
-                self.readers.remove(&name);
+            Msg::Loaded(file_name, file_type, data) => {
+                self.files.push(FileDetails {
+                    data,
+                    file_type,
+                    name: file_name.clone(),
+                });
+                self.readers.remove(&file_name);
                 true
             }
             Msg::Submit(file) => {
@@ -50,11 +51,11 @@ impl Component for App {
                 let file_type = file.raw_mime_type();
                 let task = {
                     gloo::file::callbacks::read_as_bytes(&file, move |res| {
-                        link.send_message(Msg::Loaded(FileDetails {
-                            data: res.expect("failed to read file"),
-                            file_type,
+                        link.send_message(Msg::Loaded(
                             name,
-                        }))
+                            file_type,
+                            res.expect("failed to read file"),
+                        ));
                     })
                 };
                 self.readers.insert(file.name(), task);
@@ -74,11 +75,18 @@ impl Component for App {
                     type="file"
                     accept="image/*"
                     multiple={false}
-                    ref={&self.file_browser}
                     onchange={ctx.link().callback( |e: Event| {
                         let input: HtmlInputElement = e.target_unchecked_into();
                         let files = gloo::file::FileList::from(input.files().unwrap());
-                        Msg::Submit(files[0].clone())
+                        let file = files[0].clone();
+                        let name = file.name().clone();
+                        let file_type = file.raw_mime_type();
+
+
+
+
+                        let msg = Msg::Submit(file);
+                        msg
                     })}
                 />
                 <div id="preview-area">
