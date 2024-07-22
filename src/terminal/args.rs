@@ -25,13 +25,6 @@ pub struct Args {
     #[clap(short, long, default_value_t = 320)]
     pub width: usize,
 
-    #[clap(
-        short,
-        long,
-        help = "used for wrapping rows if retiling with tile_height"
-    )]
-    pub max_width: Option<usize>,
-
     #[clap(short, long, help = "format based on extension - see image crate")]
     pub output_file: Option<PathBuf>,
 

@@ -14,7 +14,7 @@ use crate::wasm::FileUpload;
 pub struct ImageFile<'a> {
     file_input: &'a FileUpload,
     width: usize,
-    height: usize
+    height: usize,
 }
 
 impl ImageFile<'_> {
@@ -42,13 +42,7 @@ impl ImageFile<'_> {
             let palette = palette_from_abbr("cga0");
             let mut bytes: Vec<u8> = Vec::new();
 
-            let data = if self.width == 320 {
-                image.data()
-            } else {
-                tile(image.data(), self.height, Some(320))
-            };
-
-            let _ = png::write_to(&mut bytes, data, palette.clone());
+            let _ = png::write_to(&mut bytes, tile(image.data(), self.height), palette.clone());
             bytes
         }
     }
@@ -74,7 +68,10 @@ impl Component for ImageComponent {
     type Properties = Props;
 
     fn create(_ctx: &Context<Self>) -> Self {
-        Self { width: 320, height: 200 }
+        Self {
+            width: 320,
+            height: 200,
+        }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {

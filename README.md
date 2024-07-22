@@ -86,7 +86,6 @@ Options:
   -i, --image-parser <IMAGE_PARSER>  [default: cga] [possible values: ega_row_planar, erp, cga]
   -c, --custom-ascii <CUSTOM_ASCII>  4 or 16 chars palette like -a " +%0"
   -w, --width <WIDTH>                [default: 320]
-  -m, --max-width <MAX_WIDTH>        used for wrapping rows if retiling with tile_height
   -o, --output-file <OUTPUT_FILE>    format based on extension - see image crate
   -t, --tile-height <TILE_HEIGHT>    
   -s, --sdl                          

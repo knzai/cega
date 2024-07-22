@@ -5,6 +5,8 @@ use crate::{parser, RawGrid};
 pub struct Image(RawGrid);
 
 impl Image {
+    const MAX_WIDTH: usize = 320;
+
     pub fn new(buffer: &[u8], width: usize, parser: parser::ParserType) -> Self {
         Self(parser.process_input(buffer, width))
     }
@@ -61,17 +63,9 @@ impl Image {
     }
 }
 
-pub fn tile<T: std::clone::Clone>(
-    data: Vec<Vec<T>>,
-    tile_height: usize,
-    max_width: Option<usize>,
-) -> Vec<Vec<T>> {
+pub fn tile<T: std::clone::Clone>(data: Vec<Vec<T>>, tile_height: usize) -> Vec<Vec<T>> {
     let width = data[0].len();
-    let tiles_per_row = if let Some(mw) = max_width {
-        mw / width
-    } else {
-        width
-    };
+    let tiles_per_row = Image::MAX_WIDTH / width;
 
     data.chunks(tiles_per_row * tile_height)
         .flat_map(|tile_row| concat_tiles(tile_row.to_vec(), tile_height))
@@ -132,38 +126,28 @@ mod tests {
     }
 
     #[test]
+    //rework these tests to actually be wider than max_width, or do something clever to overwrite it
     fn tiling() {
         let data: u32 = 0b00011011000110110001101100011011;
         let tiled = image::tile(
             Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(),
             2,
-            Some(4),
         );
         assert_eq!(
             tiled,
-            [
-                vec![0, 1, 0, 1],
-                vec![2, 3, 2, 3],
-                vec![0, 1, 0, 1],
-                vec![2, 3, 2, 3],
-            ]
+            [vec![0, 1, 0, 1, 0, 1, 0, 1], vec![2, 3, 2, 3, 2, 3, 2, 3],]
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
         let tiled = image::tile(
             Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(),
             2,
-            Some(6),
         );
         assert_eq!(
             tiled,
             vec![
-                vec![0, 1, 0, 1, 0, 1],
-                vec![2, 3, 2, 3, 2, 3],
-                vec![0, 1, 0, 1, 0, 1],
-                vec![2, 3, 2, 3, 2, 3],
-                vec![0, 1, 0, 1],
-                vec![2, 3, 2, 3],
+                vec![0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                vec![2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3],
             ]
         );
     }

@@ -23,7 +23,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let image = Image::new(&reader, args.width, parser);
 
     let image_data = if args.tile_height.is_some() {
-        image::tile(image.data(), args.tile_height.unwrap(), args.max_width)
+        image::tile(image.data(), args.tile_height.unwrap())
     } else {
         image.data()
     };
