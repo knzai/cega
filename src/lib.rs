@@ -13,6 +13,9 @@ pub mod terminal;
 #[cfg(feature = "png")]
 pub mod png;
 
+#[cfg(feature = "wasm")]
+pub mod wasm;
+
 pub type RawGrid = Vec<Vec<u8>>;
 pub type Grid<T> = Vec<Vec<T>>;
 
