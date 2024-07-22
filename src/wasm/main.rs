@@ -1,13 +1,11 @@
 #![cfg(feature = "wasm")]
 use std::collections::HashMap;
 
-use base64::engine::general_purpose::STANDARD;
-use base64::Engine;
 use gloo::file::callbacks::FileReader;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use cega::wasm::image::ImageFile;
+use cega::wasm::image::*;
 use cega::wasm::FileUpload;
 
 pub enum Msg {
@@ -17,7 +15,7 @@ pub enum Msg {
 
 pub struct App {
     readers: HashMap<String, FileReader>,
-    images: Vec<ImageFile>,
+    files: Vec<FileUpload>,
 }
 
 impl Component for App {
@@ -27,7 +25,7 @@ impl Component for App {
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
             readers: HashMap::default(),
-            images: Vec::default(),
+            files: Vec::default(),
         }
     }
 
@@ -35,7 +33,7 @@ impl Component for App {
         match msg {
             Msg::Loaded(file) => {
                 self.readers.remove(&file.name);
-                self.images.push(ImageFile(file));
+                self.files.push(file);
             }
             Msg::Submit(e) => {
                 let input: HtmlInputElement = e.target_unchecked_into();
@@ -74,26 +72,11 @@ impl Component for App {
                     onchange={ctx.link().callback(Msg::Submit)}
                 />
                 <div id="preview-area">
-                    { for self.images.iter().map(Self::view_file) }
+                    {for self.files.iter().map(|f|
+                        html! { <ImageComponent file={f.clone()} /> }
+                    )}
                 </div>
             </div>
-        }
-    }
-}
-
-impl App {
-    fn view_file(file: &ImageFile) -> Html {
-        let output = format!(
-            "data:{};base64,{}",
-            file.mime_type(),
-            STANDARD.encode(&file.data())
-        );
-
-        html! {
-            <form>
-                { &file.name() }
-                <img src={output} />
-            </form>
         }
     }
 }
