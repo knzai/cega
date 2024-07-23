@@ -13,6 +13,7 @@ use crate::wasm::FileUpload;
 
 pub struct ImageFile<'a> {
     file_input: &'a FileUpload,
+
     width: usize,
     height: usize,
 }
@@ -106,14 +107,16 @@ impl Component for ImageComponent {
         });
 
         html! {
-            <form onsubmit={noop}>
+            <div>
+                <form onsubmit={noop}>
+                        <label for="width">{"[Tile] Width"}</label>
+                        <input name="width" type="number" value={image.width.to_string()} onchange={ctx.link().callback(Msg::Width)} />
+                        <label for="height">{"[Tile] Height"}</label>
+                        <input name="height" type="number" value={image.height.to_string()} onchange={ctx.link().callback(Msg::Height)} />
+                </form>
                 { &image.name() }
-                <label for="width">{"[Tile] Width"}</label>
-                <input name="width" type="number" value={image.width.to_string()} onchange={ctx.link().callback(Msg::Width)} />
-                <label for="height">{"[Tile] Height"}</label>
-                <input name="height" type="number" value={image.height.to_string()} onchange={ctx.link().callback(Msg::Height)} />
                 <img src={output} />
-            </form>
+            </div>
         }
     }
 }

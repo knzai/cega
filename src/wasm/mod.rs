@@ -1,8 +1,5 @@
+pub mod file_input;
 pub mod image;
 
-#[derive(Clone, PartialEq)]
-pub struct FileUpload {
-    pub name: String,
-    pub mime_type: String,
-    pub data: Vec<u8>,
-}
+pub use file_input::FileInput;
+pub use file_input::FileUpload;
