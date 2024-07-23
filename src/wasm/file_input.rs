@@ -93,9 +93,9 @@ impl Component for FileInput {
         });
 
         html! {
-            <label>
+            <label onchange={ &onchange } >
                 if ctx.props().drag_and_drop {
-                    <i class="drop-container" { ondrop } onchange={ &onchange } ondragover={ &noop_drag } ondragenter={ &noop_drag }>
+                    <i class="drop-container" { ondrop } ondragover={ &noop_drag } ondragenter={ &noop_drag }>
                         { label_text.clone() }
                     </i>
                 } else {
