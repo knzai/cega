@@ -1,5 +1,6 @@
 #![cfg(feature = "wasm")]
 use yew::prelude::*;
+use yew::virtual_dom::VNode;
 
 use cega::wasm::image::*;
 use cega::wasm::{FileInput, FileUpload};
@@ -9,7 +10,7 @@ pub enum Msg {
 }
 
 pub struct App {
-    files: Vec<FileUpload>,
+    images: Vec<VNode>,
 }
 
 impl Component for App {
@@ -18,14 +19,14 @@ impl Component for App {
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
-            files: Vec::default(),
+            images: Vec::default(),
         }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::Loaded(file) => {
-                self.files.push(file);
+                self.images.push(html! { <ImageComponent file={file} /> });
             }
         }
         true
@@ -37,9 +38,7 @@ impl Component for App {
                 <h1>{ "Process your CGA/EGAs" }</h1>
                 <FileInput accept="image/*,.bin,.cga,.ega" onload={ctx.link().callback( Msg::Loaded )}/>
                 <div id="preview-area">
-                    {for self.files.iter().map(|f|
-                        html! { <ImageComponent file={f.clone()} /> }
-                    )}
+                    {{ self.images.clone() }}
                 </div>
             </div>
         }
