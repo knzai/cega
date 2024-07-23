@@ -22,12 +22,16 @@ pub enum Msg {
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
+    pub onload: Callback<FileUpload>,
+    #[prop_or(AttrValue::Static(""))]
     pub accept: AttrValue,
     #[prop_or(false)]
     pub multiple: bool,
-    pub onload: Callback<FileUpload>,
+    #[prop_or(false)]
+    pub drag_and_drop: bool,
     #[prop_or(AttrValue::Static("Drop Files Here"))]
     pub label: AttrValue,
+    pub children: Option<Html>,
 }
 
 impl Component for FileInput {
@@ -70,25 +74,38 @@ impl Component for FileInput {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
+        let label_text = &ctx.props().label;
+        let children = ctx.props().children.clone();
+        let accept = &ctx.props().accept;
+        let multiple = ctx.props().multiple;
+
         let noop_drag = Callback::from(|e: DragEvent| {
             e.prevent_default();
         });
+        let onchange = ctx.link().callback(|e: Event| {
+            e.prevent_default();
+            let input: HtmlInputElement = e.target_unchecked_into();
+            Msg::Submit(input.files())
+        });
+        let ondrop = ctx.link().callback(|event: DragEvent| {
+            event.prevent_default();
+            Msg::Submit(event.data_transfer().unwrap().files())
+        });
+
         html! {
-            <label class="drop-container" ondragover={&noop_drag} ondragenter={&noop_drag}
-                ondrop={ctx.link().callback(|event: DragEvent| {
-                    event.prevent_default();
-                    Msg::Submit(event.data_transfer().unwrap().files())
-                })}
-            ><i>{ ctx.props().label.clone() }</i>
-                <input
-                    type="file"
-                    accept="{ ctx.props().accept }"
-                    multiple={ ctx.props().multiple }
-                    onchange={ctx.link().callback(|e: Event| {
-                        let input: HtmlInputElement = e.target_unchecked_into();
-                        Msg::Submit(input.files())
-                    })}
-                />
+            <label>
+                if ctx.props().drag_and_drop {
+                    <i class="drop-container" { ondrop } onchange={ &onchange } ondragover={ &noop_drag } ondragenter={ &noop_drag }>
+                        { label_text.clone() }
+                    </i>
+                } else {
+                    <i>{ label_text.clone() }</i>
+                }
+                if children.is_none() {
+                    <input type="file" { accept } { multiple } { onchange } />
+                } else {
+                    { children }
+                }
             </label>
         }
     }
