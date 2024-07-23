@@ -29,12 +29,12 @@ label {
   margin: auto;
 }
 
-#title {
+#h1 {
   font-size: 2rem;
   text-align: center;
 }
 
-#drop-container {
+.drop-container {
   padding: 4rem;
   display: flex;
   flex-direction: column;
@@ -45,11 +45,11 @@ label {
   border-radius: 1rem;
 }
 
-#drop-container i {
+.drop-container i {
   font-size: 4rem;
 }
 
-#preview-area {
+.preview-area {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;

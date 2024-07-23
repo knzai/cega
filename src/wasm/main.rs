@@ -34,7 +34,8 @@ impl Component for App {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <div id="wrapper">
-                <FileInput accept="image/*,.bin,.cga,.ega" multiple=false onload={ctx.link().callback( Msg::Loaded )}/>
+                <h1>{ "Process your CGA/EGAs" }</h1>
+                <FileInput accept="image/*,.bin,.cga,.ega" onload={ctx.link().callback( Msg::Loaded )}/>
                 <div id="preview-area">
                     {for self.files.iter().map(|f|
                         html! { <ImageComponent file={f.clone()} /> }

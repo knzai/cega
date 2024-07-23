@@ -107,15 +107,17 @@ impl Component for ImageComponent {
         });
 
         html! {
-            <div>
+            <div class="preview-tile ">
                 <form onsubmit={noop}>
                         <label for="width">{"[Tile] Width"}</label>
                         <input name="width" type="number" value={image.width.to_string()} onchange={ctx.link().callback(Msg::Width)} />
                         <label for="height">{"[Tile] Height"}</label>
                         <input name="height" type="number" value={image.height.to_string()} onchange={ctx.link().callback(Msg::Height)} />
                 </form>
-                { &image.name() }
-                <img src={output} />
+                <p class="preview-name">{ &image.name() }</p>
+                <div class=".preview-media">
+                    <img src={output} />
+                </div>
             </div>
         }
     }
