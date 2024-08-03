@@ -4,8 +4,8 @@ use web_sys::HtmlInputElement;
 use yew::{html, Callback, Component, Context, Event, Html, Properties, SubmitEvent, TargetCast};
 
 use crate::color::palette::palette_from_abbr;
+use crate::file_data;
 use crate::image::tile;
-use crate::image::Image;
 use crate::parser::ParserType;
 use crate::png;
 
@@ -39,9 +39,9 @@ impl ImageFile<'_> {
         if self.file_input.mime_type.contains("image") {
             self.file_input.data.clone()
         } else {
+            let file_data = file_data::Raw::new(&self.file_input.data);
             let parser = ParserType::CGA;
-            let parsed = parser.process_input(&self.file_input.data, self.width);
-            let image = Image(parsed);
+            let image = file_data.parse(parser, self.width);
             let palette = palette_from_abbr("cga0");
             let mut bytes: Vec<u8> = Vec::new();
 
