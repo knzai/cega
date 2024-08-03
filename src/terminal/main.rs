@@ -6,6 +6,7 @@ use std::path::Path;
 use clap::Parser;
 
 use cega::color::palette::palette_from_abbr;
+//use cega::file_data::Raw;
 use cega::image::{self, Image};
 use cega::parser::ParserType;
 #[cfg(feature = "png")]
@@ -18,9 +19,9 @@ use cega::ImageType;
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = args::Args::parse();
 
-    let reader = std::fs::read(Path::new(&args.image))?;
+    let file_data = &std::fs::read(Path::new(&args.image))?;
     let parser = ParserType::type_str(&args.image_parser);
-    let image = Image::new(&reader, args.width, parser);
+    let image = Image(parser.process_input(&file_data, args.width));
 
     let image_data = if args.tile_height.is_some() {
         image::tile(image.data(), args.tile_height.unwrap())

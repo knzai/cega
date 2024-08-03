@@ -1,15 +1,11 @@
 use factor::factor::factor;
 
-use crate::{parser, RawGrid};
+use crate::RawGrid;
 
-pub struct Image(RawGrid);
+pub struct Image(pub RawGrid);
 
 impl Image {
     const MAX_WIDTH: usize = 320;
-
-    pub fn new(buffer: &[u8], width: usize, parser: parser::ParserType) -> Self {
-        Self(parser.process_input(buffer, width))
-    }
 
     pub fn data(&self) -> RawGrid {
         self.0.clone()
@@ -91,7 +87,9 @@ mod tests {
     #[test]
     fn basic_properties() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let mut image = Image::new(&data.to_be_bytes(), 4, ParserType::type_str("cga"));
+        let parser = ParserType::type_str("cga");
+        let parsed = parser.process_input(&data.to_be_bytes(), 4);
+        let mut image = Image(parsed);
 
         assert_eq!(image.pixel_count(), 16);
         assert_eq!(image.width(), 4);
@@ -100,11 +98,12 @@ mod tests {
         assert_eq!(image.width_factors(), [2, 4, 8]);
         assert_eq!(image.height_factors(), [2]);
         assert!(!image.is_tall());
-        image = Image::new(
+
+        let parsed = parser.process_input(
             &0b0001101100011011000110110001101100011011000110110001101100011011_u64.to_be_bytes(),
             2,
-            ParserType::type_str("cga"),
         );
+        image = Image(parsed);
         assert!(image.is_tall());
     }
 
@@ -129,20 +128,18 @@ mod tests {
     //rework these tests to actually be wider than max_width, or do something clever to overwrite it
     fn tiling() {
         let data: u32 = 0b00011011000110110001101100011011;
-        let tiled = image::tile(
-            Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(),
-            2,
-        );
+        let parser = ParserType::type_str("cga");
+        let parsed = parser.process_input(&data.to_be_bytes(), 2);
+
+        let tiled = image::tile(Image(parsed).data(), 2);
         assert_eq!(
             tiled,
             [vec![0, 1, 0, 1, 0, 1, 0, 1], vec![2, 3, 2, 3, 2, 3, 2, 3],]
         );
 
         let data: u64 = 0b0001101100011011000110110001101100011011000110110001101100011011;
-        let tiled = image::tile(
-            Image::new(&data.to_be_bytes(), 2, ParserType::type_str("cga")).data(),
-            2,
-        );
+        let parsed = parser.process_input(&data.to_be_bytes(), 2);
+        let tiled = image::tile(Image(parsed).data(), 2);
         assert_eq!(
             tiled,
             vec![

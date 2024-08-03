@@ -39,7 +39,9 @@ impl ImageFile<'_> {
         if self.file_input.mime_type.contains("image") {
             self.file_input.data.clone()
         } else {
-            let image = Image::new(&self.file_input.data, self.width, ParserType::CGA);
+            let parser = ParserType::CGA;
+            let parsed = parser.process_input(&self.file_input.data, self.width);
+            let image = Image(parsed);
             let palette = palette_from_abbr("cga0");
             let mut bytes: Vec<u8> = Vec::new();
 
