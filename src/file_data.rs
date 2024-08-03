@@ -1,7 +1,6 @@
-use factor::factor::factor;
-
 use crate::image::Image;
 use crate::parser::ParserType;
+use crate::ImageType;
 
 pub struct Raw(Vec<u8>);
 
@@ -12,23 +11,17 @@ impl Raw {
     fn byte_count(&self) -> usize {
         self.0.len()
     }
-    fn cga_count(&self) -> usize {
-        self.byte_count() * 4
+
+    pub fn pixel_count(&self, itype: ImageType) -> usize {
+        itype.pixel_count(self.byte_count())
     }
-    fn ega_count(&self) -> usize {
-        self.byte_count() * 2
+
+    pub fn fullscreen(&self, itype: ImageType) -> bool {
+        itype.fullscreen(self.byte_count())
     }
-    pub fn cga_possible(&self) -> bool {
-        self.cga_count() <= 64_000
-    }
-    pub fn cga_fullscreen(&self) -> bool {
-        self.cga_count() == 64_000
-    }
-    pub fn cga_widths(&self) -> Vec<i64> {
-        factor(self.cga_count().try_into().unwrap())
-    }
-    pub fn ega_widths(&self) -> Vec<i64> {
-        factor(self.ega_count().try_into().unwrap())
+
+    pub fn widths(&self, itype: ImageType) -> Vec<i64> {
+        itype.widths(self.byte_count())
     }
 
     pub fn parse(&self, parser: ParserType, width: usize) -> Image {

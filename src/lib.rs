@@ -1,5 +1,7 @@
 #![doc = include_str!("../README.md")]
 
+use factor::factor::factor;
+
 pub mod color;
 pub mod file_data;
 pub mod image;
@@ -38,10 +40,31 @@ impl ImageType {
             Self::EGA => 16,
         }
     }
+
     pub fn word_size(&self) -> usize {
         match self {
             Self::CGA => 2,
             Self::EGA => 4,
         }
+    }
+
+    pub fn words_per_byte(&self) -> usize {
+        8 / self.word_size()
+    }
+
+    pub fn pixel_count(&self, byte_count: usize) -> usize {
+        byte_count * self.words_per_byte()
+    }
+
+    pub fn fullscreen(&self, byte_count: usize) -> bool {
+        //this does not yet handle all the different EGA cases, or cga monochrome etc
+        self.pixel_count(byte_count) == 64_000
+    }
+
+    pub fn widths(&self, byte_count: usize) -> Vec<i64> {
+        factor(self.pixel_count(byte_count).try_into().unwrap())
+            .into_iter()
+            .filter(|&x| x < 80)
+            .collect()
     }
 }
