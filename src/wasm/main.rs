@@ -1,4 +1,6 @@
 #![cfg(feature = "wasm")]
+use std::collections::VecDeque;
+
 use yew::prelude::*;
 use yew::virtual_dom::VNode;
 
@@ -10,7 +12,7 @@ pub enum Msg {
 }
 
 pub struct App {
-    images: Vec<VNode>,
+    images: VecDeque<VNode>,
 }
 
 impl Component for App {
@@ -19,26 +21,28 @@ impl Component for App {
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
-            images: Vec::default(),
+            images: VecDeque::default(),
         }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::Loaded(file) => {
-                self.images.push(html! { <ImageComponent file={file} /> });
+                self.images
+                    .push_front(html! { <ImageComponent file={file} /> });
             }
         }
         true
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
+        let images: Vec<VNode> = self.images.clone().into();
         html! {
             <div id="wrapper">
                 <h1>{ "Process your CGA/EGAs" }</h1>
                 <FileInput accept="image/*,.bin,.cga,.ega" onload={ctx.link().callback( Msg::Loaded )} children={None}/>
                 <div id="preview-area">
-                    {{ self.images.clone() }}
+                    {{ images }}
                 </div>
             </div>
         }
