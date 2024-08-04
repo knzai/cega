@@ -1,6 +1,6 @@
 use base64::{engine::general_purpose::STANDARD, Engine};
 
-use web_sys::{HtmlElement, HtmlInputElement};
+use web_sys::HtmlInputElement;
 use yew::{html, Callback, Component, Context, Event, Html, Properties, SubmitEvent, TargetCast};
 
 use crate::color::palette::palette_from_abbr;
@@ -57,7 +57,10 @@ impl ImageComponent {
                     let _ = png::write_to(&mut bytes, tile(p.data(), self.height), palette.clone());
                     let src = format!("data:application/png;base64,{}", STANDARD.encode(bytes));
                     html! {
-                        <img src={ src } />
+                        <span>
+                            {p.width()}
+                            <img src={ src } />
+                        </span>
                     }
                 })
                 .collect()

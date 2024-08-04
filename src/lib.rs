@@ -62,9 +62,17 @@ impl ImageType {
     }
 
     pub fn widths(&self, byte_count: usize) -> Vec<i64> {
-        factor(self.pixel_count(byte_count).try_into().unwrap())
+        Self::factors(self.pixel_count(byte_count), 80)
+    }
+
+    pub fn heights(&self, byte_count: usize, width: usize) -> Vec<i64> {
+        Self::factors(self.pixel_count(byte_count) / width, 50)
+    }
+
+    pub fn factors(num: usize, upper: usize) -> Vec<i64> {
+        factor(num.try_into().unwrap())
             .into_iter()
-            .filter(|&x| x > 4 && x < 80)
+            .filter(|&x| x >= 4 && x <= upper.try_into().unwrap())
             .collect()
     }
 }

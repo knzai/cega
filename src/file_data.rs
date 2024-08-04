@@ -24,14 +24,21 @@ impl Raw {
         itype.widths(self.byte_count())
     }
 
+    pub fn heights(&self, itype: ImageType, width: usize) -> Vec<i64> {
+        itype.heights(self.byte_count(), width)
+    }
+
     pub fn parse(&self, parser: ParserType, width: usize) -> Image {
         Image(parser.process_input(&self.0, width))
     }
 
     pub fn previews(&self) -> Vec<Image> {
+        // if let Some(width) = width {
+        // }else {
         self.widths(ImageType::CGA)
             .iter()
             .map(|w| Image(ParserType::CGA.process_input(&self.0, *w as usize)))
             .collect()
+        // }
     }
 }
