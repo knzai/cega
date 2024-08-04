@@ -64,7 +64,7 @@ impl ImageType {
     pub fn widths(&self, byte_count: usize) -> Vec<i64> {
         factor(self.pixel_count(byte_count).try_into().unwrap())
             .into_iter()
-            .filter(|&x| x < 80)
+            .filter(|&x| x > 4 && x < 80)
             .collect()
     }
 }

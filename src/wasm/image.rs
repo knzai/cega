@@ -1,13 +1,12 @@
 use base64::{engine::general_purpose::STANDARD, Engine};
 
-use web_sys::HtmlInputElement;
+use web_sys::{HtmlElement, HtmlInputElement};
 use yew::{html, Callback, Component, Context, Event, Html, Properties, SubmitEvent, TargetCast};
 
 use crate::color::palette::palette_from_abbr;
-use crate::file_data;
 use crate::image::tile;
 use crate::parser::ParserType;
-use crate::png;
+use crate::{file_data, png};
 
 use crate::wasm::FileUpload;
 
@@ -41,6 +40,28 @@ impl ImageComponent {
             bytes
         };
         format!("data:application/png;base64,{}", STANDARD.encode(data))
+    }
+
+    pub fn previews(&self, file: &FileUpload) -> Html {
+        if file.mime_type.contains("image") {
+            "".into()
+        } else {
+            let file_data = file_data::Raw::new(&file.data);
+            file_data
+                .previews()
+                .iter()
+                .map(|p| {
+                    let palette = palette_from_abbr("cga0");
+                    let mut bytes: Vec<u8> = Vec::new();
+
+                    let _ = png::write_to(&mut bytes, tile(p.data(), self.height), palette.clone());
+                    let src = format!("data:application/png;base64,{}", STANDARD.encode(bytes));
+                    html! {
+                        <img src={ src } />
+                    }
+                })
+                .collect()
+        }
     }
 }
 
@@ -76,18 +97,21 @@ impl Component for ImageComponent {
         let file = &ctx.props().file;
 
         html! {
-            <div class="preview-tile ">
-                <form onsubmit={noop}>
-                        <label for="width">{"[Tile] Width"}</label>
-                        <input name="width" type="number" value={self.width.to_string()} onchange={ctx.link().callback(Msg::Width)} />
-                        <label for="height">{"[Tile] Height"}</label>
-                        <input name="height" type="number" value={self.height.to_string()} onchange={ctx.link().callback(Msg::Height)} />
-                </form>
-                <p class="preview-name">{ file.name.to_string() }</p>
-                <div class=".preview-media">
-                    <img src={ self.src(file) } />
+            <>
+                <div class="preview-tile ">
+                    <div class=".preview-media">
+                        <p class="preview-name">{ file.name.to_string() }</p>
+                        <img src={ self.src(file) } />
+                    </div>
+                    <form onsubmit={noop}>
+                            <label for="width">{"[Tile] Width"}</label>
+                            <input name="width" type="number" value={self.width.to_string()} onchange={ctx.link().callback(Msg::Width)} />
+                            <label for="height">{"[Tile] Height"}</label>
+                            <input name="height" type="number" value={self.height.to_string()} onchange={ctx.link().callback(Msg::Height)} />
+                    </form>
                 </div>
-            </div>
+                {self.previews(file)}
+            </>
         }
     }
 }

@@ -27,4 +27,11 @@ impl Raw {
     pub fn parse(&self, parser: ParserType, width: usize) -> Image {
         Image(parser.process_input(&self.0, width))
     }
+
+    pub fn previews(&self) -> Vec<Image> {
+        self.widths(ImageType::CGA)
+            .iter()
+            .map(|w| Image(ParserType::CGA.process_input(&self.0, *w as usize)))
+            .collect()
+    }
 }

@@ -41,9 +41,7 @@ impl Component for App {
             <div id="wrapper">
                 <h1>{ "Process your CGA/EGAs" }</h1>
                 <FileInput accept="image/png,.bin,.cga,.ega" onload={ctx.link().callback( Msg::Loaded )} children={None}/>
-                <div id="preview-area">
-                    {{ images }}
-                </div>
+                <div id="preview-area">{{ images }}</div>
             </div>
         }
     }
