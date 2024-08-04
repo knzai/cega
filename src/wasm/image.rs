@@ -11,46 +11,6 @@ use crate::png;
 
 use crate::wasm::FileUpload;
 
-pub struct ImageFile<'a> {
-    file_input: &'a FileUpload,
-
-    width: usize,
-    height: usize,
-}
-
-impl ImageFile<'_> {
-    pub fn name(&self) -> String {
-        if self.file_input.mime_type.contains("image") {
-            self.file_input.name.to_string()
-        } else {
-            format!("{}{}", self.file_input.name, ".png")
-        }
-    }
-
-    pub fn mime_type(&self) -> String {
-        if self.file_input.mime_type.contains("image") {
-            self.file_input.mime_type.to_string()
-        } else {
-            "image/png".to_string()
-        }
-    }
-
-    pub fn data(&self) -> Vec<u8> {
-        if self.file_input.mime_type.contains("image") {
-            self.file_input.data.clone()
-        } else {
-            let file_data = file_data::Raw::new(&self.file_input.data);
-            let parser = ParserType::CGA;
-            let image = file_data.parse(parser, self.width);
-            let palette = palette_from_abbr("cga0");
-            let mut bytes: Vec<u8> = Vec::new();
-
-            let _ = png::write_to(&mut bytes, tile(image.data(), self.height), palette.clone());
-            bytes
-        }
-    }
-}
-
 #[derive(Clone, PartialEq, Properties)]
 pub struct Props {
     pub file: FileUpload,
@@ -64,6 +24,24 @@ pub struct ImageComponent {
 pub enum Msg {
     Width(Event),
     Height(Event),
+}
+
+impl ImageComponent {
+    pub fn src(&self, file: &FileUpload) -> String {
+        let data = if file.mime_type.contains("image") {
+            file.data.clone()
+        } else {
+            let file_data = file_data::Raw::new(&file.data);
+            let parser = ParserType::CGA;
+            let image = file_data.parse(parser, self.width);
+            let palette = palette_from_abbr("cga0");
+            let mut bytes: Vec<u8> = Vec::new();
+
+            let _ = png::write_to(&mut bytes, tile(image.data(), self.height), palette.clone());
+            bytes
+        };
+        format!("data:application/png;base64,{}", STANDARD.encode(data))
+    }
 }
 
 impl Component for ImageComponent {
@@ -92,33 +70,22 @@ impl Component for ImageComponent {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let image = ImageFile {
-            file_input: &ctx.props().file,
-            width: self.width,
-            height: self.height,
-        };
-
-        let output = format!(
-            "data:{};base64,{}",
-            image.mime_type(),
-            STANDARD.encode(image.data())
-        );
-
         let noop = Callback::from(|e: SubmitEvent| {
             e.prevent_default();
         });
+        let file = &ctx.props().file;
 
         html! {
             <div class="preview-tile ">
                 <form onsubmit={noop}>
                         <label for="width">{"[Tile] Width"}</label>
-                        <input name="width" type="number" value={image.width.to_string()} onchange={ctx.link().callback(Msg::Width)} />
+                        <input name="width" type="number" value={self.width.to_string()} onchange={ctx.link().callback(Msg::Width)} />
                         <label for="height">{"[Tile] Height"}</label>
-                        <input name="height" type="number" value={image.height.to_string()} onchange={ctx.link().callback(Msg::Height)} />
+                        <input name="height" type="number" value={self.height.to_string()} onchange={ctx.link().callback(Msg::Height)} />
                 </form>
-                <p class="preview-name">{ &image.name() }</p>
+                <p class="preview-name">{ file.name.to_string() }</p>
                 <div class=".preview-media">
-                    <img src={output} />
+                    <img src={ self.src(file) } />
                 </div>
             </div>
         }
