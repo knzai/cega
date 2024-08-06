@@ -71,6 +71,7 @@ label {
 .preview-row .preview-tile  {
   background: #111717;
   border-radius: 1rem;
+  cursor: pointer;
 }
 
 

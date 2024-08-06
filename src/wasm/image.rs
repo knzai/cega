@@ -4,7 +4,6 @@ use web_sys::HtmlInputElement;
 use yew::{html, Callback, Component, Context, Event, Html, Properties, SubmitEvent, TargetCast};
 
 use crate::color::palette::palette_from_abbr;
-use crate::image::tile;
 use crate::parser::ParserType;
 use crate::{file_data, png};
 
@@ -20,7 +19,7 @@ pub struct ImageComponent {
 }
 
 pub enum Msg {
-    Width(Event),
+    Width(usize),
 }
 
 impl ImageComponent {
@@ -40,7 +39,7 @@ impl ImageComponent {
         format!("data:application/png;base64,{}", STANDARD.encode(data))
     }
 
-    pub fn previews(&self, file: &FileUpload) -> Html {
+    pub fn previews(&self, ctx: &Context<Self>, file: &FileUpload) -> Html {
         if file.mime_type.contains("image") {
             "".into()
         } else {
@@ -54,9 +53,12 @@ impl ImageComponent {
 
                     let _ = png::write_to(&mut bytes, p.data(), palette.clone());
                     let src = format!("data:application/png;base64,{}", STANDARD.encode(bytes));
+                    let width = p.width().clone();
                     html! {
-                        <div class="preview-tile">
-                            <h3>{p.width()}</h3>
+                        <div class="preview-tile" onclick={ctx.link().callback( move |_|{
+                            Msg::Width(width)
+                        })}>
+                            <h3>{&width.to_string()}</h3>
                             <img src={ src } />
                         </div>
                     }
@@ -71,16 +73,13 @@ impl Component for ImageComponent {
     type Properties = Props;
 
     fn create(_ctx: &Context<Self>) -> Self {
-        Self {
-            width: 320,
-        }
+        Self { width: 320 }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::Width(e) => {
-                let input: HtmlInputElement = e.target_unchecked_into();
-                self.width = input.value().parse().expect("fail to parse width");
+            Msg::Width(w) => {
+                self.width = w;
             }
         }
         true
@@ -89,6 +88,10 @@ impl Component for ImageComponent {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let noop = Callback::from(|e: SubmitEvent| {
             e.prevent_default();
+        });
+        let onchange = ctx.link().callback(|e: Event| {
+            let input: HtmlInputElement = e.target_unchecked_into();
+            Msg::Width(input.value().parse().expect("fail to parse width"))
         });
         let file = &ctx.props().file;
 
@@ -101,11 +104,11 @@ impl Component for ImageComponent {
                     </div>
                     <form onsubmit={noop}>
                             <label for="width">{"Width"}</label>
-                            <input name="width" type="number" value={self.width.to_string()} onchange={ctx.link().callback(Msg::Width)} />
+                            <input name="width" type="number" value={self.width.to_string()} {onchange} />
                     </form>
                 </div>
                 <div class="preview-row">
-                    {self.previews(file)}
+                    {self.previews(ctx, file)}
                 </div>
             </>
         }
