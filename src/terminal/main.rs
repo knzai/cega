@@ -68,7 +68,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("\n{}", image.suggestions());
     }
 
-    #[cfg(feature = "sdl2")]
+    #[cfg(feature = "gui")]
     if args.sdl {
         render_sdl(image_data, palette)?
     }
