@@ -17,12 +17,10 @@ pub struct Props {
 
 pub struct ImageComponent {
     width: usize,
-    height: usize,
 }
 
 pub enum Msg {
     Width(Event),
-    Height(Event),
 }
 
 impl ImageComponent {
@@ -36,7 +34,7 @@ impl ImageComponent {
             let palette = palette_from_abbr("cga0");
             let mut bytes: Vec<u8> = Vec::new();
 
-            let _ = png::write_to(&mut bytes, tile(image.data(), self.height), palette.clone());
+            let _ = png::write_to(&mut bytes, image.data(), palette.clone());
             bytes
         };
         format!("data:application/png;base64,{}", STANDARD.encode(data))
@@ -54,13 +52,13 @@ impl ImageComponent {
                     let palette = palette_from_abbr("cga0");
                     let mut bytes: Vec<u8> = Vec::new();
 
-                    let _ = png::write_to(&mut bytes, tile(p.data(), self.height), palette.clone());
+                    let _ = png::write_to(&mut bytes, p.data(), palette.clone());
                     let src = format!("data:application/png;base64,{}", STANDARD.encode(bytes));
                     html! {
-                        <span>
-                            {p.width()}
+                        <div class="preview-tile">
+                            <h3>{p.width()}</h3>
                             <img src={ src } />
-                        </span>
+                        </div>
                     }
                 })
                 .collect()
@@ -75,7 +73,6 @@ impl Component for ImageComponent {
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
             width: 320,
-            height: 200,
         }
     }
 
@@ -84,10 +81,6 @@ impl Component for ImageComponent {
             Msg::Width(e) => {
                 let input: HtmlInputElement = e.target_unchecked_into();
                 self.width = input.value().parse().expect("fail to parse width");
-            }
-            Msg::Height(e) => {
-                let input: HtmlInputElement = e.target_unchecked_into();
-                self.height = input.value().parse().expect("fail to parse width");
             }
         }
         true
@@ -101,19 +94,19 @@ impl Component for ImageComponent {
 
         html! {
             <>
-                <div class="preview-tile ">
+                <div class="preview-tile">
                     <div class=".preview-media">
                         <p class="preview-name">{ file.name.to_string() }</p>
                         <img src={ self.src(file) } />
                     </div>
                     <form onsubmit={noop}>
-                            <label for="width">{"[Tile] Width"}</label>
+                            <label for="width">{"Width"}</label>
                             <input name="width" type="number" value={self.width.to_string()} onchange={ctx.link().callback(Msg::Width)} />
-                            <label for="height">{"[Tile] Height"}</label>
-                            <input name="height" type="number" value={self.height.to_string()} onchange={ctx.link().callback(Msg::Height)} />
                     </form>
                 </div>
-                {self.previews(file)}
+                <div class="preview-row">
+                    {self.previews(file)}
+                </div>
             </>
         }
     }

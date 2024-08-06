@@ -60,6 +60,19 @@ label {
   background: #313737;
   border-radius: 1rem;
 }
+.preview-row {
+  display: flex;
+  flex-direction: row;
+  padding: 2rem;
+  margin: 1rem;
+  background: #313737;
+  border-radius: 1rem;
+}
+.preview-row .preview-tile  {
+  background: #111717;
+  border-radius: 1rem;
+}
+
 
 .preview-media {
   flex: 1;

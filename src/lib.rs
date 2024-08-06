@@ -72,7 +72,7 @@ impl ImageType {
     pub fn factors(num: usize, upper: usize) -> Vec<i64> {
         factor(num.try_into().unwrap())
             .into_iter()
-            .filter(|&x| x >= 4 && x <= upper.try_into().unwrap())
+            .filter(|&x| x > 4 && x <= upper.try_into().unwrap())
             .collect()
     }
 }
