@@ -21,8 +21,13 @@ name = 'cega-wasm'
 path = "src/wasm/main.rs"
 required-features = ["wasm"]
 
+[[bin]]
+name = 'cega-webc'
+path = "src/webc/main.rs"
+required-features = ["webc"]
+
 [features]
-default = ["terminal", "png"]
+default = ["terminal", "png", "webc"]
 png = ["dep:image"]
 #terminal related features
 terminal = ["dep:clap"]
@@ -30,6 +35,8 @@ terminal = ["dep:clap"]
 gui = ["dep:sdl2"]
 #Web usage, may want to build with no-default-features to skip irrelevant terminal stuff
 wasm = ["png", "dep:base64", "dep:gloo", "dep:js-sys", "dep:web-sys", "dep:yew"]
+#Web component, may want to build with no-default-features to skip irrelevant terminal stuff
+webc = ["png", "dep:base64", "dep:gloo", "dep:js-sys", "dep:web-sys"]
 
 
 [dev-dependencies]
