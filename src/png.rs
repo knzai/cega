@@ -1,7 +1,7 @@
+use image::ImageReader;
 use std::io::Cursor;
 use std::path::PathBuf;
 
-use image::io::Reader as ImageReader;
 use image::{Rgb, RgbImage};
 
 use crate::{ColorPalette, RawGrid};
