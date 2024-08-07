@@ -62,7 +62,7 @@ impl ImageType {
     }
 
     pub fn widths(&self, byte_count: usize) -> Vec<i64> {
-        Self::factors(self.pixel_count(byte_count), 80)
+        Self::factors(self.pixel_count(byte_count), 320)
     }
 
     pub fn heights(&self, byte_count: usize, width: usize) -> Vec<i64> {

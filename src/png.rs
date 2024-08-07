@@ -56,3 +56,10 @@ pub fn write_to(
 ) -> Result<(), image::ImageError> {
     convert_image(image_data, palette).write_to(&mut Cursor::new(bytes), image::ImageFormat::Png)
 }
+
+pub fn write2(image_data: RawGrid, palette: ColorPalette) -> Vec<u8> {
+    let mut bytes: Vec<u8> = Vec::new();
+    let _ = convert_image(image_data.clone(), palette)
+        .write_to(&mut Cursor::new(&mut bytes), image::ImageFormat::Png);
+    bytes
+}

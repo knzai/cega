@@ -12,18 +12,29 @@
    <script>
       const fileReader = new FileReader();
       fileReader.onloadend = function() {
-         var array = new Int8Array(fileReader.result);
-         document.getElementById('preview').src = window.wasmBindings.png(array);
+         let array = new Int8Array(fileReader.result);
+         let images = window.wasmBindings.previews(array);
+         images.forEach(makePreview);
       }
       document.addEventListener("DOMContentLoaded", () => {
          const fileInput = document.getElementById('file-input');
          fileInput.addEventListener("change", e => fileReader.readAsArrayBuffer(fileInput.files[0]));
       });
+
+      function makePreview(src) {
+         const template = document.querySelector("#preview");
+         const clone = template.content.cloneNode(true);
+         const container = document.querySelector(".preview-area");
+         let img = clone.querySelector("img");
+         img.src=src;
+         container.appendChild(img);
+      }
 </script>
 </head>
 <body>
    <h1>Process your CGA/EGAs</h1>
    <input id="file-input" multiple="false" type="file" accept=".bin,.cga,.ega,.cega" />
-   <img id="preview" src="" />
+   <div class="preview-area"></div>
+   <template id="preview"><img class="preview" src="" /></template>
 </body>
 </html>

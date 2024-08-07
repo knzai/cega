@@ -5,10 +5,14 @@
 
 html,
 body {
-  margin: 0;
+  margins 0;
   padding: 0;
   background: #2d3131;
   color: #fcfcfc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow: column;
 }
 
 p {
@@ -19,18 +23,12 @@ label {
   cursor: pointer;
 }
 
-
-#wrapper {
-  width: 70%;
-  margin: auto;
-}
-
 #h1 {
   font-size: 2rem;
   text-align: center;
 }
 
-.drop-container {
+/*.drop-container {
   padding: 4rem;
   display: flex;
   flex-direction: column;
@@ -44,23 +42,24 @@ label {
 .drop-container i {
   font-size: 4rem;
 }
-
+*/
 .preview-area {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: stretch;
+  flex-flow: row wrap;
+  align-items: flex-start;
 }
-
-.preview-tile {
+.preview-area img{
+  margin: 1rem;
+}
+/*.preview-tile {
   display: flex;
   flex-direction: column;
   padding: 2rem;
   margin: 1rem;
   background: #313737;
   border-radius: 1rem;
-}
-.preview-row {
+}*/
+/*.preview-row {
   display: flex;
   flex-direction: row;
   padding: 2rem;
@@ -80,4 +79,4 @@ label {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
+}*/
