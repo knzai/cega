@@ -36,7 +36,7 @@ gui = ["dep:sdl2"]
 #Web usage, may want to build with no-default-features to skip irrelevant terminal stuff
 wasm = ["png", "dep:base64", "dep:gloo", "dep:js-sys", "dep:web-sys", "dep:yew"]
 #Web component, may want to build with no-default-features to skip irrelevant terminal stuff
-webc = ["png", "dep:base64", "dep:gloo", "dep:js-sys", "dep:web-sys"]
+webc = ["png", "dep:base64", "dep:gloo", "dep:js-sys", "dep:wasm-bindgen", "dep:web-sys"]
 
 
 [dev-dependencies]
@@ -57,5 +57,6 @@ sdl2 = { optional = true, version = "0.37.0", features = ["gfx"], default-featur
 base64  = { optional = true, version = "0.21.5"}
 gloo    = { optional = true, version = "0.10" }
 js-sys  = { optional = true, version = "0.3"}
+wasm-bindgen  = { optional = true, version = "0.2" }
 web-sys = { optional = true, version = "0.3", features = ["File", "DragEvent", "DataTransfer"] }
 yew     = { optional = true, git = "https://github.com/yewstack/yew/", features = ["csr"] }
