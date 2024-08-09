@@ -23,18 +23,26 @@
 
       function makePreview(src) {
          const template = document.querySelector("#preview");
-         const clone = template.content.cloneNode(true);
-         const container = document.querySelector(".preview-area");
+         const clone = document.importNode(template.content, true);
+         const container = document.getElementById("preview-area");
+
+         let slot = clone.querySelector('slot');
          let img = clone.querySelector("img");
+         img.onload = function () {
+            slot.replaceWith(img.width);
+         }
+
          img.src=src;
-         container.appendChild(img);
+         container.appendChild(clone);
       }
-</script>
+   </script>
 </head>
 <body>
    <h1>Process your CGA/EGAs</h1>
    <input id="file-input" multiple="false" type="file" accept=".bin,.cga,.ega,.cega" />
-   <div class="preview-area"></div>
-   <template id="preview"><img class="preview" src="" /></template>
+   <div id="preview-area"></div>
+   <template id="preview">
+      <h2 class="preview-item"><slot name="preview-title">Hi</slot><img class="preview" src="" /></h2>
+   </template>
 </body>
 </html>
