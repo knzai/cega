@@ -35,7 +35,8 @@ impl Raw {
     pub fn previews(&self) -> Vec<Image> {
         // if let Some(width) = width {
         // }else {
-        let mut images:Vec<Image> = self.widths(ImageType::CGA)
+        let mut images: Vec<Image> = self
+            .widths(ImageType::CGA)
             .iter()
             .map(|w| self.parse(ParserType::CGA, *w as usize))
             .collect();

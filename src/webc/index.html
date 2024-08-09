@@ -21,19 +21,34 @@
          fileInput.addEventListener("change", e => fileReader.readAsArrayBuffer(fileInput.files[0]));
       });
 
-      function makePreview(src) {
-         const template = document.querySelector("#preview");
-         const clone = document.importNode(template.content, true);
-         const container = document.getElementById("preview-area");
-
-         let slot = clone.querySelector('slot');
-         let img = clone.querySelector("img");
-         img.onload = function () {
-            slot.replaceWith(img.width);
+      class PreviewItem extends HTMLElement {
+         constructor() {
+            super();
+            const content = document.querySelector("#preview-item").content;
+            const clone = document.importNode(content, true);
+            const shadow = this.attachShadow({mode: "open"});
+            const h3 = clone.querySelector('h3');
+            
+            this.img = clone.querySelector("img");
+            this.img.onload = function () {
+               h3.innerText = this.width;
+            }
+            shadow.appendChild(clone);
          }
+         set image_src(src) {
+            this.img.src = src;
+         }
+         get image_src() {
+            this.img.src;
+         }
+      }
+      customElements.define("preview-item", PreviewItem);
 
-         img.src=src;
-         container.appendChild(clone);
+      function makePreview(src) {
+         const container = document.getElementById("preview-area");
+         let preview = new PreviewItem()
+         preview.image_src = src
+         container.appendChild(preview);
       }
    </script>
 </head>
@@ -41,8 +56,8 @@
    <h1>Process your CGA/EGAs</h1>
    <input id="file-input" multiple="false" type="file" accept=".bin,.cga,.ega,.cega" />
    <div id="preview-area"></div>
-   <template id="preview">
-      <h2 class="preview-item"><slot name="preview-title">Hi</slot><img class="preview" src="" /></h2>
+   <template id="preview-item">
+      <h3></h3><img/>
    </template>
 </body>
 </html>
