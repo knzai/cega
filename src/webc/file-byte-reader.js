@@ -1,5 +1,6 @@
 class FileByteReader extends HTMLInputElement {
   connectedCallback() {
+    this.type = "file";
     this.addEventListener('change', this.onChange);
   }
 
