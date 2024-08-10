@@ -24,21 +24,20 @@
       class PreviewItem extends HTMLElement {
          constructor() {
             super();
-            const content = document.querySelector("#preview-item").content;
-            const clone = document.importNode(content, true);
             const shadow = this.attachShadow({mode: "open"});
-            const h3 = clone.querySelector('h3');
-            
-            this.img = clone.querySelector("img");
+            const fragment = document.createRange().createContextualFragment('<h3></h3><img/>');
+            const h3 = fragment.querySelector('h3');
+            this.img = fragment.querySelector("img");
+
             this.img.onload = function () {
                h3.innerText = this.width;
             }
-            shadow.appendChild(clone);
+            shadow.appendChild(fragment);
          }
-         set image_src(src) {
+         set src(src) {
             this.img.src = src;
          }
-         get image_src() {
+         get src() {
             this.img.src;
          }
       }
@@ -47,7 +46,7 @@
       function makePreview(src) {
          const container = document.getElementById("preview-area");
          let preview = new PreviewItem()
-         preview.image_src = src
+         preview.src = src
          container.appendChild(preview);
       }
    </script>
@@ -56,8 +55,5 @@
    <h1>Process your CGA/EGAs</h1>
    <input id="file-input" multiple="false" type="file" accept=".bin,.cga,.ega,.cega" />
    <div id="preview-area"></div>
-   <template id="preview-item">
-      <h3></h3><img/>
-   </template>
 </body>
 </html>
