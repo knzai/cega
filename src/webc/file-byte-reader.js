@@ -4,7 +4,6 @@ class FileByteReader extends HTMLInputElement {
   }
 
   emit (type, detail = {}) {
-    console.log(type, detail)
     let event = new CustomEvent(`file-byte-reader:${type}`, {
       bubbles: false,
       cancelable: false,
