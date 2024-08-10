@@ -9,9 +9,9 @@
    data-cargo-no-default-features 
    data-cargo-features="webc"
    />
+   <script data-trunk src="./file-byte-reader.js"></script>
    <script>
-      const $ = document.querySelector.bind(document);
-      const $$ = document.querySelectorAll.bind(document);
+      let $ = (query) => document.querySelector(query);
 
       function fileLoaded(array) {
          const container = document.createElement("preview-area");
@@ -19,39 +19,14 @@
          images.forEach(function(src) {
             container.appendChild(new PreviewItem(src));
          });
-         $('preview-wrapper').appendChild(container)
+         $('preview-wrapper').appendChild(container);
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-         $('#file-input').addEventListener("file-reader-input:loaded", 
+         $('#file-input').addEventListener("file-byte-reader:loaded", 
             e => fileLoaded(e.detail)
          );
       });
-
-      class FileReaderInput extends HTMLInputElement {
-         constructor() {
-            super();
-         }
-         connectedCallback() {
-            this.addEventListener('change', this.onChange);
-         }
-
-         emit (type, detail = {}) {
-            let event = new CustomEvent(`file-reader-input:${type}`, {
-               bubbles: false,
-               cancelable: false,
-               detail: detail
-            });
-            return this.dispatchEvent(event);
-         }
-
-         onChange() {
-            const fileReader = new FileReader();
-            fileReader.addEventListener('loadend', e => this.emit('loaded', new Int8Array(fileReader.result)));
-            fileReader.readAsArrayBuffer(this.files[0]);
-         }
-      }
-      customElements.define("file-reader-input", FileReaderInput, { extends: 'input'});
 
       class PreviewItem extends HTMLElement {
          constructor(src) {
@@ -73,7 +48,7 @@
 </head>
 <body>
    <h1>Process your CGA/EGAs</h1>
-   <input is="file-reader-input" id="file-input" multiple="false" type="file" accept=".bin,.cga,.ega,.cega" />
+   <input is="file-byte-reader" id="file-input" multiple="false" type="file" accept=".bin,.cga,.ega,.cega" />
    <preview-wrapper></preview-wrapper>
 </body>
 </html>
