@@ -1,7 +1,4 @@
 class FileByteReader extends HTMLInputElement {
-  constructor() {
-    super();
-  }
   connectedCallback() {
     this.addEventListener('change', this.onChange);
   }
@@ -16,6 +13,7 @@ class FileByteReader extends HTMLInputElement {
   }
 
   onChange() {
+    if (this.files.length == 0) { return }
     const fileReader = new FileReader();
     fileReader.addEventListener('loadend', e => this.emit('loaded', new Int8Array(fileReader.result)));
     fileReader.readAsArrayBuffer(this.files[0]);
