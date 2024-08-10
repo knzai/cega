@@ -18,9 +18,11 @@ class FileByteReader extends HTMLInputElement {
 
   onChange() {
     if (this.files.length == 0) { return }
-    const fileReader = new FileReader();
-    fileReader.addEventListener('loadend', e => this.onFileLoad(e));
-    fileReader.readAsArrayBuffer(this.files[0]);
+    Array.from(this.files).forEach(file => {
+      const fileReader = new FileReader();
+      fileReader.addEventListener('loadend', e => this.onFileLoad(e));
+      fileReader.readAsArrayBuffer(file);
+    });
   }
 }
 customElements.define("file-byte-reader", FileByteReader, { extends: 'input'});
