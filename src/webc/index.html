@@ -14,12 +14,12 @@
       let $ = (query) => document.querySelector(query);
 
       function fileLoaded(array) {
-         const container = document.createElement("preview-area");
-         let images = window.wasmBindings.previews(array);
-         images.forEach(function(src) {
-            container.appendChild(new PreviewItem(src));
-         });
-         $('preview-wrapper').appendChild(container);
+         let hash = new Map(Object.entries(window.wasmBindings.previews(array)));
+         hash.forEach((images, key) => {
+            const container = document.createElement("preview-area");
+            images.forEach(src => container.appendChild(new PreviewItem(src)));
+            $('preview-wrapper').appendChild(container);
+         })
       }
 
       document.addEventListener("DOMContentLoaded", () => {

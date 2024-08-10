@@ -1,7 +1,10 @@
 #![cfg(feature = "webc")]
 
+use std::collections::HashMap;
+
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
+use gloo_utils::format::JsValueSerdeExt;
 use wasm_bindgen::prelude::*;
 
 use cega::color::palette::palette_from_abbr;
@@ -20,10 +23,11 @@ pub fn png(data: &[u8]) -> String {
 }
 
 #[wasm_bindgen]
-pub fn previews(data: &[u8]) -> Vec<String> {
+pub fn previews(data: &[u8]) -> JsValue {
     let file_data = Raw::new(data);
     let palette = palette_from_abbr("cga0");
-    file_data
+    let mut hm = HashMap::new();
+    let images: Vec<String> = file_data
         .previews()
         .iter()
         .map(|p| {
@@ -31,8 +35,9 @@ pub fn previews(data: &[u8]) -> Vec<String> {
                 "data:application/png;base64,{}",
                 STANDARD.encode(png::write2(p.data(), palette.clone()))
             )
-        })
-        .collect()
+        }).collect();
+    hm.insert("CGA".to_string(), images);
+    JsValue::from_serde(&hm).unwrap()
 }
 
 fn main() {}
