@@ -10,17 +10,20 @@
    data-cargo-features="webc"
    />
    <script>
+      const $ = document.querySelector.bind(document);
+      const $$ = document.querySelectorAll.bind(document);
+
       function fileLoaded(array) {
          const container = document.createElement("preview-area");
          let images = window.wasmBindings.previews(array);
          images.forEach(function(src) {
             container.appendChild(new PreviewItem(src));
          });
-         document.querySelector('preview-wrapper').appendChild(container)
+         $('preview-wrapper').appendChild(container)
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-         document.getElementById('file-input').addEventListener("file-reader-input:loaded", 
+         $('#file-input').addEventListener("file-reader-input:loaded", 
             e => fileLoaded(e.detail)
          );
       });
