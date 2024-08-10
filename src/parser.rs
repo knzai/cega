@@ -125,6 +125,10 @@ impl ProcessBinary for EGARowPlanar {
 impl EGARowPlanar {
     fn words_to_bytes_row(&self, buffer: &[u8]) -> Vec<u8> {
         let width = buffer.len() * 2;
+        if width < 8 {
+            //TODO don't know if the spec supports this due to row planar. Maybe smarter handling of row chunking
+            panic!("This parser cannot handle width less than 8")
+        }
         let mut nv: Vec<u8> = vec![0; width];
 
         for color_row in buffer.chunks(width / 8) {

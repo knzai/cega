@@ -32,12 +32,12 @@ impl Raw {
         Image(parser.process_input(&self.0, width))
     }
 
-    pub fn previews(&self) -> Vec<Image> {
+    pub fn previews(&self, parser: ParserType) -> Vec<Image> {
         // if let Some(width) = width {
         // }else {
-        self.widths(ImageType::CGA)
+        self.widths(parser.image_type())
             .iter()
-            .map(|w| Image(ParserType::CGA.process_input(&self.0, *w as usize)))
+            .map(|w| Image(parser.process_input(&self.0, *w as usize)))
             .collect()
         // }
     }

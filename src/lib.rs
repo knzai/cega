@@ -2,6 +2,8 @@
 
 use factor::factor::factor;
 
+use crate::color::palette::palette_from_abbr;
+
 pub mod color;
 pub mod file_data;
 pub mod image;
@@ -34,6 +36,13 @@ pub enum ImageType {
 }
 
 impl ImageType {
+    pub fn default_color_palette(&self) -> ColorPalette {
+        match self {
+            Self::CGA => palette_from_abbr("cga0"),
+            Self::EGA => palette_from_abbr("ega"),
+        }
+    }
+
     pub fn palette_length(&self) -> usize {
         match self {
             Self::CGA => 4,
@@ -62,17 +71,19 @@ impl ImageType {
     }
 
     pub fn widths(&self, byte_count: usize) -> Vec<i64> {
-        Self::factors(self.pixel_count(byte_count), 80)
+        let widths = Self::factors(self.pixel_count(byte_count), 8, 80);
+        println!("{:?}", widths);
+        widths
     }
 
     pub fn heights(&self, byte_count: usize, width: usize) -> Vec<i64> {
-        Self::factors(self.pixel_count(byte_count) / width, 50)
+        Self::factors(self.pixel_count(byte_count) / width, 4, 50)
     }
 
-    pub fn factors(num: usize, upper: usize) -> Vec<i64> {
+    pub fn factors(num: usize, lower: usize, upper: usize) -> Vec<i64> {
         factor(num.try_into().unwrap())
             .into_iter()
-            .filter(|&x| x > 4 && x <= upper.try_into().unwrap())
+            .filter(|&x| x >= lower.try_into().unwrap() && x <= upper.try_into().unwrap())
             .collect()
     }
 }

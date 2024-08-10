@@ -25,19 +25,26 @@ pub fn png(data: &[u8]) -> String {
 #[wasm_bindgen]
 pub fn previews(data: &[u8]) -> JsValue {
     let file_data = Raw::new(data);
-    let palette = palette_from_abbr("cga0");
     let mut hm = HashMap::new();
-    let images: Vec<String> = file_data
-        .previews()
+    //hm.insert("CGA".to_string(), preview(&file_data, ParserType::CGA));
+    hm.insert(
+        "EGARowPlanar".to_string(),
+        preview(&file_data, ParserType::EGARowPlanar),
+    );
+    JsValue::from_serde(&hm).unwrap()
+}
+
+pub fn preview(data: &Raw, parser: ParserType) -> Vec<String> {
+    let palette = parser.image_type().default_color_palette();
+    data.previews(parser)
         .iter()
         .map(|p| {
             format!(
                 "data:application/png;base64,{}",
                 STANDARD.encode(png::write2(p.data(), palette.clone()))
             )
-        }).collect();
-    hm.insert("CGA".to_string(), images);
-    JsValue::from_serde(&hm).unwrap()
+        })
+        .collect()
 }
 
 fn main() {}
