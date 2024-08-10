@@ -43,10 +43,12 @@ label {
   font-size: 4rem;
 }
 */
-#preview-area {
+preview-area {
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
+  height: 300px;
+  overflow-y: scroll;
 }
 preview-item {
   margin: 1rem;

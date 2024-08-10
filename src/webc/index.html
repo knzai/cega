@@ -10,19 +10,48 @@
    data-cargo-features="webc"
    />
    <script>
-      const fileReader = new FileReader();
-      fileReader.onloadend = function() {
-         let array = new Int8Array(fileReader.result);
+      function fileLoaded(array) {
+         const container = document.createElement("preview-area");
          let images = window.wasmBindings.previews(array);
-         images.forEach(makePreview);
+         images.forEach(function(src) {
+            container.appendChild(new PreviewItem(src));
+         });
+         document.querySelector('preview-wrapper').appendChild(container)
       }
+
       document.addEventListener("DOMContentLoaded", () => {
-         const fileInput = document.getElementById('file-input');
-         fileInput.addEventListener("change", e => fileReader.readAsArrayBuffer(fileInput.files[0]));
+         document.getElementById('file-input').addEventListener("file-reader-input:loaded", 
+            e => fileLoaded(e.detail)
+         );
       });
 
-      class PreviewItem extends HTMLElement {
+      class FileReaderInput extends HTMLInputElement {
          constructor() {
+            super();
+         }
+         connectedCallback() {
+            this.addEventListener('change', this.onChange);
+         }
+
+         emit (type, detail = {}) {
+            let event = new CustomEvent(`file-reader-input:${type}`, {
+               bubbles: false,
+               cancelable: false,
+               detail: detail
+            });
+            return this.dispatchEvent(event);
+         }
+
+         onChange() {
+            const fileReader = new FileReader();
+            fileReader.addEventListener('loadend', e => this.emit('loaded', new Int8Array(fileReader.result)));
+            fileReader.readAsArrayBuffer(this.files[0]);
+         }
+      }
+      customElements.define("file-reader-input", FileReaderInput, { extends: 'input'});
+
+      class PreviewItem extends HTMLElement {
+         constructor(src) {
             super();
             const shadow = this.attachShadow({mode: "open"});
             const fragment = document.createRange().createContextualFragment('<h3></h3><img/>');
@@ -32,28 +61,16 @@
             this.img.onload = function () {
                h3.innerText = this.width;
             }
+            this.img.src = src
             shadow.appendChild(fragment);
-         }
-         set src(src) {
-            this.img.src = src;
-         }
-         get src() {
-            this.img.src;
          }
       }
       customElements.define("preview-item", PreviewItem);
-
-      function makePreview(src) {
-         const container = document.getElementById("preview-area");
-         let preview = new PreviewItem()
-         preview.src = src
-         container.appendChild(preview);
-      }
    </script>
 </head>
 <body>
    <h1>Process your CGA/EGAs</h1>
-   <input id="file-input" multiple="false" type="file" accept=".bin,.cga,.ega,.cega" />
-   <div id="preview-area"></div>
+   <input is="file-reader-input" id="file-input" multiple="false" type="file" accept=".bin,.cga,.ega,.cega" />
+   <preview-wrapper></preview-wrapper>
 </body>
 </html>
