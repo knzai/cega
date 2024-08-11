@@ -20,7 +20,7 @@
          let parser_images = window.wasmBindings.previews(array);
          for (const [key, images] of Object.entries(parser_images)) {
             const container = D.createElement("preview-area");
-            container.innerHTML = `<h3>${key}</h3>`
+            container.innerHTML = `<h2>${key}</h2>`
             images.forEach(src => container.appendChild(new PreviewItem(src)));
             wrapper.appendChild(container);
          }
@@ -54,7 +54,11 @@
             shadow.appendChild(fragment);
          }
          onClick() {
-            $('#width').value = this.img.width;
+            let width = this.img.width;
+            let parser = $('h2', this.parentElement).innerText;
+            $('#width').value = width;
+            $('#parser').value = parser
+            //alert(window.wasmBindings.tile_previews(parser, width));
          }
       }
       customElements.define("preview-item", PreviewItem);

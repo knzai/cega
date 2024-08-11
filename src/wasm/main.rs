@@ -34,6 +34,11 @@ pub fn previews(data: &[u8]) -> JsValue {
     JsValue::from_serde(&hm).unwrap()
 }
 
+// #[wasm_bindgen]
+// pub fn tile_previews(data: &[u8], parser: String, width: usize) -> String {
+//     format!("{} {}", parser, width)
+// }
+
 pub fn preview(data: &Raw, parser: ParserType) -> Vec<String> {
     let palette = parser.image_type().default_color_palette();
     data.width_previews(parser)
