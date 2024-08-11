@@ -57,6 +57,13 @@ impl Image {
             "".to_string()
         }
     }
+
+    pub fn sprites(&self, height: usize) -> Vec<Image> {
+        self.data()
+            .chunks(height)
+            .map(|chunk| Image(chunk.to_vec()))
+            .collect()
+    }
 }
 
 pub fn tile<T: std::clone::Clone>(data: Vec<Vec<T>>, tile_height: usize) -> Vec<Vec<T>> {

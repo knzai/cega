@@ -36,7 +36,7 @@ pub fn previews(data: &[u8]) -> JsValue {
 
 pub fn preview(data: &Raw, parser: ParserType) -> Vec<String> {
     let palette = parser.image_type().default_color_palette();
-    data.previews(parser)
+    data.width_previews(parser)
         .iter()
         .map(|p| {
             format!(

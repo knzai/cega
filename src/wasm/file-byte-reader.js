@@ -14,7 +14,8 @@ class FileByteReader extends HTMLInputElement {
   }
 
   onFileLoad(event) {
-    this.emit('loaded', new Int8Array(event.target.result));
+    this.data = new Int8Array(event.target.result);
+    this.emit('loaded', this.data);
   }
 
   onChange() {

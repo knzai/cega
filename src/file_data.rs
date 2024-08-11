@@ -32,13 +32,13 @@ impl Raw {
         Image(parser.process_input(&self.0, width))
     }
 
-    pub fn previews(&self, parser: ParserType) -> Vec<Image> {
-        // if let Some(width) = width {
-        // }else {
-        self.widths(parser.image_type())
+    pub fn width_previews(&self, parser: ParserType) -> Vec<Image> {
+        let mut previews = self
+            .widths(parser.image_type())
             .iter()
-            .map(|w| Image(parser.process_input(&self.0, *w as usize)))
-            .collect()
-        // }
+            .map(|w| self.parse(parser, *w as usize))
+            .collect::<Vec<Image>>();
+        previews.push(self.parse(parser, 320));
+        previews
     }
 }

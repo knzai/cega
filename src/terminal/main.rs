@@ -22,9 +22,6 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file_data = file_data::Raw::new(&std::fs::read(Path::new(&args.image))?);
     let parser = ParserType::type_str(&args.image_parser);
     let image = file_data.parse(parser, args.width);
-
-    let _ = file_data.previews(ParserType::EGARowPlanar);
-
     let image_data = if args.tile_height.is_some() {
         image::tile(image.data(), args.tile_height.unwrap())
     } else {

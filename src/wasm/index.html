@@ -3,28 +3,38 @@
 <head>
    <link data-trunk rel="css" href="./styles.css" />
    <link 
-   data-trunk 
-   rel="rust" href="../../Cargo.toml"
-   data-bin="cega-wasm" 
-   data-cargo-no-default-features 
-   data-cargo-features="wasm"
+      data-trunk 
+      rel="rust" href="../../Cargo.toml"
+      data-bin="cega-wasm" 
+      data-cargo-no-default-features 
+      data-cargo-features="wasm"
    />
    <script data-trunk src="./file-byte-reader.js"></script>
    <script>
-      let $ = (query) => document.querySelector(query);
+      const D = document;
+      const $ = (q, e = D) => e.querySelector(q);
 
       function fileLoaded(array) {
-         let hash = new Map(Object.entries(window.wasmBindings.previews(array)));
-         hash.forEach((images, key) => {
-            const container = document.createElement("preview-area");
+         let wrapper = $('preview-wrapper');
+         wrapper.textContent = "";
+         let parser_images = window.wasmBindings.previews(array);
+         for (const [key, images] of Object.entries(parser_images)) {
+            const container = D.createElement("preview-area");
+            container.innerHTML = `<h3>${key}</h3>`
             images.forEach(src => container.appendChild(new PreviewItem(src)));
-            $('preview-wrapper').appendChild(container);
-         })
+            wrapper.appendChild(container);
+         }
       }
 
-      document.addEventListener("DOMContentLoaded", () => {
+      D.addEventListener("DOMContentLoaded", () => {
          $('#file-input').addEventListener("file-byte-reader:loaded", 
-            e => fileLoaded(e.detail)
+            e => {
+               if (file = e.target.files[0]) {
+                  $('form').style.display = "block";
+                  $('#file-name').value = file.name;
+                  fileLoaded(e.detail)
+               }
+            }
          );
       });
 
@@ -32,15 +42,19 @@
          constructor(src) {
             super();
             const shadow = this.attachShadow({mode: "open"});
-            const fragment = document.createRange().createContextualFragment('<h3></h3><img/>');
-            const h3 = fragment.querySelector('h3');
-            this.img = fragment.querySelector("img");
+            const fragment = D.createRange().createContextualFragment('<h3></h3><img/>');
+            const h3 = $('h3', fragment);
+            this.img = $('img', fragment);
 
             this.img.onload = function () {
                h3.innerText = this.width;
             }
-            this.img.src = src
+            this.img.src = src;
+            this.addEventListener('click', this.onClick);
             shadow.appendChild(fragment);
+         }
+         onClick() {
+            $('#width').value = this.img.width;
          }
       }
       customElements.define("preview-item", PreviewItem);
@@ -48,7 +62,17 @@
 </head>
 <body>
    <h1>Process your CGA/EGAs</h1>
-   <input is="file-byte-reader" id="file-input" multiple="true" accept=".bin,.cga,.ega,.cega" />
+   <input is="file-byte-reader" id="file-input" multiple="false" accept=".bin,.cga,.ega,.cega" />
+   <form style="display:none;">
+      <label for="file-name">File name: </label><input name="file-name" id="file-name" />
+      <label for="parser">Parser: </label>
+      <select name="parser" id="parser">
+         <option disabled selected value></option>
+         <option value="CGA">CGA</option>
+         <option value="EGARowPlanar">EGARowPlanar</option>
+      </select>
+      <label for="width">Width: </label><input name="width" id="width" />
+   </form>
    <preview-wrapper></preview-wrapper>
 </body>
 </html>
