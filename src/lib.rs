@@ -72,8 +72,10 @@ impl ImageType {
 
     pub fn widths(&self, byte_count: usize) -> Vec<i64> {
         let widths = Self::factors(self.pixel_count(byte_count), 8, 80);
-        println!("{:?}", widths);
-        widths
+        match self {
+            Self::CGA => widths,
+            Self::EGA => widths.into_iter().filter(|&x| x % 8 == 0).collect(),
+        }
     }
 
     pub fn heights(&self, byte_count: usize, width: usize) -> Vec<i64> {

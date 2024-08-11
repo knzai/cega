@@ -26,7 +26,7 @@ pub fn png(data: &[u8]) -> String {
 pub fn previews(data: &[u8]) -> JsValue {
     let file_data = Raw::new(data);
     let mut hm = HashMap::new();
-    //hm.insert("CGA".to_string(), preview(&file_data, ParserType::CGA));
+    hm.insert("CGA".to_string(), preview(&file_data, ParserType::CGA));
     hm.insert(
         "EGARowPlanar".to_string(),
         preview(&file_data, ParserType::EGARowPlanar),

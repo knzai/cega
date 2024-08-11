@@ -111,9 +111,9 @@ impl ProcessBinary for EGARowPlanar {
     }
 
     fn process_input(&self, buffer: &[u8], width: usize) -> RawGrid {
-        if width < 8 {
+        if width % 8 != 0 {
             //TODO don't know if the spec supports this due to row planar. Maybe smarter handling of row chunking
-            panic!("This parser cannot handle width less than 8")
+            panic!("This parser can only handle widths in multiples of 8")
         }
         buffer
             .chunks(width / self.pixels_per_byte())
