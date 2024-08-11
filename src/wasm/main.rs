@@ -1,52 +1,50 @@
 #![cfg(feature = "wasm")]
-use std::collections::VecDeque;
 
-use yew::prelude::*;
-use yew::virtual_dom::VNode;
+use std::collections::HashMap;
 
-use cega::wasm::image::*;
-use cega::wasm::{FileInput, FileUpload};
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine;
+use gloo_utils::format::JsValueSerdeExt;
+use wasm_bindgen::prelude::*;
 
-pub enum Msg {
-    Loaded(FileUpload),
+use cega::color::palette::palette_from_abbr;
+use cega::file_data::Raw;
+use cega::parser::ParserType;
+use cega::png;
+
+#[wasm_bindgen]
+pub fn png(data: &[u8]) -> String {
+    let file_data = Raw::new(data);
+    let parser = ParserType::CGA;
+    let image = file_data.parse(parser, 320);
+    let palette = palette_from_abbr("cga0");
+    let result = png::write2(image.data(), palette.clone());
+    format!("data:application/png;base64,{}", STANDARD.encode(result))
 }
 
-pub struct App {
-    images: VecDeque<VNode>,
+#[wasm_bindgen]
+pub fn previews(data: &[u8]) -> JsValue {
+    let file_data = Raw::new(data);
+    let mut hm = HashMap::new();
+    hm.insert("CGA".to_string(), preview(&file_data, ParserType::CGA));
+    hm.insert(
+        "EGARowPlanar".to_string(),
+        preview(&file_data, ParserType::EGARowPlanar),
+    );
+    JsValue::from_serde(&hm).unwrap()
 }
 
-impl Component for App {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_ctx: &Context<Self>) -> Self {
-        Self {
-            images: VecDeque::default(),
-        }
-    }
-
-    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
-        match msg {
-            Msg::Loaded(file) => {
-                self.images
-                    .push_front(html! { <ImageComponent file={file} /> });
-            }
-        }
-        true
-    }
-
-    fn view(&self, ctx: &Context<Self>) -> Html {
-        let images: Vec<VNode> = self.images.clone().into();
-        html! {
-            <div id="wrapper">
-                <h1>{ "Process your CGA/EGAs" }</h1>
-                <FileInput accept=".bin,.cga,.ega,.cega" onload={ctx.link().callback( Msg::Loaded )} children={None}/>
-                <div id="preview-area">{{ images }}</div>
-            </div>
-        }
-    }
+pub fn preview(data: &Raw, parser: ParserType) -> Vec<String> {
+    let palette = parser.image_type().default_color_palette();
+    data.previews(parser)
+        .iter()
+        .map(|p| {
+            format!(
+                "data:application/png;base64,{}",
+                STANDARD.encode(png::write2(p.data(), palette.clone()))
+            )
+        })
+        .collect()
 }
 
-fn main() {
-    yew::Renderer::<App>::new().render();
-}
+fn main() {}

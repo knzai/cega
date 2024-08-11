@@ -1,17 +1,54 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <link data-trunk rel="css" href="./styles.css" />
-        <link rel="stylesheet"
-            href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
-        />
-        <link 
-            data-trunk 
-            rel="rust" href="../../Cargo.toml"
-            data-bin="cega-wasm" 
-            data-cargo-no-default-features 
-            data-cargo-features="wasm"
-        />
-    </head>
-    <body></body>
+<head>
+   <link data-trunk rel="css" href="./styles.css" />
+   <link 
+   data-trunk 
+   rel="rust" href="../../Cargo.toml"
+   data-bin="cega-wasm" 
+   data-cargo-no-default-features 
+   data-cargo-features="wasm"
+   />
+   <script data-trunk src="./file-byte-reader.js"></script>
+   <script>
+      let $ = (query) => document.querySelector(query);
+
+      function fileLoaded(array) {
+         let hash = new Map(Object.entries(window.wasmBindings.previews(array)));
+         hash.forEach((images, key) => {
+            const container = document.createElement("preview-area");
+            images.forEach(src => container.appendChild(new PreviewItem(src)));
+            $('preview-wrapper').appendChild(container);
+         })
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+         $('#file-input').addEventListener("file-byte-reader:loaded", 
+            e => fileLoaded(e.detail)
+         );
+      });
+
+      class PreviewItem extends HTMLElement {
+         constructor(src) {
+            super();
+            const shadow = this.attachShadow({mode: "open"});
+            const fragment = document.createRange().createContextualFragment('<h3></h3><img/>');
+            const h3 = fragment.querySelector('h3');
+            this.img = fragment.querySelector("img");
+
+            this.img.onload = function () {
+               h3.innerText = this.width;
+            }
+            this.img.src = src
+            shadow.appendChild(fragment);
+         }
+      }
+      customElements.define("preview-item", PreviewItem);
+   </script>
+</head>
+<body>
+   <h1>Process your CGA/EGAs</h1>
+   <input is="file-byte-reader" id="file-input" multiple="true" accept=".bin,.cga,.ega,.cega" />
+   <preview-wrapper></preview-wrapper>
+</body>
 </html>
