@@ -39,7 +39,7 @@
       });
 
       class PreviewItem extends HTMLElement {
-         constructor(src) {
+         constructor(src, height=false) {
             super();
             const shadow = this.attachShadow({mode: "open"});
             const fragment = D.createRange().createContextualFragment('<h3></h3><img/>');
@@ -47,7 +47,7 @@
             this.img = $('img', fragment);
 
             this.img.onload = function () {
-               h3.innerText = this.width;
+               h3.innerText = height ? this.height : this.width;
             }
             this.img.src = src;
             this.addEventListener('click', this.onClick);
@@ -58,7 +58,16 @@
             let parser = $('h2', this.parentElement).innerText;
             $('#width').value = width;
             $('#parser').value = parser
-            //alert(window.wasmBindings.tile_previews(parser, width));
+
+            let wrapper = $('preview-wrapper');
+            wrapper.textContent = "";
+            const container = D.createElement("preview-area");
+            container.className = "rows";
+            container.innerHTML = `<h2>heights</h2>`
+
+            let images = window.wasmBindings.tile_previews($('#file-input').data, parser, parseInt(width));
+            images.forEach(src => container.appendChild(new PreviewItem(src, true)));
+            wrapper.appendChild(container);
          }
       }
       customElements.define("preview-item", PreviewItem);

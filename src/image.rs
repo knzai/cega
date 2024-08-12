@@ -58,11 +58,8 @@ impl Image {
         }
     }
 
-    pub fn sprites(&self, height: usize) -> Vec<Image> {
-        self.data()
-            .chunks(height)
-            .map(|chunk| Image(chunk.to_vec()))
-            .collect()
+    pub fn as_row(&self, tile_height: usize) -> Image {
+        Image(concat_tiles(self.data(), tile_height))
     }
 }
 

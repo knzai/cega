@@ -32,6 +32,17 @@ impl Raw {
         Image(parser.process_input(&self.0, width))
     }
 
+    pub fn height_previews(&self, parser: ParserType, width: usize) -> Vec<Image> {
+        let image = self.parse(parser, width);
+        let mut previews = self
+            .heights(parser.image_type(), width)
+            .iter()
+            .map(|h| image.as_row(*h as usize))
+            .collect::<Vec<Image>>();
+        previews.push(image.as_row(200));
+        previews
+    }
+
     pub fn width_previews(&self, parser: ParserType) -> Vec<Image> {
         let mut previews = self
             .widths(parser.image_type())

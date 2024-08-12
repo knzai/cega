@@ -50,6 +50,13 @@ preview-area {
   height: 300px;
   overflow-y: scroll;
 }
+preview-area.rows {
+  flex-flow: column nowrap;
+  height: auto;
+  max-width: 300px;
+  overflow-x: scroll;
+  overflow-y: auto;
+}
 preview-item {
   margin: 1rem;
   padding: .5rem .5rem .8rem .5rem;
